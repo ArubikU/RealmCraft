@@ -1,0 +1,7 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "yaml.schemas": {
+        "https://json.schemastore.org/bukkit-plugin.json": "file:///c%3A/Users/piero/Documents/GitHub/eclipse-workspace/RealmCraft/src/main/resources/plugin.yml"
+    },
+    "java.configuration.updateBuildConfiguration": "automatic"
+}

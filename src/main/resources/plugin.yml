@@ -1,0 +1,4 @@
+#generate plugin.yml
+name: ${artifactId}
+main: ${groupId}.${artifactId}
+version: ${version}
