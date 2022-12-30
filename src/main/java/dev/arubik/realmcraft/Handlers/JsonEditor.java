@@ -1,60 +1,91 @@
 package dev.arubik.realmcraft.Handlers;
 
+import java.lang.reflect.Array;
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import lombok.Getter;
+import lombok.val;
+
 public class JsonEditor {
-    public static class JsonPath {
-        private String key;
-        private JsonPath parent;
 
-        public JsonPath(String key, JsonPath parent) {
-            this.key = key;
-            this.parent = parent;
+    @Getter
+    private JsonObject json;
+
+    public JsonEditor(JsonObject json) {
+        this.json = json;
+    }
+
+    public void insert(String[] path, Object data) {
+        JsonElement value = new Gson().toJsonTree(data);
+        JsonObject last = json;
+        final int pathLenght = path.length - 2;
+        for (int i = 0; i <= pathLenght; i++) {
+            final String pathElement = path[i].replace("<dot>", "\\.");
+            JsonElement next = last.get(pathElement);
+            if (next == null) {
+                JsonObject newObject = new JsonObject();
+                last.add(pathElement, newObject);
+                last = newObject;
+                continue;
+            }
+
+            if (!(next instanceof JsonObject)) {
+                // que debo hacer aqui chat gpt?
+            }
+
+            last = (JsonObject) next;
         }
-
-        public String getKey() {
-            return key;
+        final String key = path[pathLenght + 1].replace("<dot>", "\\.");
+        JsonElement lastElement = last.get(key);
+        if (lastElement == null) {
+            last.add(key, new Gson().toJsonTree(""));
+            lastElement = last.get(key);
         }
-
-        public void setKey(String key) {
-            this.key = key;
-        }
-
-        public JsonPath getParent() {
-            return parent;
-        }
-
-        public void setParent(JsonPath parent) {
-            this.parent = parent;
+        if (lastElement instanceof JsonArray) {
+            ((JsonArray) lastElement).add(value);
+        } else {
+            last.add(key, value);
         }
     }
 
-    public static JsonPath parsePath(String path) {
-        String[] keys = path.split("\\.");
-        JsonPath current = null;
-        for (int i = keys.length - 1; i >= 0; i--) {
-            current = new JsonPath(keys[i], current);
+    public <T> T read(String[] path, Class<T> type) {
+        JsonElement last = json;
+        for (String pathElement : path) {
+            pathElement = pathElement.replace("<dot>", "\\.");
+            if (last instanceof JsonObject) {
+                last = ((JsonObject) last).get(pathElement);
+            } else if (last instanceof JsonArray && !(type == List.class || type == Array.class)) {
+                last = ((JsonArray) last).get(Integer.parseInt(pathElement));
+            }
+            if (last == null) {
+                return null;
+            }
         }
-        return current;
+        if (type == List.class || type == Array.class) {
+            return (T) Lists.newArrayList(last.getAsJsonArray());
+        }
+        return new Gson().fromJson(last, type);
     }
 
-    public static Object followPath(JsonPath path, JsonObject json) {
-        if (path.getParent() != null) {
-            json = (JsonObject) followPath(path.getParent(), json);
+    public Boolean has(String[] path) {
+        JsonElement last = json;
+        for (String pathElement : path) {
+            pathElement = pathElement.replace("<dot>", "\\.");
+            if (last instanceof JsonObject) {
+                last = ((JsonObject) last).get(pathElement);
+            } else if (last instanceof JsonArray) {
+                last = ((JsonArray) last).get(Integer.parseInt(pathElement));
+            }
+            if (last == null) {
+                return false;
+            }
         }
-        return json.get(path.getKey());
-    }
-
-    public static JsonObject setValue(JsonPath path, Object value, JsonObject json) {
-        if (path.getParent() != null) {
-            json = (JsonObject) followPath(path.getParent(), json);
-        }
-        json.add(path.getKey(), new Gson().toJsonTree(value));
-        return json;
-    }
-
-    public static Object getValue(String path, JsonObject json) {
-        return followPath(parsePath(path), json);
+        return true;
     }
 }

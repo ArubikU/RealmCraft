@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import dev.arubik.realmcraft.realmcraft;
+
 public class InteractiveFolder {
     private static JavaPlugin plugin;
     private String path;
@@ -28,7 +30,7 @@ public class InteractiveFolder {
         }
         for (File file : folder.listFiles()) {
             if (file.isFile()) {
-                files.put(file.getName(), new InteractiveFile(path + File.pathSeparator + file.getName()));
+                files.put(file.getName(), new InteractiveFile(path + realmcraft.separator + file.getName()));
             }
         }
         return files;
@@ -42,7 +44,7 @@ public class InteractiveFolder {
         }
         for (File file : folder.listFiles()) {
             if (file.isDirectory()) {
-                folders.put(file.getName(), path + File.pathSeparator + file.getName());
+                folders.put(file.getName(), path + realmcraft.separator + file.getName());
             }
         }
         return folders;
@@ -64,10 +66,33 @@ public class InteractiveFolder {
         }
         for (File file : folder.listFiles()) {
             if (file.isDirectory()) {
-                folders.add(new InteractiveFolder(path + File.pathSeparator + file.getName()));
+                folders.add(new InteractiveFolder(path + realmcraft.separator + file.getName()));
             }
         }
         return folders;
     }
 
+    public void create() {
+        File folder = new File(plugin.getDataFolder(), path);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+    }
+
+    public Boolean has(String name) {
+        File folder = new File(plugin.getDataFolder(), path);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        for (File file : folder.listFiles()) {
+            if (file.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getName() {
+        return path;
+    }
 }

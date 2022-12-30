@@ -97,18 +97,15 @@ public final class JsonBuilder {
 
     // generate a Json Element from the StrinBuilder
     public String toString() {
-        if (builder.toString().endsWith(",")) {
-            builder.deleteCharAt(builder.length() - 1);
+        StringBuilder builderclone = new StringBuilder(builder.toString());
+        if (builderclone.toString().endsWith(",")) {
+            builderclone.deleteCharAt(builderclone.length() - 1);
         }
-        builder.append("}");
-        return builder.toString();
+        builderclone.append("}");
+        return builderclone.toString();
     }
 
     public JsonElement toJson() {
-        if (builder.toString().endsWith(",")) {
-            builder.deleteCharAt(builder.length() - 1);
-        }
-        builder.append("}");
         return new Gson().fromJson(toString(), JsonElement.class);
     }
 

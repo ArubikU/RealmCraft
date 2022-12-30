@@ -3,23 +3,34 @@ package dev.arubik.realmcraft.FileManagement;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.JsonWriter;
+
 import static com.google.gson.JsonParser.*;
 
+import dev.arubik.realmcraft.DefaultConfigs.RealLoader;
 import dev.arubik.realmcraft.Handlers.JsonBuilder;
 import dev.arubik.realmcraft.Handlers.JsonEditor;
-import dev.arubik.realmcraft.Handlers.JsonEditor.JsonPath;
+import dev.arubik.realmcraft.Handlers.RealMessage;
 import lombok.Setter;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 public class InteractiveFile {
@@ -58,18 +69,24 @@ public class InteractiveFile {
             case ".json": {
                 // read the file
                 try {
-                    FileReader fileReader = new FileReader(path);
-                    json = parseString(fileReader.toString());
+                    File file = new File(plugin.getDataFolder(), path);
+                    FileReader fileReader = new FileReader(file.getAbsolutePath());
+                    json = JsonParser.parseReader(fileReader);
                     type = FileType.JSON;
                     fileReader.close();
+                    return;
                 } catch (JsonSyntaxException | IOException e) {
-                    json = JsonBuilder.create().toJson();
+                    e.printStackTrace();
                 }
+                type = FileType.JSON;
+                json = JsonBuilder.create().toJson();
+                break;
             }
             case "yml":
             case "yaml":
             case ".yaml":
             case ".yml": {
+                type = FileType.YAML;
                 File f = new File(plugin.getDataFolder(), path);
                 if (!f.exists()) {
                     f.getParentFile().mkdirs();
@@ -79,6 +96,7 @@ public class InteractiveFile {
                 }
                 YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
                 json = s;
+                break;
             }
             default:
                 break;
@@ -105,11 +123,19 @@ public class InteractiveFile {
         return null;
     }
 
+    private <T> T get(String path, Class<T> itype) {
+        if (type == FileType.JSON) {
+            JsonEditor je = new JsonEditor((JsonObject) json);
+            return (T) je.read(path.split("\\."), itype);
+        }
+        return null;
+    }
+
     // generate all the setters and getters of info like getInteger, getBoolean,
     // getString, etc
     public Integer getInteger(String path) {
         if (type == FileType.JSON) {
-            return Integer.parseInt(get(path).toString());
+            return get(path, Integer.class);
         } else {
             return ((FileConfiguration) json).getInt(path);
         }
@@ -118,7 +144,7 @@ public class InteractiveFile {
     public Integer getInteger(String path, Integer def) {
         if (type == FileType.JSON) {
             if (get(path) != null) {
-                return Integer.parseInt(get(path).toString());
+                return get(path, Integer.class);
             }
             return def;
         } else {
@@ -146,7 +172,7 @@ public class InteractiveFile {
 
     public String getString(String path) {
         if (type == FileType.JSON) {
-            return get(path).toString();
+            return get(path, String.class);
         } else {
             return ((FileConfiguration) json).getString(path);
         }
@@ -155,7 +181,7 @@ public class InteractiveFile {
     public String getString(String path, String def) {
         if (type == FileType.JSON) {
             if (get(path) != null) {
-                return get(path).toString();
+                return get(path, String.class);
             }
             return def;
         } else {
@@ -183,7 +209,7 @@ public class InteractiveFile {
 
     public Boolean getBoolean(String path) {
         if (type == FileType.JSON) {
-            return Boolean.parseBoolean(get(path).toString());
+            return Boolean.parseBoolean(getString(path));
         } else {
             return ((FileConfiguration) json).getBoolean(path);
         }
@@ -192,7 +218,7 @@ public class InteractiveFile {
     public Boolean getBoolean(String path, Boolean def) {
         if (type == FileType.JSON) {
             if (get(path) != null) {
-                return Boolean.parseBoolean(get(path).toString());
+                return Boolean.parseBoolean(getString(path));
             }
             return def;
         } else {
@@ -220,7 +246,7 @@ public class InteractiveFile {
 
     public Double getDouble(String path) {
         if (type == FileType.JSON) {
-            return Double.parseDouble(get(path).toString());
+            return Double.parseDouble(getString(path));
         } else {
             return ((FileConfiguration) json).getDouble(path);
         }
@@ -229,7 +255,7 @@ public class InteractiveFile {
     public Double getDouble(String path, Double def) {
         if (type == FileType.JSON) {
             if (get(path) != null) {
-                return Double.parseDouble(get(path).toString());
+                return Double.parseDouble(getString(path));
             }
             return def;
         } else {
@@ -257,7 +283,7 @@ public class InteractiveFile {
 
     public Long getLong(String path) {
         if (type == FileType.JSON) {
-            return Long.parseLong(get(path).toString());
+            return Long.parseLong(getString(path));
         } else {
             return ((FileConfiguration) json).getLong(path);
         }
@@ -266,7 +292,7 @@ public class InteractiveFile {
     public Long getLong(String path, Long def) {
         if (type == FileType.JSON) {
             if (get(path) != null) {
-                return Long.parseLong(get(path).toString());
+                return Long.parseLong(getString(path));
             }
             return def;
         } else {
@@ -298,6 +324,10 @@ public class InteractiveFile {
         } else {
             return ((FileConfiguration) json).getStringList(path);
         }
+    }
+
+    public JsonElement getNative() {
+        return (JsonElement) json;
     }
 
     public List<String> getStringList(String path, List<String> def) {
@@ -381,9 +411,14 @@ public class InteractiveFile {
     }
 
     private void setInJson(String path, Object value) {
-        JsonObject obj = ((JsonElement) json).getAsJsonObject();
-        JsonPath jsonPath = JsonEditor.parsePath(path);
-        json = JsonEditor.setValue(jsonPath, value, obj);
+        // JsonObject obj = ((JsonElement) json).getAsJsonObject();
+        // JsonPath jsonPath = JsonEditor.parsePath(path);
+        // json = JsonEditor.setValue(jsonPath, value, obj);
+        String[] args = path.split("\\.");
+        // json = JsonEditor.set(args, value, ((JsonElement) json).getAsJsonObject());
+        JsonEditor jsonEditor = new JsonEditor(((JsonElement) json).getAsJsonObject());
+        jsonEditor.insert(args, value);
+        json = jsonEditor.getJson();
     }
 
     public void set(String path, Object value) {
@@ -397,12 +432,13 @@ public class InteractiveFile {
         }
     }
 
+    private static Gson gson = new Gson();
+
     public void save() {
         if (type == FileType.JSON) {
             String pathInSystem = plugin.getDataFolder() + File.separator + Path;
             try (FileWriter writer = new FileWriter(pathInSystem)) {
-                PrintWriter printerWriter = new PrintWriter(writer);
-                printerWriter.write(json.toString());
+                gson.toJson(((JsonElement) json).getAsJsonObject(), writer);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -417,6 +453,56 @@ public class InteractiveFile {
     }
 
     public String getName() {
-        return name;
+        return plugin.getDataFolder() + File.separator + Path;
+    }
+
+    public void create() {
+        if (type == FileType.JSON) {
+            String pathInSystem = plugin.getDataFolder() + File.separator + Path;
+            File f = new File(pathInSystem);
+            if (!f.exists()) {
+                try {
+                    f.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            File f = new File(plugin.getDataFolder(), Path);
+            if (!f.exists()) {
+                try {
+                    f.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public Boolean has(String path) {
+        if (type == FileType.JSON) {
+            JsonEditor jsonEditor = new JsonEditor(((JsonElement) json).getAsJsonObject());
+            return jsonEditor.has(path.split("\\."));
+        } else {
+            return ((FileConfiguration) json).contains(path);
+        }
+    }
+
+    public <T> T getOrSet(String path, T value) {
+        if (has(path)) {
+            return (T) get(path, value.getClass());
+        } else {
+            set(path, value);
+            return value;
+        }
+    }
+
+    public void loadDefaults(RealLoader defaults) {
+        for (String key : defaults.getDefaultValues().keySet()) {
+            if (!has(key)) {
+                set(key, defaults.getDefaultValues().get(key));
+            }
+        }
+        save();
     }
 }

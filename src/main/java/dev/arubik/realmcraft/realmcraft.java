@@ -3,7 +3,9 @@ package dev.arubik.realmcraft;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import dev.arubik.realmcraft.DefaultConfigs.MainConfig;
 import dev.arubik.realmcraft.FileManagement.InteractiveFile;
+import dev.arubik.realmcraft.FileManagement.InteractiveFolder;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Managers.FileReader;
 import lombok.Getter;
@@ -12,21 +14,25 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class realmcraft extends JavaPlugin {
 
-    private InteractiveFile mainConfig;
     private MiniMessage mm = MiniMessage.miniMessage();
     private LegacyComponentSerializer lcs = LegacyComponentSerializer.legacySection();
     private FileReader fileReader;
+    public static String separator = "/";
     @Getter
     private static realmcraft instance;
 
+    @Getter
+    private static InteractiveFile InteractiveConfig;
+
     @Override
     public void onEnable() {
-        InteractiveFile.setPlugin(this);
-        fileReader = new FileReader(this);
-        // Plugin startup logic
         instance = this;
-
-        RealMessage.sendConsoleMessage("&aRealmCraft has been enabled!");
+        InteractiveFile.setPlugin(this);
+        InteractiveFolder.setPlugin(this);
+        fileReader = new FileReader(this);
+        reloadConfig();
+        reload();
+        RealMessage.sendConsoleMessage("<yellow>RealmCraft has been enabled!");
     }
 
     @Override
@@ -39,7 +45,10 @@ public class realmcraft extends JavaPlugin {
     }
 
     public void reloadConfig() {
-        mainConfig = new InteractiveFile("config.yml");
+        InteractiveConfig = new InteractiveFile("config.yml");
+        InteractiveConfig.create();
+        InteractiveConfig.loadDefaults(new MainConfig());
+        separator = InteractiveConfig.getString("file.separator");
     }
 
     public static @NotNull MiniMessage getMiniMessage() {
