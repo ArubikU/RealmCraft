@@ -70,6 +70,70 @@ public class JsonEditor {
         if (type == List.class || type == Array.class) {
             return (T) Lists.newArrayList(last.getAsJsonArray());
         }
+        if (type == String.class) {
+            return (T) last.getAsString();
+        }
+        if (type == Integer.class) {
+            return (T) Integer.valueOf(last.getAsInt());
+        }
+        if (type == Boolean.class) {
+            return (T) Boolean.valueOf(last.getAsBoolean());
+        }
+        if (type == Double.class) {
+            return (T) Double.valueOf(last.getAsDouble());
+        }
+        if (type == Float.class) {
+            return (T) Float.valueOf(last.getAsFloat());
+        }
+        if (type == Long.class) {
+            return (T) Long.valueOf(last.getAsLong());
+        }
+        if (type == Short.class) {
+            return (T) Short.valueOf(last.getAsShort());
+        }
+        if (type == Byte.class) {
+            return (T) Byte.valueOf(last.getAsByte());
+        }
+        if (type == Character.class) {
+            return (T) Character.valueOf(last.getAsCharacter());
+        }
+
+        return new Gson().fromJson(last, type);
+    }
+
+    public <T> T read(String path, Class<T> type) {
+        JsonElement last = json;
+        last.getAsJsonObject().get(path);
+        if (type == List.class || type == Array.class) {
+            return (T) Lists.newArrayList(last.getAsJsonArray());
+        }
+        if (type == String.class) {
+            return (T) last.getAsString();
+        }
+        if (type == Integer.class) {
+            return (T) Integer.valueOf(last.getAsInt());
+        }
+        if (type == Boolean.class) {
+            return (T) Boolean.valueOf(last.getAsBoolean());
+        }
+        if (type == Double.class) {
+            return (T) Double.valueOf(last.getAsDouble());
+        }
+        if (type == Float.class) {
+            return (T) Float.valueOf(last.getAsFloat());
+        }
+        if (type == Long.class) {
+            return (T) Long.valueOf(last.getAsLong());
+        }
+        if (type == Short.class) {
+            return (T) Short.valueOf(last.getAsShort());
+        }
+        if (type == Byte.class) {
+            return (T) Byte.valueOf(last.getAsByte());
+        }
+        if (type == Character.class) {
+            return (T) Character.valueOf(last.getAsCharacter());
+        }
         return new Gson().fromJson(last, type);
     }
 
@@ -86,6 +150,12 @@ public class JsonEditor {
                 return false;
             }
         }
+        return true;
+    }
+
+    public Boolean has(String path) {
+        JsonElement last = json;
+        last.getAsJsonObject().get(path);
         return true;
     }
 }

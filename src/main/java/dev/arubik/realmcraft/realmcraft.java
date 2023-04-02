@@ -1,61 +1,231 @@
 package dev.arubik.realmcraft;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import dev.arubik.realmcraft.Api.EntityHider;
+import dev.arubik.realmcraft.Api.Events.LoreEvent;
+import dev.arubik.realmcraft.Api.Listeners.AttackListener;
+import dev.arubik.realmcraft.Api.Listeners.ChangeGamemode;
+import dev.arubik.realmcraft.DefaultConfigs.LangConfig;
 import dev.arubik.realmcraft.DefaultConfigs.MainConfig;
+import dev.arubik.realmcraft.EmoteHandler.EmoteMain;
 import dev.arubik.realmcraft.FileManagement.InteractiveFile;
-import dev.arubik.realmcraft.FileManagement.InteractiveFolder;
+import dev.arubik.realmcraft.Handlers.Overlay;
+import dev.arubik.realmcraft.Handlers.PlaceholderConfigParser;
 import dev.arubik.realmcraft.Handlers.RealMessage;
+import dev.arubik.realmcraft.IReplacer.IReplacer;
+import dev.arubik.realmcraft.IReplacer.IReplacerListener;
+import dev.arubik.realmcraft.IReplacer.IReplacerModifier;
+import dev.arubik.realmcraft.MMOItems.CustomLore;
+import dev.arubik.realmcraft.MMOItems.Durability.DurabilityLore;
+import dev.arubik.realmcraft.MMOItems.Durability.EnablePlaceholders;
+import dev.arubik.realmcraft.MMOItems.Durability.MMOListener;
+import dev.arubik.realmcraft.MMOItems.Durability.MinimessageFormat;
+import dev.arubik.realmcraft.MMOItems.Durability.PlaceholderEnableLore;
+import dev.arubik.realmcraft.MMOItems.Durability.RepairMaterial;
+import dev.arubik.realmcraft.MMOItems.Range.InteractAnimation;
+import dev.arubik.realmcraft.MMOItems.Range.RangeListener;
+import dev.arubik.realmcraft.Managers.Depend;
 import dev.arubik.realmcraft.Managers.FileReader;
+import dev.arubik.realmcraft.Managers.Command.CommandMapper;
+import dev.arubik.realmcraft.Managers.Command.RealmcraftCommand;
+import dev.arubik.realmcraft.MythicLib.SkillHandlerRM;
+import dev.arubik.realmcraft.MythicMobs.LootBagListener;
+import dev.arubik.realmcraft.MythicMobs.MythicListener;
+import io.lumine.mythic.lib.skill.handler.SkillHandler;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class realmcraft extends JavaPlugin {
-
-    private MiniMessage mm = MiniMessage.miniMessage();
-    private LegacyComponentSerializer lcs = LegacyComponentSerializer.legacySection();
+    public String separator = "/";
+    @Getter
     private FileReader fileReader;
-    public static String separator = "/";
+    @Getter
+    private IReplacer replacer;
+    @Getter
+    private CommandMapper commandMapper;
     @Getter
     private static realmcraft instance;
-
     @Getter
     private static InteractiveFile InteractiveConfig;
+
+    @Getter
+    private static InteractiveFile ContainerInstances;
+
+    @Getter
+    private static InteractiveFile MinecraftLang;
+    @Getter
+    private static EntityHider entityHider;
 
     @Override
     public void onEnable() {
         instance = this;
-        InteractiveFile.setPlugin(this);
-        InteractiveFolder.setPlugin(this);
+        entityHider = new EntityHider(this, EntityHider.Policy.BLACKLIST);
         fileReader = new FileReader(this);
-        reloadConfig();
+        LoreEvent.reboot();
         reload();
+        LoreEvent.registerListener();
         RealMessage.sendConsoleMessage("<yellow>RealmCraft has been enabled!");
+        if (InteractiveConfig.getBoolean("mode.api", false))
+            return;
+        if (InteractiveConfig.getBoolean("modules.command", true))
+            commandMapper = new CommandMapper("realmcraft", this);
+
+        if (InteractiveConfig.getBoolean("modules.durability", true)) {
+            MMOListener.register();
+            DurabilityLore.register();
+        }
+        if (InteractiveConfig.getBoolean("modules.placeholder-lore", true)) {
+            EnablePlaceholders.register();
+            PlaceholderEnableLore.register();
+        }
+        if (InteractiveConfig.getBoolean("modules.lang-lore", false))
+            MinimessageFormat.register();
+        if (InteractiveConfig.getBoolean("modules.repair-material-stat", true))
+            RepairMaterial.register();
+        // register listeners
+        if (InteractiveConfig.getBoolean("modules.attack-listeners", true))
+            AttackListener.register();
+        if (InteractiveConfig.getBoolean("modules.vanilla-fix", true))
+            ChangeGamemode.register();
+        if (InteractiveConfig.getBoolean("modules.mythic-mobs", true)) {
+            MythicListener.register();
+        }
+        if (InteractiveConfig.getBoolean("modules.emotes", true)) {
+            EmoteMain.Register();
+        }
+        if (InteractiveConfig.getBoolean("modules.ireplacer", true)) {
+            replacer = new IReplacer(this);
+            try {
+                IReplacerModifier.Register();
+                RealMessage.sendConsoleMessage("<yellow>Registered IReplacerModifier");
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register IReplacerModifier");
+                e.printStackTrace();
+            }
+        }
+        if (InteractiveConfig.getBoolean("modules.command-realmcraft", true)
+                && InteractiveConfig.getBoolean("modules.command", true)) {
+            try {
+                RealmcraftCommand.Initialize();
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register RealmcraftCommand");
+                e.printStackTrace();
+            }
+        }
+        if (InteractiveConfig.getBoolean("modules.ireplacer", true)) {
+            try {
+                replacer.setup();
+                IReplacerListener.register();
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register IReplacer");
+                e.printStackTrace();
+            }
+        }
+        if (InteractiveConfig.getBoolean("modules.mmocore-skills", true)) {
+            try {
+                SkillHandlerRM.register();
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register SkillHandlerRM");
+                e.printStackTrace();
+            }
+        }
+        if (InteractiveConfig.getBoolean("modules.overlay", true)) {
+            try {
+                Overlay.register();
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register Overlay");
+                e.printStackTrace();
+            }
+        }
+        if (InteractiveConfig.getBoolean("modules.lootbag", true)) {
+            try {
+                LootBagListener.register();
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register Lootbag");
+                e.printStackTrace();
+            }
+        }
+        if (InteractiveConfig.getBoolean("modules.rangelistener", true)) {
+            try {
+                RangeListener.register();
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register RangeListener");
+                e.printStackTrace();
+            }
+        }
+        if (InteractiveConfig.getBoolean("modules.interactionanimation", true)) {
+            try {
+                InteractAnimation.register();
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register InteractAnimation");
+                e.printStackTrace();
+            }
+        }
+        if (InteractiveConfig.getBoolean("modules.customlore", true)) {
+            try {
+                CustomLore.register();
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register CustomLore");
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        LoreEvent.unregisterListener();
+        entityHider.close();
+        InteractiveFile.close();
+        if (InteractiveConfig.getBoolean("mode.api", false))
+            return;
+
+        if (InteractiveConfig.getBoolean("modules.command-realmcraft", true)) {
+            RealmcraftCommand.Uninitialize();
+        }
+    }
+
+    public static enum Modules {
+        command, durability, placeholder_lore, lang_lore, repair_material_stat, lore_listeners, attack_listeners,
+        vanilla_fix, mythic_mobs, emotes, ireplacer, mmocore_skills, overlay, command_realmcraft;
     }
 
     public void reload() {
+        reloadConfig();
+        reloadReader();
+    }
+
+    public void reloadReader() {
         fileReader.load();
     }
 
     public void reloadConfig() {
-        InteractiveConfig = new InteractiveFile("config.yml");
+        InteractiveConfig = new InteractiveFile("config.yml", this);
         InteractiveConfig.create();
         InteractiveConfig.loadDefaults(new MainConfig());
+        MinecraftLang = new InteractiveFile("lang.yml", this);
+        MinecraftLang.create();
+        MinecraftLang.loadLoader(new LangConfig());
         separator = InteractiveConfig.getString("file.separator");
+
+        if (InteractiveConfig.getBoolean("modules.loot", true)) {
+            ContainerInstances = new InteractiveFile("lootinstances.yml", this);
+            ContainerInstances.create();
+        }
     }
 
-    public static @NotNull MiniMessage getMiniMessage() {
-        return MiniMessage.miniMessage();
+    public static Component getMiniMessage(String string) {
+        string = PlaceholderConfigParser.parser(string);
+        return MiniMessage.miniMessage().deserialize(string);
     }
 
-    public static @NotNull LegacyComponentSerializer getLegacyComponentSerializer() {
-        return LegacyComponentSerializer.legacySection();
-    }
 }

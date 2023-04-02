@@ -1,7 +1,5 @@
 package dev.arubik.realmcraft.Api.Events;
 
-import javax.xml.stream.events.Namespace;
-
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -15,7 +13,7 @@ public class BuildEvent extends Event implements Cancellable {
 
     @Override
     public @NotNull HandlerList getHandlers() {
-        return null;
+        return new HandlerList();
     }
 
     @Getter

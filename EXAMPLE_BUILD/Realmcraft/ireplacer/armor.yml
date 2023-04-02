@@ -1,0 +1,1121 @@
+BOW:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: BOW:BOW
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: BOW
+CHAINMAIL_BOOTS:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:CHAINMAIL_BOOTS
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: CHAINMAIL_BOOTS
+CHAINMAIL_CHESTPLATE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:CHAINMAIL_CHESTPLATE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: CHAINMAIL_CHESTPLATE
+CHAINMAIL_HELMET:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:CHAINMAIL_HELMET
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: CHAINMAIL_HELMET
+CHAINMAIL_LEGGINGS:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:CHAINMAIL_LEGGINGS
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: CHAINMAIL_LEGGINGS
+CROSSBOW:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: BOW:CROSSBOW
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: CROSSBOW
+DIAMOND_AXE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:DIAMOND_AXE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: DIAMOND_AXE
+DIAMOND_BOOTS:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:DIAMOND_BOOTS
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: DIAMOND_BOOTS
+DIAMOND_CHESTPLATE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:DIAMOND_CHESTPLATE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: DIAMOND_CHESTPLATE
+DIAMOND_HELMET:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:DIAMOND_HELMET
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: DIAMOND_HELMET
+DIAMOND_HOE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:DIAMOND_HOE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: DIAMOND_HOE
+DIAMOND_LEGGINGS:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:DIAMOND_LEGGINGS
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: DIAMOND_LEGGINGS
+DIAMOND_PICKAXE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:DIAMOND_PICKAXE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: DIAMOND_PICKAXE
+DIAMOND_SHOVEL:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:DIAMOND_SHOVEL
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: DIAMOND_SHOVEL
+DIAMOND_SWORD:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: SWORD:DIAMOND_SWORD
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: DIAMOND_SWORD
+ELYTRA:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:ELYTRA
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: ELYTRA
+GOLDEN_AXE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:GOLDEN_AXE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: GOLDEN_AXE
+GOLDEN_BOOTS:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:GOLDEN_BOOTS
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: GOLDEN_BOOTS
+GOLDEN_CHESTPLATE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:GOLDEN_CHESTPLATE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: GOLDEN_CHESTPLATE
+GOLDEN_HELMET:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:GOLDEN_HELMET
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: GOLDEN_HELMET
+GOLDEN_HOE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:GOLDEN_HOE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: GOLDEN_HOE
+GOLDEN_LEGGINGS:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:GOLDEN_LEGGINGS
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: GOLDEN_LEGGINGS
+GOLDEN_PICKAXE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:GOLDEN_PICKAXE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: GOLDEN_PICKAXE
+GOLDEN_SHOVEL:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:GOLDEN_SHOVEL
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: GOLDEN_SHOVEL
+GOLDEN_SWORD:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: SWORD:GOLDEN_SWORD
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: GOLDEN_SWORD
+IRON_AXE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:IRON_AXE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: IRON_AXE
+IRON_BOOTS:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:IRON_BOOTS
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: IRON_BOOTS
+IRON_CHESTPLATE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:IRON_CHESTPLATE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: IRON_CHESTPLATE
+IRON_HELMET:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:IRON_HELMET
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: IRON_HELMET
+IRON_HOE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:IRON_HOE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: IRON_HOE
+IRON_LEGGINGS:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:IRON_LEGGINGS
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: IRON_LEGGINGS
+IRON_PICKAXE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:IRON_PICKAXE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: IRON_PICKAXE
+IRON_SHOVEL:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:IRON_SHOVEL
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: IRON_SHOVEL
+IRON_SWORD:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: SWORD:IRON_SWORD
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: IRON_SWORD
+LEATHER_BOOTS:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:LEATHER_BOOTS
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: LEATHER_BOOTS
+LEATHER_CHESTPLATE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:LEATHER_CHESTPLATE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: LEATHER_CHESTPLATE
+LEATHER_HELMET:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:LEATHER_HELMET
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: LEATHER_HELMET
+LEATHER_LEGGINGS:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:LEATHER_LEGGINGS
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: LEATHER_LEGGINGS
+NETHERITE_AXE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:NETHERITE_AXE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: NETHERITE_AXE
+NETHERITE_BOOTS:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:NETHERITE_BOOTS
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: NETHERITE_BOOTS
+NETHERITE_CHESTPLATE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:NETHERITE_CHESTPLATE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: NETHERITE_CHESTPLATE
+NETHERITE_HELMET:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:NETHERITE_HELMET
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: NETHERITE_HELMET
+NETHERITE_HOE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:NETHERITE_HOE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: NETHERITE_HOE
+NETHERITE_LEGGINGS:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:NETHERITE_LEGGINGS
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: NETHERITE_LEGGINGS
+NETHERITE_PICKAXE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:NETHERITE_PICKAXE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: NETHERITE_PICKAXE
+NETHERITE_SHOVEL:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:NETHERITE_SHOVEL
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: NETHERITE_SHOVEL
+NETHERITE_SWORD:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: SWORD:NETHERITE_SWORD
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: NETHERITE_SWORD
+SHIELD:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: SHIELD:IRON_SHIELD
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: SHIELD
+STONE_AXE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:STONE_AXE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: STONE_AXE
+STONE_HOE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:STONE_HOE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: STONE_HOE
+STONE_PICKAXE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:STONE_PICKAXE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: STONE_PICKAXE
+STONE_SHOVEL:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:STONE_SHOVEL
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: STONE_SHOVEL
+STONE_SWORD:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: SWORD:STONE_SWORD
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: STONE_SWORD
+TURTLE_HELMET:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: ARMOR:TURTLE_HELMET
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: TURTLE_HELMET
+WOODEN_AXE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:WOODEN_AXE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: WOODEN_AXE
+WOODEN_HOE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:WOODEN_HOE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: WOODEN_HOE
+WOODEN_PICKAXE:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:WOODEN_PICKAXE
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: WOODEN_PICKAXE
+WOODEN_SHOVEL:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: TOOL:WOODEN_SHOVEL
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: WOODEN_SHOVEL
+WOODEN_SWORD:
+  Ignore-NBT:
+  - MMOITEMS_ITEM_TYPE
+  - REALMCRAFT_ID
+  - REALMCRAFT_NAMESPACE
+  - DoNotConvert
+  - itemsadder
+  - elite
+  - Elite
+  - MYTHIC_TYPE
+  - Tags
+  - CustomModelData
+  Output-Config:
+    Item: SWORD:WOODEN_SWORD
+    Pass-Enchantments: true
+  Output-Type: MMOITEMS
+  Replacement-Type: VANILLA
+  Type-Config:
+    Material: WOODEN_SWORD

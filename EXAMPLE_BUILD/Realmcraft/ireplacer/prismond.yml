@@ -1,0 +1,37 @@
+
+PRISMOND_HELMET:
+  Replacement-Type: NAME
+  Output-Type: MMOITEMS
+  Type-Config:
+    Name: "&6Prismond Helmet"
+    Material: DIAMOND_HELMET
+  Output-Config:
+    Item: ARMOR:PRISMOND_HELMET
+    Pass-Enchantments: true
+PRISMOND_CHEST:
+  Replacement-Type: NAME
+  Output-Type: MMOITEMS
+  Type-Config:
+    Name: "&6Prismond Chestplate"
+    Material: DIAMOND_CHESTPLATE
+  Output-Config:
+    Item: ARMOR:PRISMOND_CHESTPLATE
+    Pass-Enchantments: true
+PRISMOND_LEGS:
+  Replacement-Type: NAME
+  Output-Type: MMOITEMS
+  Type-Config:
+    Name: "&6Prismond Leggings"
+    Material: DIAMOND_LEGGINGS
+  Output-Config:
+    Item: ARMOR:PRISMOND_LEGGINGS
+    Pass-Enchantments: true
+PRISMOND_BOOTS:
+  Replacement-Type: NAME
+  Output-Type: MMOITEMS
+  Type-Config:
+    Name: "&6Prismond Boots"
+    Material: DIAMOND_BOOTS
+  Output-Config:
+    Item: ARMOR:PRISMOND_BOOTS
+    Pass-Enchantments: true

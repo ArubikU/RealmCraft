@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.gson.JsonElement;
-import com.mojang.datafixers.schemas.Schema;
 
 import dev.arubik.realmcraft.FileManagement.InteractiveFile;
 import lombok.Setter;

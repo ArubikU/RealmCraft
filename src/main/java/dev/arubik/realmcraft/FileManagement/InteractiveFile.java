@@ -17,6 +17,7 @@ import com.google.gson.stream.JsonWriter;
 
 import static com.google.gson.JsonParser.*;
 
+import dev.arubik.realmcraft.Api.YamlComentor;
 import dev.arubik.realmcraft.DefaultConfigs.RealLoader;
 import dev.arubik.realmcraft.Handlers.JsonBuilder;
 import dev.arubik.realmcraft.Handlers.JsonEditor;
@@ -24,14 +25,19 @@ import dev.arubik.realmcraft.Handlers.RealMessage;
 import lombok.Setter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class InteractiveFile {
 
@@ -39,7 +45,7 @@ public class InteractiveFile {
         JSON, YAML, UNKNOWN
     }
 
-    private static Plugin plugin = null;
+    private Plugin plugin;
 
     private String Path;
     @Setter
@@ -47,13 +53,15 @@ public class InteractiveFile {
     private Object json;
     private FileType type = FileType.UNKNOWN;
     private String name;
+    private String extension;
 
     public FileType getType() {
         return type;
     }
 
-    public InteractiveFile(String path) {
-        String extension = path.substring(path.lastIndexOf("."));
+    public InteractiveFile(String path, Plugin plugin) {
+        this.plugin = plugin;
+        this.extension = path.substring(path.lastIndexOf("."));
         Path = path;
         name = path.substring(path.lastIndexOf("/") + 1);
         // verifiy if the plugin have a file with the same path in resources
@@ -61,6 +69,8 @@ public class InteractiveFile {
         if (!(new File(plugin.getDataFolder(), path).exists())) {
             if (plugin.getResource(path) != null) {
                 plugin.saveResource(path, false);
+            } else {
+                create();
             }
         }
         // load the file
@@ -101,32 +111,44 @@ public class InteractiveFile {
             default:
                 break;
         }
-    }
 
-    public static void setPlugin(Plugin Pl) {
-        plugin = Pl;
     }
 
     public Object getFile() {
         return json;
     }
 
+    public static void close() {
+    }
+
     // generate a main getter if the file is a json
-    private Object get(String path) {
+    public Object get(String path) {
         if (type == FileType.JSON) {
             JsonElement a = ((JsonElement) json);
+            if (a.getAsJsonObject().has(path)) {
+                return a.getAsJsonObject().get(path);
+            }
             for (String s : path.split("\\.")) {
                 a = a.getAsJsonObject().get(s);
             }
             return a;
         }
+        if (type == FileType.YAML) {
+            return ((FileConfiguration) json).get(path);
+        }
         return null;
     }
 
-    private <T> T get(String path, Class<T> itype) {
+    public <T> T get(String path, Class<T> itype) {
         if (type == FileType.JSON) {
             JsonEditor je = new JsonEditor((JsonObject) json);
+            if (je.has(path)) {
+                return (T) je.read(path, itype);
+            }
             return (T) je.read(path.split("\\."), itype);
+        }
+        if (type == FileType.YAML) {
+            return (T) ((FileConfiguration) json).get(path);
         }
         return null;
     }
@@ -152,7 +174,7 @@ public class InteractiveFile {
         }
     }
 
-    public Integer getInteger(String[] path) {
+    public Integer getInteger(String... path) {
         for (String s : path) {
             if (getInteger(s) != 0) {
                 return getInteger(s);
@@ -171,6 +193,9 @@ public class InteractiveFile {
     }
 
     public String getString(String path) {
+        if (path == null) {
+            return "";
+        }
         if (type == FileType.JSON) {
             return get(path, String.class);
         } else {
@@ -179,6 +204,9 @@ public class InteractiveFile {
     }
 
     public String getString(String path, String def) {
+        if (path == null) {
+            return def;
+        }
         if (type == FileType.JSON) {
             if (get(path) != null) {
                 return get(path, String.class);
@@ -189,7 +217,7 @@ public class InteractiveFile {
         }
     }
 
-    public String getString(String[] path) {
+    public String getString(String... path) {
         for (String s : path) {
             if (getString(s) != null) {
                 return getString(s);
@@ -226,7 +254,7 @@ public class InteractiveFile {
         }
     }
 
-    public Boolean getBoolean(String[] path) {
+    public Boolean getBoolean(String... path) {
         for (String s : path) {
             if (getBoolean(s)) {
                 return getBoolean(s);
@@ -263,7 +291,7 @@ public class InteractiveFile {
         }
     }
 
-    public Double getDouble(String[] path) {
+    public Double getDouble(String... path) {
         for (String s : path) {
             if (getDouble(s) != 0) {
                 return getDouble(s);
@@ -300,7 +328,7 @@ public class InteractiveFile {
         }
     }
 
-    public Long getLong(String[] path) {
+    public Long getLong(String... path) {
         for (String s : path) {
             if (getLong(s) != 0) {
                 return getLong(s);
@@ -344,7 +372,7 @@ public class InteractiveFile {
         }
     }
 
-    public List<String> getStringList(String[] path) {
+    public List<String> getStringList(String... path) {
         for (String s : path) {
             if (getStringList(s) != null) {
                 return getStringList(s);
@@ -392,7 +420,7 @@ public class InteractiveFile {
         }
     }
 
-    public List<Integer> getIntegerList(String[] path) {
+    public List<Integer> getIntegerList(String... path) {
         for (String s : path) {
             if (getIntegerList(s) != null) {
                 return getIntegerList(s);
@@ -456,13 +484,35 @@ public class InteractiveFile {
         return plugin.getDataFolder() + File.separator + Path;
     }
 
+    public String getSimpleName() {
+        String name = Path;
+        if (name.contains(File.separator)) {
+            name = name.substring(name.lastIndexOf(File.separator) + 1);
+        }
+        // remove extension
+        if (name.contains(".")) {
+            name = name.substring(0, name.lastIndexOf("."));
+        }
+        return name;
+    }
+
     public void create() {
+        if (extension.toLowerCase().contains("json")) {
+            type = FileType.JSON;
+        } else if (extension.toLowerCase().contains("yml") || extension.toLowerCase().contains("yaml")) {
+            type = FileType.YAML;
+        } else {
+            type = FileType.UNKNOWN;
+        }
         if (type == FileType.JSON) {
             String pathInSystem = plugin.getDataFolder() + File.separator + Path;
             File f = new File(pathInSystem);
             if (!f.exists()) {
                 try {
                     f.createNewFile();
+                    FileWriter fw = new FileWriter(f);
+                    fw.write("{}");
+                    fw.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -488,11 +538,25 @@ public class InteractiveFile {
         }
     }
 
+    public void has(String path, Runnable runnable) {
+        if (has(path)) {
+            runnable.run();
+        }
+    }
+
     public <T> T getOrSet(String path, T value) {
         if (has(path)) {
             return (T) get(path, value.getClass());
         } else {
             set(path, value);
+            return value;
+        }
+    }
+
+    public <T> T getOrDefault(String path, T value) {
+        if (has(path)) {
+            return (T) get(path, value.getClass());
+        } else {
             return value;
         }
     }
@@ -505,4 +569,51 @@ public class InteractiveFile {
         }
         save();
     }
+
+    public void loadComments(RealLoader defaults) {
+        if (type == FileType.JSON) {
+            return;
+        }
+        File f = new File(plugin.getDataFolder(), Path);
+        YamlComentor.addComments(f, defaults.getComments());
+    }
+
+    public void loadLoader(RealLoader defaults) {
+        loadDefaults(defaults);
+        loadComments(defaults);
+    }
+
+    public void setComment(Integer line, String comment) {
+        if (type == FileType.JSON) {
+            return;
+        }
+        File f = new File(plugin.getDataFolder(), Path);
+        YamlComentor.addComment(f, comment, line);
+    }
+
+    public Set<String> getKeys() {
+        if (type == FileType.JSON) {
+            return ((JsonElement) json).getAsJsonObject().keySet();
+        } else {
+            return ((FileConfiguration) json).getKeys(false);
+        }
+    }
+
+    public Set<String> getKeys(String path) {
+        if (type == FileType.JSON) {
+            if (path.contains(".")) {
+                String[] args = path.split("\\.");
+                JsonEditor jsonEditor = new JsonEditor(((JsonElement) json).getAsJsonObject());
+                return jsonEditor.read(args, JsonElement.class).getAsJsonObject().keySet();
+            }
+        } else {
+            return ((FileConfiguration) json).getConfigurationSection(path).getKeys(false);
+        }
+        return null;
+    }
+
+    public InteractiveSection getSection(String path) {
+        return new InteractiveSection(this, path);
+    }
+
 }

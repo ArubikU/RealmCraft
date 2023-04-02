@@ -1,47 +1,125 @@
 package dev.arubik.realmcraft.Api;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
 
+import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.nbt.NbtBase;
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtFactory;
-import com.comphenix.protocol.wrappers.nbt.NbtList;
-import com.comphenix.protocol.wrappers.nbt.NbtType;
 import com.google.gson.JsonElement;
 
 import dev.arubik.realmcraft.realmcraft;
-import lombok.val;
-import net.kyori.adventure.text.Component;
+import dev.arubik.realmcraft.Handlers.JsonBuilder;
+import dev.arubik.realmcraft.Handlers.RealMessage;
+import dev.arubik.realmcraft.Managers.Depend;
+import io.lumine.mythic.lib.MythicLib;
+import io.lumine.mythic.lib.api.item.NBTItem;
+import me.clip.placeholderapi.PlaceholderAPI;
+import net.Indyuce.mmoitems.MMOItems;
+import net.Indyuce.mmoitems.api.Type;
+import net.Indyuce.mmoitems.api.player.PlayerData;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class RealNBT {
     private ItemStack item;
     private ItemStack itemStack;
+    private RealCache<ItemMeta> metaCache = new RealCache<ItemMeta>(1200);
 
-    public RealNBT(ItemStack item) {
-        this.item = item;
-        this.itemStack = item;
+    public int getEnchantmentLevel(String enchantment) {
+        return getEnchantmentLevel(org.bukkit.enchantments.Enchantment.getByName(enchantment));
+    }
+
+    public ItemMeta getItemMeta() {
+        if (metaCache.isCached()) {
+            return metaCache.forcedGet();
+        }
+        ItemMeta meta = itemStack.getItemMeta();
+        metaCache.set(meta);
+        return meta;
+    }
+
+    public int getEnchantmentLevel(Enchantment enchantment) {
+        if (itemStack.getEnchantments().get(enchantment) != null)
+            return itemStack.getEnchantmentLevel(enchantment);
+        return 0;
+    }
+
+    public Map<String, Integer> getAdvancedEnchantments() {
+        Map<String, Integer> enchants = new java.util.HashMap<String, Integer>();
+
+        return enchants;
+    }
+
+    public String getId() {
+        return item.getType().name();
+    }
+
+    public String getType() {
+        return "MINECRAFT";
+    }
+
+    public RealNBT(final ItemStack realItem) {
+        this.item = realItem;
+        this.itemStack = realItem;
     }
 
     public static RealNBT fromItemStack(ItemStack item) {
         return new RealNBT(item);
-    }
 
-    public ItemStack getOriginalItem() {
-        return item;
-    }
-
-    public ItemStack getItemStack() {
-        return itemStack;
     }
 
     public static enum AllowedTypes {
-        String, Integer, Double, Float, Long, Short, Byte, Boolean, JsonElement, NBTTag
+        String, Integer, Double, Float, Long, Short, Byte, Boolean, JsonElement, NBTTag, OBJECT;
+
+        public static AllowedTypes fromString(String name) {
+            String upper = name.toUpperCase();
+            upper = upper.replace("TAG_", "");
+            switch (upper) {
+                case "STRING":
+                    return String;
+                case "INT":
+                    return Integer;
+                case "DOUBLE":
+                    return Double;
+                case "FLOAT":
+                    return Float;
+                case "LONG":
+                    return Long;
+                case "SHORT":
+                    return Short;
+                case "BYTE":
+                    return Byte;
+                case "BOOLEAN":
+                    return Boolean;
+                case "JSONELEMENT":
+                    return JsonElement;
+                case "NBT":
+                    return NBTTag;
+                default:
+                    return AllowedTypes.OBJECT;
+            }
+
+        }
     }
 
     public static class NBTTag {
@@ -52,7 +130,40 @@ public class RealNBT {
         public NBTTag(String key, AllowedTypes type, Object value) {
             this.key = key;
             this.type = type;
-            this.value = value;
+            switch (type) {
+                case String:
+                    this.value = value.toString();
+                    break;
+                case Integer:
+                    this.value = Integer.parseInt(value.toString());
+                    break;
+                case Double:
+                    this.value = Double.parseDouble(value.toString());
+                    break;
+                case Float:
+                    this.value = Float.parseFloat(value.toString());
+                    break;
+                case Long:
+                    this.value = Long.parseLong(value.toString());
+                    break;
+                case Short:
+                    this.value = Short.parseShort(value.toString());
+                    break;
+                case Byte:
+                    this.value = Byte.parseByte(value.toString());
+                    break;
+                case Boolean:
+                    this.value = Boolean.parseBoolean(value.toString());
+                    break;
+                case JsonElement:
+                    this.value = (JsonElement) value;
+                    break;
+                case NBTTag:
+                    this.value = (NBTTag) value;
+                    break;
+                default:
+                    break;
+            }
         }
 
         public String getKey() {
@@ -69,7 +180,8 @@ public class RealNBT {
     }
 
     public <T> void setInternal(String key, Object value, Class<T> type) {
-        NbtCompound compound = NbtFactory.asCompound(NbtFactory.fromItemTag(itemStack));
+        NbtCompound compound = NbtFactory
+                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
         switch (type.getSimpleName()) {
             case "String":
                 compound.put(key, (String) value);
@@ -99,52 +211,44 @@ public class RealNBT {
                 compound.putObject(key, value);
                 break;
             case "JsonElement": {
-                NbtCompound jsonCompound = NbtFactory.ofCompound(key);
                 JsonElement jsonElement = (JsonElement) value;
-                jsonElement.getAsJsonObject().entrySet().forEach(entry -> {
-                    jsonCompound.put(entry.getKey(), entry.getValue().getAsString());
-                });
+                NbtCompound jsonCompound = NbtFactory.ofCompound(jsonElement.getAsString());
                 compound.put(jsonCompound);
             }
             default:
                 compound.putObject(key, value);
                 break;
         }
-        NbtFactory.setItemTag(itemStack, compound);
+        ItemStack item = MinecraftReflection.getBukkitItemStack(itemStack);
+        NbtFactory.setItemTag((ItemStack) item, compound);
+        itemStack = item;
     }
 
     public <T> T getInternal(String key, Class<T> type) {
-        NbtCompound compound = NbtFactory.asCompound(NbtFactory.fromItemTag(itemStack));
+        NbtCompound compound = NbtFactory
+                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
         NbtBase wrapper = compound.getValue(key);
         if (wrapper == null) {
             return null;
         }
         switch (type.getSimpleName()) {
-            case "String":
-                return (T) wrapper.getValue();
-            case "int":
-                return (T) (Integer) wrapper.getValue();
-            case "Integer":
-                return (T) (Integer) wrapper.getValue();
-            case "Double":
-                return (T) (Double) wrapper.getValue();
-            case "Float":
-                return (T) (Float) wrapper.getValue();
-            case "Long":
-                return (T) (Long) wrapper.getValue();
-            case "Short":
-                return (T) (Short) wrapper.getValue();
-            case "Byte":
-                return (T) (Byte) wrapper.getValue();
-            case "Boolean":
-                return (T) (Boolean) wrapper.getValue();
-            case "JsonElement": {
-                val jsonElement = (JsonElement) wrapper.getValue();
-                return (T) jsonElement;
+            case "JsonBuilder": {
+                NbtCompound jsonElement = (NbtCompound) wrapper;
+                JsonBuilder jsonOutput = new JsonBuilder();
+                for (String key2 : jsonElement.getKeys()) {
+                    jsonOutput.append(key2, jsonElement.getValue(key2).getValue());
+                }
+                return (T) jsonOutput;
             }
             default:
                 return (T) wrapper.getValue();
         }
+    }
+
+    public Set<String> getKeys() {
+        NbtCompound compound = NbtFactory
+                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
+        return compound.getKeys();
     }
 
     public <T> T get(String key, Class<T> type, T def) {
@@ -156,16 +260,75 @@ public class RealNBT {
     }
 
     public void put(NBTTag tag) {
-        setInternal(tag.getKey(), tag.getValue(), tag.getValue().getClass());
+        switch (tag.getType()) {
+            case String:
+                setString(tag.getKey(), (String) tag.getValue());
+                break;
+            case Integer:
+                setInt(tag.getKey(), (Integer) tag.getValue());
+                break;
+            case Double:
+                setDouble(tag.getKey(), (Double) tag.getValue());
+                break;
+            case Float:
+                setFloat(tag.getKey(), (Float) tag.getValue());
+                break;
+            case Long:
+                setLong(tag.getKey(), (Long) tag.getValue());
+                break;
+            case Short:
+                setShort(tag.getKey(), (Short) tag.getValue());
+                break;
+            case Byte:
+                setByte(tag.getKey(), (Byte) tag.getValue());
+                break;
+            case Boolean:
+                setBoolean(tag.getKey(), (Boolean) tag.getValue());
+                break;
+            case JsonElement:
+                setJsonElement(tag.getKey(), (JsonElement) tag.getValue());
+                break;
+            default:
+                setInternal(tag.getKey(), tag.getValue(), tag.getValue().getClass());
+                break;
+
+        }
     }
 
     public NBTTag get(String key) {
-        NbtCompound compound = NbtFactory.asCompound(NbtFactory.fromItemTag(itemStack));
+        NbtCompound compound = NbtFactory
+                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
         NbtBase wrapper = compound.getValue(key);
         if (wrapper == null) {
             return null;
         }
-        return new NBTTag(key, AllowedTypes.valueOf(wrapper.getType().name()), wrapper.getValue());
+        return new NBTTag(key, AllowedTypes.fromString(wrapper.getType().name()), wrapper.getValue());
+    }
+
+    public Boolean contains(String key) {
+        if (itemStack == null)
+            return false;
+        if (itemStack.getType() == Material.AIR)
+            return false;
+        if (itemStack.getItemMeta() == null)
+            return false;
+
+        NbtCompound compound = NbtFactory
+                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
+        return compound.containsKey(key);
+    }
+
+    public Boolean hasTag(String key) {
+        if (itemStack == null)
+            return false;
+        if (itemStack.getType() == Material.AIR)
+            return false;
+        if (itemStack.getItemMeta() == null)
+            return false;
+
+        NbtCompound compound = NbtFactory
+                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
+        return compound.containsKey(key);
     }
 
     public void setString(String key, String value) {
@@ -265,11 +428,15 @@ public class RealNBT {
     }
 
     public void setBoolean(String key, Boolean value) {
-        setInternal(key, value, Boolean.class);
+        // parse boolean to byte
+        Byte b = (byte) (value ? 1 : 0);
+        setInternal(key, b, Byte.class);
     }
 
     public Boolean getBoolean(String key, Boolean def) {
-        return get(key, Boolean.class, def);
+        // get byte and parse to boolean
+        Byte b = get(key, Byte.class, (byte) (def ? 1 : 0));
+        return b == 1;
     }
 
     public Boolean getBoolean(String key) {
@@ -284,56 +451,276 @@ public class RealNBT {
         return get(key, JsonElement.class, def);
     }
 
-    public JsonElement getJsonElement(String key) {
-        return getInternal(key, JsonElement.class);
+    public JsonBuilder getJsonElement(String key) {
+        return getInternal(key, JsonBuilder.class);
     }
 
     public void remove(String key) {
-        NbtCompound compound = NbtFactory.asCompound(NbtFactory.fromItemTag(itemStack));
+        NbtCompound compound = NbtFactory
+                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
         compound.remove(key);
         NbtFactory.setItemTag(itemStack, compound);
-    }
 
-    public static enum Alignment {
-        TOP,
-        MID,
-        BOTTOM
     }
 
     public void setLore(List<String> lore) {
-        List<String> newLore = new ArrayList<>();
+        ArrayList<String> newLore = new ArrayList<String>();
         for (String line : lore) {
-            newLore.add(
-                    realmcraft.getLegacyComponentSerializer().serialize(realmcraft.getMiniMessage().deserialize(line)));
+            newLore.add(LegacyComponentSerializer.legacySection()
+                    .serialize(MiniMessage.miniMessage().deserialize(line)));
         }
+        this.itemStack.setLore(newLore);
     }
 
     public List<String> getLore() {
-        List<String> lore = new ArrayList<>();
-        for (String line : itemStack.getItemMeta().getLore()) {
-            lore.add(
-                    realmcraft.getMiniMessage().serialize(realmcraft.getLegacyComponentSerializer().deserialize(line)));
+        ArrayList<String> lore = new ArrayList<String>();
+        if (!this.itemStack.getItemMeta().hasLore()) {
+            return lore;
+        }
+        for (String line : this.itemStack.getItemMeta().getLore()) {
+            lore.add((String) MiniMessage.miniMessage()
+                    .serialize(LegacyComponentSerializer.legacySection().deserialize(line)));
         }
         return lore;
     }
 
-    public void putLoreLine(String line, Alignment alignment) {
+    public void putLoreLine(String line, LorePosition alignment) {
+        List<String> lore = this.getLore();
+        if (lore == null) {
+            lore = new ArrayList<String>();
+        }
+        switch (alignment) {
+            case TOP: {
+                lore.add(0, line);
+                break;
+            }
+            case MID: {
+                lore.add(lore.size() / 2, line);
+                break;
+            }
+            case BOTTOM: {
+                lore.add(line);
+            }
+        }
+        this.setLore(lore);
+    }
+
+    public void putLoreLines(List<String> lines, LorePosition alignment) {
+        List<String> lore = this.getLore();
+        if (lore == null) {
+            lore = new ArrayList<String>();
+        }
+        switch (alignment) {
+            case TOP: {
+                for (int i = 0; i < lines.size(); ++i) {
+                    lore.add(i, lines.get(i));
+                }
+                break;
+            }
+            case MID: {
+                for (int i = 0; i < lines.size(); ++i) {
+                    lore.add(lore.size() / 2 + i, lines.get(i));
+                }
+                break;
+            }
+            case BOTTOM: {
+                for (int i = 0; i < lines.size(); ++i) {
+                    lore.add(lines.get(i));
+                }
+                break;
+            }
+            case REPLACE: {
+                for (int i = 0; i < lore.size(); ++i) {
+                    String s = lore.get(i);
+                    if (s != alignment.replace)
+                        continue;
+                    for (int a = 0; a < lines.size(); ++a) {
+                        lore.add(lines.get(a));
+                    }
+                    break;
+                }
+                break;
+            }
+        }
+        this.setLore(lore);
+    }
+
+    public void setDisplayName(String name) {
+        ItemMeta item = this.itemStack.getItemMeta();
+        item.setDisplayNameComponent(
+                BungeeComponentSerializer.get().serialize(MiniMessage.miniMessage().deserialize(name)));
+        item.setDisplayName(LegacyComponentSerializer.legacySection()
+                .serialize(MiniMessage.miniMessage().deserialize(name)));
+        this.itemStack.setItemMeta(item);
+    }
+
+    public String getDisplayName() {
+        return (String) MiniMessage.miniMessage().serialize(LegacyComponentSerializer.legacySection()
+                .deserialize(this.itemStack.getItemMeta().getDisplayName()));
+    }
+
+    public Boolean hasDisplayName() {
+        return this.itemStack.getItemMeta().hasDisplayName();
+    }
+
+    public Boolean hasLore() {
+        return this.itemStack.getItemMeta().hasLore();
+    }
+
+    public Boolean hasEnchantments() {
+        return itemStack.getItemMeta().hasEnchants();
+    }
+
+    public static final ItemStack Empty = new ItemStack(Material.AIR);
+
+    public static List<String> EmptyList() {
+        return new ArrayList<>();
+    }
+
+    public RealNBT take1() {
+        itemStack.setAmount(itemStack.getAmount() - 1);
+        return this;
+    }
+
+    public ItemStack[] getItemStackArray(String key) {
+        return Utils.itemStackArrayFromBase64(getString(key));
+    }
+
+    public void setPlaceholderApi(Player player) {
         List<String> lore = getLore();
         if (lore == null) {
             lore = new ArrayList<>();
         }
-        switch (alignment) {
-            case TOP:
-                lore.add(0, line);
-                break;
-            case MID:
-                lore.add(lore.size() / 2, line);
-                break;
-            case BOTTOM:
-                lore.add(line);
-                break;
+        for (int i = 0; i < lore.size(); i++) {
+            lore.set(i, PlaceholderAPI.setPlaceholders((OfflinePlayer) player, lore.get(i)));
         }
         setLore(lore);
+    }
+
+    public void replaceLoreSection(String regex, String replace) {
+        List<String> lore = getLore();
+        if (lore == null) {
+            lore = new ArrayList<>();
+        }
+        for (int i = 0; i < lore.size(); i++) {
+            if (lore.get(i).contains(regex)) {
+                lore.set(i, lore.get(i).replace(regex, replace));
+            }
+        }
+        setLore(lore);
+    }
+
+    public ItemStack getOriginalItem() {
+        return item;
+    }
+
+    public ItemStack getItemStack() {
+        // verify if lore is empty to remove it
+        if (itemStack.getItemMeta().hasLore()) {
+            if (itemStack.getItemMeta().getLore().size() == 0) {
+                ItemMeta item = itemStack.getItemMeta();
+                item.setLore(null);
+                itemStack.setItemMeta(item);
+            }
+        }
+
+        if (itemStack.getItemMeta().hasDisplayName()) {
+            if (itemStack.getItemMeta().getDisplayName().isEmpty()
+                    || itemStack.getItemMeta().getDisplayNameComponent().length == 0) {
+                ItemMeta item = itemStack.getItemMeta();
+                item.setDisplayName(null);
+                itemStack.setItemMeta(item);
+            }
+        }
+        return itemStack;
+    }
+
+    public ItemStack regenerate(Player player) {
+        if (contains("MMOITEMS_ITEM_ID") && contains("MMOITEMS_ITEM_TYPE")) {
+
+            if (Depend.isPluginEnabled("MMOItems")) {
+                List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
+                        .map(Type::getId).collect(Collectors.toList());
+                Object type = getString("MMOITEMS_ITEM_TYPE");
+                if (types.contains(type)) {
+                    type = MMOItems.plugin.getTypes().get(type.toString());
+                    String id = getString("MMOITEMS_ITEM_ID");
+
+                    return MMOItems.plugin.getItem((Type) type, id,
+                            PlayerData.get(player));
+                }
+            }
+
+        }
+
+        return itemStack;
+    }
+
+    public ItemStack regenerate(Player player, Double unidentifier) {
+        if (contains("MMOITEMS_ITEM_ID") && contains("MMOITEMS_ITEM_TYPE")) {
+
+            if (Depend.isPluginEnabled("MMOItems")) {
+                List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
+                        .map(Type::getId).collect(Collectors.toList());
+                Object type = getString("MMOITEMS_ITEM_TYPE");
+                if (types.contains(type)) {
+                    Type typee = MMOItems.plugin.getTypes().get(type.toString());
+                    String id = getString("MMOITEMS_ITEM_ID");
+                    ItemStack a = MMOItems.plugin.getItem(typee, id,
+                            PlayerData.get(player));
+                    if (Utils.Chance(unidentifier, 100)) {
+                        NBTItem nbtItem = MythicLib.plugin.getVersion().getWrapper().getNBTItem(a);
+                        a = typee.getUnidentifiedTemplate().newBuilder(nbtItem).build();
+                    }
+                    return a;
+                }
+            }
+
+        }
+
+        return itemStack;
+    }
+
+    public String dump() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" ").append(itemStack.getType().name()).append(" ");
+        for (String key : getKeys()) {
+            sb.append(" ").append(key).append(" : ").append(get(key)).append("  ").append(get(key).getClass().getName())
+                    .append(" ");
+        }
+        return sb.toString();
+
+    }
+
+    public RealNBT addItemFlags(ItemFlag... itemFlags) {
+        itemStack.editMeta(meta -> {
+            meta.addItemFlags(itemFlags);
+        });
+        return this;
+    }
+
+    public RealNBT addPotionEffect(RealPotionEffect effect) {
+        ItemMeta a = itemStack.getItemMeta();
+        if (a instanceof PotionMeta potion) {
+            potion.addCustomEffect(new PotionEffect(effect.type, effect.duration, effect.level), true);
+            itemStack.setItemMeta(potion);
+        }
+        return this;
+    }
+
+    public RealNBT setColor(int red, int green, int blue) {
+        ItemMeta a = itemStack.getItemMeta();
+        Color col = Color.fromRGB(red, green, blue);
+        if (a instanceof PotionMeta newmeta) {
+            newmeta.setColor(col);
+        }
+        if (a instanceof LeatherArmorMeta newmeta) {
+            newmeta.setColor(col);
+        }
+        if (a instanceof MapMeta newmeta) {
+            newmeta.setColor(col);
+        }
+        return this;
     }
 
 }
