@@ -3,6 +3,9 @@ package dev.arubik.realmcraft.FileManagement;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.util.Consumer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
@@ -18,6 +21,7 @@ import com.google.gson.stream.JsonWriter;
 import static com.google.gson.JsonParser.*;
 
 import dev.arubik.realmcraft.Api.YamlComentor;
+import dev.arubik.realmcraft.Api.RealCache.RealCacheMap;
 import dev.arubik.realmcraft.DefaultConfigs.RealLoader;
 import dev.arubik.realmcraft.Handlers.JsonBuilder;
 import dev.arubik.realmcraft.Handlers.JsonEditor;
@@ -59,7 +63,13 @@ public class InteractiveFile {
         return type;
     }
 
+    private RealCacheMap<String, Object> cache;
+
     public InteractiveFile(String path, Plugin plugin) {
+        this.cache = new RealCacheMap<String, Object>();
+        this.cache.setUpdateInterval(1200);
+        this.cache.setRemoveInterval(2400);
+
         this.plugin = plugin;
         this.extension = path.substring(path.lastIndexOf("."));
         Path = path;
@@ -123,32 +133,39 @@ public class InteractiveFile {
 
     // generate a main getter if the file is a json
     public Object get(String path) {
+        return get(path, Object.class);
+    }
+
+    public <T> T get(String path, @NotNull Class<T> itype) {
+
+        if (cache.containsKey(path)) {
+            return (T) cache.get(path);
+        }
+
         if (type == FileType.JSON) {
             JsonElement a = ((JsonElement) json);
             if (a.getAsJsonObject().has(path)) {
-                return a.getAsJsonObject().get(path);
+                Object temp = a.getAsJsonObject().get(path);
+                if (temp != null) {
+                    cache.put(path, temp);
+                }
+                return (T) temp;
             }
             for (String s : path.split("\\.")) {
                 a = a.getAsJsonObject().get(s);
             }
-            return a;
-        }
-        if (type == FileType.YAML) {
-            return ((FileConfiguration) json).get(path);
-        }
-        return null;
-    }
 
-    public <T> T get(String path, Class<T> itype) {
-        if (type == FileType.JSON) {
-            JsonEditor je = new JsonEditor((JsonObject) json);
-            if (je.has(path)) {
-                return (T) je.read(path, itype);
+            if (a != null) {
+                cache.put(path, a);
             }
-            return (T) je.read(path.split("\\."), itype);
+            return (T) a;
         }
         if (type == FileType.YAML) {
-            return (T) ((FileConfiguration) json).get(path);
+            Object temp = ((FileConfiguration) json).get(path);
+            if (temp != null) {
+                cache.put(path, temp);
+                return (T) temp;
+            }
         }
         return null;
     }
@@ -156,22 +173,14 @@ public class InteractiveFile {
     // generate all the setters and getters of info like getInteger, getBoolean,
     // getString, etc
     public Integer getInteger(String path) {
-        if (type == FileType.JSON) {
-            return get(path, Integer.class);
-        } else {
-            return ((FileConfiguration) json).getInt(path);
-        }
+        return get(path, Integer.class);
     }
 
     public Integer getInteger(String path, Integer def) {
-        if (type == FileType.JSON) {
-            if (get(path) != null) {
-                return get(path, Integer.class);
-            }
-            return def;
-        } else {
-            return ((FileConfiguration) json).getInt(path, def);
+        if (get(path, Integer.class) != null) {
+            return get(path, Integer.class);
         }
+        return def;
     }
 
     public Integer getInteger(String... path) {
@@ -196,25 +205,17 @@ public class InteractiveFile {
         if (path == null) {
             return "";
         }
-        if (type == FileType.JSON) {
-            return get(path, String.class);
-        } else {
-            return ((FileConfiguration) json).getString(path);
-        }
+        return get(path).toString();
     }
 
     public String getString(String path, String def) {
         if (path == null) {
             return def;
         }
-        if (type == FileType.JSON) {
-            if (get(path) != null) {
-                return get(path, String.class);
-            }
-            return def;
-        } else {
-            return ((FileConfiguration) json).getString(path, def);
+        if (get(path, String.class) != null) {
+            return get(path, String.class);
         }
+        return def;
     }
 
     public String getString(String... path) {
@@ -236,22 +237,14 @@ public class InteractiveFile {
     }
 
     public Boolean getBoolean(String path) {
-        if (type == FileType.JSON) {
-            return Boolean.parseBoolean(getString(path));
-        } else {
-            return ((FileConfiguration) json).getBoolean(path);
-        }
+        return getString(path).equalsIgnoreCase("True");
     }
 
     public Boolean getBoolean(String path, Boolean def) {
-        if (type == FileType.JSON) {
-            if (get(path) != null) {
-                return Boolean.parseBoolean(getString(path));
-            }
-            return def;
-        } else {
-            return ((FileConfiguration) json).getBoolean(path, def);
+        if (get(path) != null) {
+            return getBoolean(path);
         }
+        return def;
     }
 
     public Boolean getBoolean(String... path) {
@@ -534,7 +527,7 @@ public class InteractiveFile {
             JsonEditor jsonEditor = new JsonEditor(((JsonElement) json).getAsJsonObject());
             return jsonEditor.has(path.split("\\."));
         } else {
-            return ((FileConfiguration) json).contains(path);
+            return ((FileConfiguration) json).contains(path) && ((FileConfiguration) json).get(path) != null;
         }
     }
 
@@ -614,6 +607,16 @@ public class InteractiveFile {
 
     public InteractiveSection getSection(String path) {
         return new InteractiveSection(this, path);
+    }
+
+    public <T> void ifPresent(String path, Class<T> type, Consumer<T> consumer) {
+        if (has(path)) {
+            consumer.accept(get(path, type));
+        }
+    }
+
+    public InteractiveFile clone() {
+        return new InteractiveFile(Path, plugin);
     }
 
 }

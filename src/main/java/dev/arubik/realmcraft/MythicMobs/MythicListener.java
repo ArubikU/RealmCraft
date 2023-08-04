@@ -57,6 +57,9 @@ public class MythicListener implements Listener, Depend {
         if (event.getMechanicName().equalsIgnoreCase("dropequipment")) {
             event.register(new DropEquipment(event.getConfig()));
         }
+        if (event.getMechanicName().equalsIgnoreCase("loottableskill")) {
+            event.register(new LootTableSkill(event.getConfig()));
+        }
     }
 
     @EventHandler
@@ -73,6 +76,10 @@ public class MythicListener implements Listener, Depend {
     public void onMobDead(org.bukkit.event.entity.EntityDeathEvent event) {
         if (ModifyLevel.maxTimes.containsKey(event.getEntity().getUniqueId().toString())) {
             ModifyLevel.maxTimes.remove(event.getEntity().getUniqueId().toString());
+        }
+        if (event.getEntity().hasMetadata("fromSpawner")) {
+            // split in 4 the xp drop
+            event.setDroppedExp(event.getDroppedExp() / 4);
         }
     }
 

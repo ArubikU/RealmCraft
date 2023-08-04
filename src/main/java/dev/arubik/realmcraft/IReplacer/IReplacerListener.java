@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,10 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
 
     private static RealCacheMap<String, InternalReplacerStructure> cache = new RealCacheMap<String, InternalReplacerStructure>();
 
+    public static void clearCache() {
+        cache.clear();
+    }
+
     static {
         cache.setRemoveInterval(1200);
     }
@@ -90,29 +95,29 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
             return null;
         }
         RealNBT nbt = new RealNBT(stack);
-        String bytes2 = nbt.dump();
-        if (bytes2 == null) {
-            return null;
-        }
-        if (cache.containsKey(bytes2)) {
-            return cache.get(bytes2);
+        String dump = nbt.dump();
+        if (cache.containsKey(dump)) {
+            return cache.getCache(dump).isCached() == true ? cache.getCache(dump).forcedGet() : null;
         }
 
         // add a global ignore list
-        for (InternalReplacerStructure structure : IReplacer.getReplacers().values()) {
 
+        for (InternalReplacerStructure structure : IReplacer.getReplacers().values()) {
+            if (nbt.containsAny(structure.IgnoreNBT)) {
+                continue;
+            }
             switch (structure.getType()) {
                 case NAME:
                     if (structure.getTypeConfig().has("Name") && structure.getTypeConfig().has("Material")) {
                         String name = IReplacer.getName(nbt);
                         // RealMessage.sendConsoleMessage(name);
+                        // RealMessage.sendConsoleMessage(structure.getTypeConfig().get("Name").getAsString());
                         if (name.equals(structure.getTypeConfig().get("Name").getAsString())
                                 && stack.getType().toString()
                                         .equalsIgnoreCase(structure.getTypeConfig().get("Material").getAsString())) {
-                            if (!containsNBT(stack, structure.getIgnoreNBT())) {
-                                cache.put(bytes2, structure);
-                                return structure;
-                            }
+
+                            cache.put(dump, structure);
+                            return structure;
 
                         }
 
@@ -122,11 +127,11 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                     if (structure.getTypeConfig().has("Material")) {
                         if (stack.getType().toString()
                                 .equals(structure.getTypeConfig().get("Material").getAsString())) {
-                            if (!containsNBT(stack, structure.getIgnoreNBT())) {
-                                cache.put(bytes2, structure);
-                                return structure;
-                            }
+
+                            cache.put(dump, structure);
+                            return structure;
                         }
+
                     }
                     break;
                 case NBTTAGMATCH:
@@ -140,10 +145,10 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                             if (nbt.contains(structure.getTypeConfig().get("NBT-Tag").getAsString())) {
                                 if (nbt.getString(structure.getTypeConfig().get("NBT-Tag").getAsString()).equals(
                                         structure.getTypeConfig().get("NBT-Value").getAsString())) {
-                                    if (!containsNBT(stack, structure.getIgnoreNBT())) {
-                                        cache.put(bytes2, structure);
-                                        return structure;
-                                    }
+
+                                    cache.put(dump, structure);
+                                    return structure;
+
                                 }
                             }
                         }
@@ -164,10 +169,10 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                 .equals(structure.getTypeConfig().get("Material").getAsString())) {
                             if (stack.getItemMeta().getCustomModelData() == structure.getTypeConfig()
                                     .get("Custom-Model-Data").getAsInt()) {
-                                if (!containsNBT(stack, structure.getIgnoreNBT())) {
-                                    cache.put(bytes2, structure);
-                                    return structure;
-                                }
+
+                                cache.put(dump, structure);
+                                return structure;
+
                             }
                         }
                     }
@@ -187,10 +192,10 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                             for (String lore : structure.getTypeConfig().get("Lore").getAsString().split(";")) {
                                 for (String line : stack.getItemMeta().getLore()) {
                                     if (lore.contains(line)) {
-                                        if (!containsNBT(stack, structure.getIgnoreNBT())) {
-                                            cache.put(bytes2, structure);
-                                            return structure;
-                                        }
+
+                                        cache.put(dump, structure);
+                                        return structure;
+
                                     }
                                 }
                             }
@@ -215,10 +220,10 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                         if (meta.getPlayerProfile().getName()
                                                 .equalsIgnoreCase(
                                                         structure.getTypeConfig().get("Skull-Owner").getAsString())) {
-                                            if (!containsNBT(stack, structure.getIgnoreNBT())) {
-                                                cache.put(bytes2, structure);
-                                                return structure;
-                                            }
+
+                                            cache.put(dump, structure);
+                                            return structure;
+
                                         }
                                     }
                                 }
@@ -237,10 +242,9 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                         if (stack.getType().toString()
                                 .equals(structure.getTypeConfig().get("Material").getAsString())) {
                             if (nbt.contains(structure.getTypeConfig().get("NBT-Tag").getAsString())) {
-                                if (!containsNBT(stack, structure.getIgnoreNBT())) {
-                                    cache.put(bytes2, structure);
-                                    return structure;
-                                }
+                                cache.put(dump, structure);
+                                return structure;
+
                             }
                         }
                     }
@@ -249,7 +253,14 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
 
             }
         }
+
+        cache.put(dump, null);
+
         return null;
+    }
+
+    public static Optional<InternalReplacerStructure> matchOpt(ItemStack stack) {
+        return Optional.ofNullable(match(stack));
     }
 
     public String parsePlaceholders(String toParse, LivingEntity entity, ItemStack stack) {
@@ -303,7 +314,8 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                         }
                         break;
                     case REALSTACK: {
-                        RealStack stack = RealStack.fromInteractiveSection(structure.getSection());
+                        RealStack stack = RealStack
+                                .fromInteractiveSection(structure.getSection().getSection("Output-Config"));
                         ItemStack item = stack.buildItemStack();
                         item.setAmount(e.getItem().getItemStack().getAmount());
                         if (structure.getOutputConfig().has("Pass-Enchantments")
@@ -364,6 +376,24 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                         break;
                     }
 
+                    case VANILLA:
+                        if (structure.getSection().has("Output-Config.Material")) {
+                            if (Material
+                                    .valueOf(structure.getSection().get("Output-Config.Material").toString()) == null) {
+                                break;
+                            }
+                            ItemStack stack = new ItemStack(
+                                    Material.valueOf(structure.getSection().get("Output-Config.Material").toString()));
+                            stack.setAmount(e.getItem().getItemStack().getAmount());
+                            if (structure.getOutputConfig().has("Pass-Enchantments")
+                                    && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
+                                stack.addUnsafeEnchantments(e.getItem().getItemStack().getEnchantments());
+                            }
+                            e.getItem().setItemStack(stack);
+                        }
+                    default:
+                        break;
+
                 }
             }
         }
@@ -416,7 +446,8 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                             }
                             break;
                         case REALSTACK: {
-                            RealStack stack = RealStack.fromInteractiveSection(structure.getSection());
+                            RealStack stack = RealStack
+                                    .fromInteractiveSection(structure.getSection().getSection("Output-Config"));
                             ItemStack item = stack.buildItemStack();
                             item.setAmount(e.getCursor().getAmount());
                             if (structure.getOutputConfig().has("Pass-Enchantments")
@@ -516,7 +547,8 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                         }
                         break;
                     case REALSTACK: {
-                        RealStack stack = RealStack.fromInteractiveSection(structure.getSection());
+                        RealStack stack = RealStack
+                                .fromInteractiveSection(structure.getSection().getSection("Output-Config"));
                         ItemStack item = stack.buildItemStack();
                         item.setAmount(e.getItem().getAmount());
                         if (structure.getOutputConfig().has("Pass-Enchantments")
@@ -671,7 +703,8 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                 }
                                 break;
                             case REALSTACK: {
-                                RealStack stack = RealStack.fromInteractiveSection(structure.getSection());
+                                RealStack stack = RealStack
+                                        .fromInteractiveSection(structure.getSection().getSection("Output-Config"));
                                 ItemStack itemStack = stack.buildItemStack();
                                 itemStack.setAmount(item.getAmount());
                                 if (structure.getOutputConfig().has("Pass-Enchantments")
@@ -743,7 +776,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
 
     }
 
-    public ItemStack getItemPreviewMMOitems(String type, String id) {
+    public static ItemStack getItemPreviewMMOitems(String type, String id) {
         if (Type.isValid(type)) {
             MMOItemTemplate template = MMOItems.plugin.getTemplates().getTemplate(Type.get(type), id);
             ConfigMMOItem configMMOItem = new ConfigMMOItem(template, 1);
@@ -802,6 +835,32 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
             event.getInventory().setResult(item);
         }
 
+    }
+
+    public static ItemStack mmoitemsPreview(ItemStack item, InternalReplacerStructure structure) {
+        if (structure == null)
+            return item;
+        if (structure.getOutputConfig().has("Item")) {
+            String line = structure.getOutputConfig().get("Item").getAsString();
+            String[] split = line.split(":");
+            List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
+                    .map(Type::getId).collect(Collectors.toList());
+            // RealMessage.sendConsoleMessage("Types: " + Arrays.toString(types.toArray()));
+            if (types.contains(split[0])) {
+                ItemStack stack = getItemPreviewMMOitems(split[0], split[1]);
+                if (stack == null) {
+                    return item;
+                }
+                stack.setAmount(item.getAmount());
+                if (structure.getOutputConfig().has("Pass-Enchantments")
+                        && structure.getOutputConfig().get("Pass-Enchantments")
+                                .getAsBoolean()) {
+                    stack.addUnsafeEnchantments(item.getEnchantments());
+                }
+                item = stack;
+            }
+        }
+        return item;
     }
 
     @EventHandler

@@ -9,18 +9,24 @@ public enum OutputTypes {
 
     public static OutputTypes fromString(String string) {
         switch (string.toUpperCase()) {
-            case "VANILLA":
+            case "VANILLA": {
                 return VANILLA;
-            case "MMOITEMS":
+            }
+            case "MMOITEMS": {
                 return MMOITEMS;
-            case "MYTHICMOBS":
+            }
+            case "MYTHICMOBS": {
                 return MYTHICMOBS;
-            case "COMMAND":
+            }
+            case "COMMAND": {
                 return COMMAND;
-            case "REALSTACK":
+            }
+            case "REALSTACK": {
                 return REALSTACK;
-            default:
+            }
+            default: {
                 return VANILLA;
+            }
         }
     }
 }

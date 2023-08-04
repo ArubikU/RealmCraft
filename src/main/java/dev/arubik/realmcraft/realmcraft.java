@@ -13,6 +13,7 @@ import dev.arubik.realmcraft.Api.EntityHider;
 import dev.arubik.realmcraft.Api.Events.LoreEvent;
 import dev.arubik.realmcraft.Api.Listeners.AttackListener;
 import dev.arubik.realmcraft.Api.Listeners.ChangeGamemode;
+import dev.arubik.realmcraft.CustomSouds.WeaponListener;
 import dev.arubik.realmcraft.DefaultConfigs.LangConfig;
 import dev.arubik.realmcraft.DefaultConfigs.MainConfig;
 import dev.arubik.realmcraft.EmoteHandler.EmoteMain;
@@ -23,6 +24,9 @@ import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.IReplacer.IReplacer;
 import dev.arubik.realmcraft.IReplacer.IReplacerListener;
 import dev.arubik.realmcraft.IReplacer.IReplacerModifier;
+import dev.arubik.realmcraft.LootGen.ContainerApi;
+import dev.arubik.realmcraft.MMOCore.Loader;
+import dev.arubik.realmcraft.MMOItems.BetterName;
 import dev.arubik.realmcraft.MMOItems.CustomLore;
 import dev.arubik.realmcraft.MMOItems.Durability.DurabilityLore;
 import dev.arubik.realmcraft.MMOItems.Durability.EnablePlaceholders;
@@ -30,7 +34,9 @@ import dev.arubik.realmcraft.MMOItems.Durability.MMOListener;
 import dev.arubik.realmcraft.MMOItems.Durability.MinimessageFormat;
 import dev.arubik.realmcraft.MMOItems.Durability.PlaceholderEnableLore;
 import dev.arubik.realmcraft.MMOItems.Durability.RepairMaterial;
+import dev.arubik.realmcraft.MMOItems.Durability.RestoreStellium;
 import dev.arubik.realmcraft.MMOItems.Range.InteractAnimation;
+import dev.arubik.realmcraft.MMOItems.Range.NBTCompund;
 import dev.arubik.realmcraft.MMOItems.Range.RangeListener;
 import dev.arubik.realmcraft.Managers.Depend;
 import dev.arubik.realmcraft.Managers.FileReader;
@@ -41,6 +47,7 @@ import dev.arubik.realmcraft.MythicMobs.LootBagListener;
 import dev.arubik.realmcraft.MythicMobs.MythicListener;
 import io.lumine.mythic.lib.skill.handler.SkillHandler;
 import lombok.Getter;
+import net.Indyuce.mmocore.MMOCore;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -158,6 +165,8 @@ public class realmcraft extends JavaPlugin {
         if (InteractiveConfig.getBoolean("modules.rangelistener", true)) {
             try {
                 RangeListener.register();
+                NBTCompund.register();
+                BetterName.register();
             } catch (Throwable e) {
                 RealMessage.sendConsoleMessage("<red>Failed to register RangeListener");
                 e.printStackTrace();
@@ -176,6 +185,31 @@ public class realmcraft extends JavaPlugin {
                 CustomLore.register();
             } catch (Throwable e) {
                 RealMessage.sendConsoleMessage("<red>Failed to register CustomLore");
+                e.printStackTrace();
+            }
+        }
+        if (InteractiveConfig.getBoolean("modules.customsound", true)) {
+            try {
+                WeaponListener.register();
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register CustomSound");
+                e.printStackTrace();
+            }
+        }
+        if (InteractiveConfig.getBoolean("modules.mmocoreextension", true)) {
+            try {
+                // MMOCore.plugin.loadManager.registerLoader(new Loader());
+                RestoreStellium.register();
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register MMOCOREExtension");
+                e.printStackTrace();
+            }
+        }
+        if (InteractiveConfig.getBoolean("modules.containers", true)) {
+            try {
+                Bukkit.getServer().getPluginManager().registerEvents(new ContainerApi(), realmcraft.getInstance());
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register Container");
                 e.printStackTrace();
             }
         }

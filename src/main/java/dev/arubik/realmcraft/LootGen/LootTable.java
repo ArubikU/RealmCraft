@@ -8,13 +8,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Container;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 
@@ -37,7 +41,6 @@ import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.skills.SkillMechanic;
 import io.lumine.mythic.core.skills.SkillMetadataImpl;
-import jline.internal.Nullable;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -51,6 +54,7 @@ public class LootTable {
     private RealCache<InteractiveSection> lootTableCache = new RealCache<InteractiveSection>();
 
     private List<InteractiveSection> Items = new ArrayList<InteractiveSection>();
+    private List<InteractiveSection> ForcedItems = new ArrayList<InteractiveSection>();
     private Map<String, SkillMechanic> Skills = new HashMap<String, SkillMechanic>();
     private int OriginalItemsSize = 0;
     boolean continueProcess;
@@ -130,11 +134,15 @@ public class LootTable {
             for (String key : lootTableCache.forcedGet().getSection("Items").getKeys()) {
                 OriginalItemsSize += 1;
                 InteractiveSection item = lootTableCache.forcedGet().getSection("Items").getSection(key);
-                int weight = item.getOrDefault("Weight", 1);
+                int weight = item.has("Weight") ? 1 : item.getOrDefault("Weight", 1);
                 for (int i = 0; i < weight; i++) {
                     Items.add(item);
                 }
             }
+            if (lootTableCache.forcedGet().has("ForcedItems")) {
+                ForcedItems = lootTableCache.forcedGet().getSection("ForcedItems").getSections();
+            }
+
         }
     }
 
@@ -148,7 +156,7 @@ public class LootTable {
             RealMessage.alert("Dont exist file section");
             return null;
         }
-        return lootTableCache.forcedGet().getOrDefault("DisplayName", "LootTable");
+        return lootTableCache.forcedGet().clone().getOrDefault("DisplayName", "LootTable");
     }
 
     public void setNameToContainer(Location container) {
@@ -208,6 +216,7 @@ public class LootTable {
         int MinItems = lootTableCache.forcedGet().getOrDefault("MinItems", OriginalItemsSize);
 
         int items = Utils.random(MinItems, MaxItems);
+
         Integer[] emptySlots = emptySlot.get(type).clone();
         // fill empty slot array
         // set random air slots RealNBT.empty() == air
@@ -226,7 +235,8 @@ public class LootTable {
         List<String> usedItems = new ArrayList<String>();
         boolean isUnique = lootTableCache.forcedGet().getOrDefault("UniqueItems", false);
         for (int i = 0; i < items; i++) {
-            InteractiveSection itemC = Items.get(Utils.random(0, Items.size() - 1));
+
+            InteractiveSection itemC = Items.get(Utils.random(0, Items.size() - 1)).clone();
             if (isUnique) {
                 if (usedItems.contains(itemC.getPath())) {
                     if (usedItems.size() == Items.size())
@@ -270,7 +280,14 @@ public class LootTable {
 
                         // remove enchant from list
                         EnchantList = Utils.removeString(EnchantList, enchant);
-                        a.addUnsafeEnchantment(e, (int) levelD);
+                        if (a.getType() == Material.ENCHANTED_BOOK) {
+                            a.editMeta(EnchantmentStorageMeta.class, meta -> {
+                                meta.addStoredEnchant(e, (int) levelD, true);
+                            });
+                        } else {
+
+                            a.addUnsafeEnchantment(e, (int) levelD);
+                        }
                     }
 
                 }
@@ -311,10 +328,103 @@ public class LootTable {
             }
         }
 
+        if (ForcedItems != null) {
+
+            for (int i = 0; i < ForcedItems.size(); i++) {
+
+                InteractiveSection itemC = ForcedItems.get(i).clone();
+                ItemStack a = RealStack.genLoot(itemC, player);
+
+                if (a != null) {
+                    if (itemC.has("EnchantList") && Utils.Chance(itemC.getOrDefault("EnchantChance", 101), 100)) {
+
+                        int maxEnchants = itemC.getOrDefault("MaxEnchants", 0);
+                        int minEnchants = itemC.getOrDefault("MinEnchants", 0);
+                        int enchants = Utils.random(minEnchants, maxEnchants);
+
+                        List<String> EnchantList = itemC.getOrDefault("EnchantList", new ArrayList<String>());
+                        List<String> UsedEnchants = new ArrayList<String>();
+                        for (int j = 0; j < enchants; j++) {
+                            String enchant = Utils.randomFromList(EnchantList);
+                            if (enchant == null)
+                                continue;
+                            if (UsedEnchants.contains(enchant)) {
+                                if (UsedEnchants.size() == EnchantList.size())
+                                    break;
+                                j--;
+                                UsedEnchants.add(enchant);
+                                continue;
+                            }
+                            // enchant line have 2 parts, ENCHANT_NAME and LEVEL is a format of
+                            // random(#anynumber#,#maxlevel#) or a number
+                            String[] enchantParts = enchant.split(" ");
+
+                            Enchantment e = Enchantment.getByName(enchantParts[0]);
+                            String levelPart = enchantParts[1];
+                            levelPart = levelPart.replace("#maxlevel#", String.valueOf(e.getMaxLevel()));
+                            String[] levelparts = levelPart.split("to");
+                            double levelD = Utils.random(Integer.parseInt(levelparts[0]),
+                                    Integer.parseInt(levelparts[1]));
+
+                            // remove enchant from list
+                            EnchantList = Utils.removeString(EnchantList, enchant);
+                            if (a.getType() == Material.ENCHANTED_BOOK) {
+                                a.editMeta(EnchantmentStorageMeta.class, meta -> {
+                                    meta.addStoredEnchant(e, (int) levelD, true);
+                                });
+                            } else {
+
+                                a.addUnsafeEnchantment(e, (int) levelD);
+                            }
+                        }
+
+                    }
+
+                    // read if item config has SpreadInInventory
+                    if (itemC.getOrDefault("SpreadInInventory", false)) {
+                        // get value of spreadSize , that respond to the number of slots that the item
+                        // will be spread
+                        int spreadSize = itemC.getOrDefault("SpreadSize", 1);
+                        // get rest of empty slots
+
+                        if (spreadSize > a.getAmount())
+                            spreadSize = a.getAmount();
+                        int rest = items - i;
+                        // if the number of slots that the item will be spread is greater than the rest
+                        // of empty slots
+                        if (spreadSize > rest) {
+                            spreadSize = rest;
+                        }
+                        // create ItemStack copy and use a spread of 30 to 50% of original item amount
+                        List<ItemStack> spreadItems = new ArrayList<ItemStack>();
+                        int itemAmount = a.getAmount();
+                        for (int j = 0; j < spreadSize; j++) {
+                            ItemStack spreadItem = a.clone();
+                            int am = Utils.random(itemAmount / 2, itemAmount * 2);
+                            if (am > itemAmount)
+                                am = itemAmount;
+                            itemAmount -= am;
+                            spreadItem.setAmount(am);
+                            spreadItems.add(spreadItem);
+                        }
+                        // add spread items to NewItems
+                        NewItems.addAll(spreadItems);
+                    } else {
+                        NewItems.add(a);
+                    }
+
+                }
+            }
+
+        }
         // get random empty slots
         Integer[] slots = Utils.randomizeArrayOrder(emptySlots);
         // fill empty slots with items
+
         for (int i = 0; i < NewItems.size(); i++) {
+            if (i >= emptySlots.length) {
+                break;
+            }
             loot[slots[i]] = NewItems.get(i);
         }
 
@@ -350,7 +460,7 @@ public class LootTable {
         List<String> usedItems = new ArrayList<String>();
         boolean isUnique = lootTableCache.forcedGet().getOrDefault("UniqueItems", false);
         for (int i = 0; i < items; i++) {
-            InteractiveSection itemC = Items.get(Utils.random(0, Items.size() - 1));
+            InteractiveSection itemC = Items.get(Utils.random(0, Items.size() - 1)).clone();
             if (isUnique) {
                 if (usedItems.contains(itemC.getPath())) {
                     if (usedItems.size() == Items.size())
@@ -385,7 +495,6 @@ public class LootTable {
                         // enchant line have 2 parts, ENCHANT_NAME and LEVEL is a format of
                         // random(#anynumber#,#maxlevel#) or a number
                         String[] enchantParts = enchant.split(" ");
-
                         Enchantment e = Enchantment.getByName(enchantParts[0]);
                         String levelPart = enchantParts[1];
                         levelPart = levelPart.replace("#maxlevel#", String.valueOf(e.getMaxLevel()));

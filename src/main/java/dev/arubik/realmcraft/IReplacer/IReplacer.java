@@ -61,6 +61,7 @@ public class IReplacer {
 
     public void setup() {
         replacers.clear();
+        IReplacerListener.clearCache();
         for (InteractiveFile file : folder.getFiles().values()) {
             if (file.getType() == FileType.UNKNOWN) {
                 continue;

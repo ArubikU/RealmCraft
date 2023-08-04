@@ -7,3 +7,6 @@ author: arubik
 description: A minecraft plugin for the realmcraft server
 loadbefore:
   - "PacketUpgrades"
+  - "MMOItems"
+depend:
+  - "MythicLib"

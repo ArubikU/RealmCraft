@@ -10,15 +10,13 @@ import dev.arubik.realmcraft.Api.Events.LoreEvent;
 public class PlaceholderEnableLore implements ItemBuildModifier {
 
     @Override
-    public ItemStack modifyItem(Player player, ItemStack item) {
-        RealNBT nbt = new RealNBT(item);
+    public RealNBT modifyItem(Player player, RealNBT nbt) {
         nbt.setPlaceholderApi(player);
-        return item;
+        return nbt;
     }
 
     @Override
-    public Boolean able(ItemStack item) {
-        RealNBT nbt = new RealNBT(item);
+    public Boolean able(RealNBT nbt) {
         return nbt.contains("PLACEHOLDERS_ENABLED");
     }
 

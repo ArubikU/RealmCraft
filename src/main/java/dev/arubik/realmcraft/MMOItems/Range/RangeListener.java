@@ -31,12 +31,19 @@ import io.lumine.mythic.core.players.PlayerData;
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.event.PlayerAttackEvent;
 import io.lumine.mythic.lib.api.event.PlayerKillEntityEvent;
+import io.lumine.mythic.lib.api.item.NBTItem;
 import io.lumine.mythic.lib.api.player.EquipmentSlot;
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
 import io.lumine.mythic.lib.damage.AttackMetadata;
 import io.lumine.mythic.lib.damage.DamageMetadata;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import net.Indyuce.mmoitems.MMOItems;
+import net.Indyuce.mmoitems.api.MMOItemsAPI;
+import net.Indyuce.mmoitems.api.item.mmoitem.LiveMMOItem;
+import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
+import net.Indyuce.mmoitems.api.player.RPGPlayer;
+import net.Indyuce.mmoitems.stat.type.ItemRestriction;
+import net.Indyuce.mmoitems.stat.type.ItemStat;
 
 public class RangeListener implements Listener, Depend {
 
@@ -65,6 +72,7 @@ public class RangeListener implements Listener, Depend {
             return;
         }
         RealNBT nbt = new RealNBT(player.getInventory().getItemInMainHand());
+
         if (!(nbt.hasTag(NBT_TAG) || nbt.hasTag(NBT_TAG_CUSTOM))) {
             return;
         }
@@ -72,12 +80,24 @@ public class RangeListener implements Listener, Depend {
         if (range == null) {
             return;
         }
+
+        LiveMMOItem item = new LiveMMOItem(player.getInventory().getItemInMainHand());
+        RPGPlayer playeRr = net.Indyuce.mmoitems.api.player.PlayerData.get(player).getRPG();
+        for (ItemStat stat : item.getStats()) {
+            if (stat instanceof ItemRestriction) {
+                ItemRestriction restriction = (ItemRestriction) stat;
+                if (!restriction.canUse(playeRr, NBTItem.get(player.getInventory().getItemInMainHand()), true)) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
         // get distance between player and target
         Double distance = player.getLocation().distance(event.getAttack().getTarget().getLocation());
-        RealMessage.sendRaw("Distance in Event: " + distance);
-        RealMessage.sendRaw("Range in Event: " + range);
-        // damage
-        RealMessage.sendRaw("Damage in Event: " + event.getAttack().getDamage());
+        // RealMessage.sendRaw("Distance in Event: " + distance);
+        // RealMessage.sendRaw("Range in Event: " + range);
+        //// damage
+        // RealMessage.sendRaw("Damage in Event: " + event.getAttack().getDamage());
         if (distance > range) {
             event.setCancelled(true);
         } else if (range >= 3 && distance <= 3) {
@@ -163,9 +183,6 @@ public class RangeListener implements Listener, Depend {
                 if (!(result instanceof LivingEntity)) {
                     player.damage(1, result);
                     return;
-                }
-                if (player.getName().equalsIgnoreCase("ArubikU")) {
-                    RealMessage.sendRaw("Distance: " + distance);
                 }
 
                 @NotNull

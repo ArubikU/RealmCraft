@@ -21,8 +21,8 @@ import dev.arubik.realmcraft.Handlers.RealMessage;
 public class IReplacerModifier implements ItemBuildModifier {
 
     @Override
-    public ItemStack modifyItem(Player player, ItemStack item) {
-        InternalReplacerStructure structure = IReplacerListener.match(item);
+    public RealNBT modifyItem(Player player, RealNBT item) {
+        InternalReplacerStructure structure = IReplacerListener.match(item.getItemStack());
         if (structure == null) {
             return item;
         }
@@ -41,13 +41,13 @@ public class IReplacerModifier implements ItemBuildModifier {
                         if (stack == null) {
                             break;
                         }
-                        stack.setAmount(item.getAmount());
+                        stack.setAmount(item.getItemStack().getAmount());
                         if (structure.getOutputConfig().has("Pass-Enchantments")
                                 && structure.getOutputConfig().get("Pass-Enchantments")
                                         .getAsBoolean()) {
-                            stack.addUnsafeEnchantments(item.getEnchantments());
+                            stack.addUnsafeEnchantments(item.getItemStack().getEnchantments());
                         }
-                        return stack;
+                        return RealNBT.fromItemStack(stack);
                     }
                 }
                 break;
@@ -57,8 +57,8 @@ public class IReplacerModifier implements ItemBuildModifier {
     }
 
     @Override
-    public Boolean able(ItemStack item) {
-        return RealNBT.fromItemStack(item).contains("IS_MERCHANT_OUTPUT");
+    public Boolean able(RealNBT nbt) {
+        return nbt.contains("IS_MERCHANT_OUTPUT");
     }
 
     public ItemStack getItemPreviewMMOitems(String type, String id) {

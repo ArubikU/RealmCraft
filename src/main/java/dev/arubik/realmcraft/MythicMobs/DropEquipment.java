@@ -58,12 +58,19 @@ public class DropEquipment implements ITargetedEntitySkill {
     private double chance = 0.08;
     private String ploot = "MOB";
 
+    private Boolean lockPlayer = true;
+    private int ticksLocked = 200;
+    private Boolean spread = false;
+
     private String type = "lb:";
 
     public DropEquipment(MythicLineConfig config) {
         chance = config.getDouble("chance", chance);
         ploot = config.getString("ploot", ploot);
         type = config.getString("type", type);
+        lockPlayer = config.getBoolean("lockPlayer", lockPlayer);
+        ticksLocked = config.getInteger("ticksLocked", ticksLocked);
+        spread = config.getBoolean("spread", spread);
         ploot = type + ploot;
     }
 
@@ -105,7 +112,6 @@ public class DropEquipment implements ITargetedEntitySkill {
                         continue;
 
                     String tier = RealNBT.fromItemStack(item).getString("MMOITEMS_TIER", "COMMON");
-                    RealMessage.sendRaw(tier);
                     Boolean Superier = false;
                     if (tier.equalsIgnoreCase("COMMON") || tier.equalsIgnoreCase("TRASH")) {
                         weight += 1;
@@ -160,14 +166,15 @@ public class DropEquipment implements ITargetedEntitySkill {
                     }
                 }
                 LivingMob.getEquipment().clear();
-
-                RealMessage.sendRaw("Mob type: " + LivingMob.getName() + " | Tier: " + calculateLootBoxTier(weight)
-                        + " | Weight: " + weight);
             });
         } else {
             LivingMob.setMetadata("PLOOT", new FixedMetadataValue(realmcraft.getInstance(), ploot));
             LivingMob.setMetadata("TYPE", new FixedMetadataValue(realmcraft.getInstance(), type));
             LivingMob.setMetadata("CHANCE", new FixedMetadataValue(realmcraft.getInstance(), chance));
+            LivingMob.setMetadata("LOCKPLAYER",
+                    new FixedMetadataValue(realmcraft.getInstance(), lockPlayer.toString()));
+            LivingMob.setMetadata("TICKSLOCKED", new FixedMetadataValue(realmcraft.getInstance(), ticksLocked));
+            LivingMob.setMetadata("SPREAD", new FixedMetadataValue(realmcraft.getInstance(), spread.toString()));
         }
         return SkillResult.SUCCESS;
     }
@@ -180,7 +187,6 @@ public class DropEquipment implements ITargetedEntitySkill {
         double pow2fracLog2x = Math.pow(2, fracLog2x);
         double ceilPow2fracLog2x = Math.ceil(pow2fracLog2x);
         double tierWeight = floorLog2x + ceilPow2fracLog2x / 2.0;
-        RealMessage.sendRaw("Tier weight Calculated: " + tierWeight);
         if (tierWeight >= 8) {
             return "MYTHICAL";
         } else if (tierWeight >= 7) {

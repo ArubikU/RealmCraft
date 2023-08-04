@@ -20,21 +20,18 @@ import dev.arubik.realmcraft.Api.Events.LoreEvent;
 public class DurabilityLore implements RealLore {
     class DurabilityModifier implements ItemBuildModifier {
         @Override
-        public ItemStack modifyItem(Player player, ItemStack item) {
-            RealNBT nbt = new RealNBT(item);
+        public RealNBT modifyItem(Player player, RealNBT nbt) {
             if (nbt.contains("MMOITEMS_DURABILITY")) {
-                // make unbreakable and hide unbreakable
-                ItemMeta meta = item.getItemMeta();
-                meta.setUnbreakable(true);
-                meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-                item.setItemMeta(meta);
+                nbt.editMeta(meta -> {
+                    meta.setUnbreakable(true);
+                    meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+                });
             }
-            return item;
+            return nbt;
         }
 
         @Override
-        public Boolean able(ItemStack item) {
-            RealNBT nbt = new RealNBT(item);
+        public Boolean able(RealNBT nbt) {
             return nbt.contains("MMOITEMS_MAX_DURABILITY");
         };
     }
@@ -61,7 +58,7 @@ public class DurabilityLore implements RealLore {
     public static void register() {
         DurabilityLore durabilityLore = new DurabilityLore();
         LoreEvent.addLore(durabilityLore);
-        LoreEvent.addItemBuildModifier(durabilityLore.new DurabilityModifier());
+        //LoreEvent.addItemBuildModifier(durabilityLore.new DurabilityModifier());
     }
 
     private List<DynamicLoreLine> lore = List.of(new EmptyDynamicLine(),

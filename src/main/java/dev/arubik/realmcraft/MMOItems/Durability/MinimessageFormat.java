@@ -96,8 +96,7 @@ public class MinimessageFormat implements ItemBuildModifier {
     };
 
     @Override
-    public Boolean able(ItemStack item) {
-        RealNBT nbt = new RealNBT(item);
+    public Boolean able(RealNBT nbt) {
         return nbt.contains("LANG_ENABLED");
     }
 
@@ -130,8 +129,7 @@ public class MinimessageFormat implements ItemBuildModifier {
     }
 
     @Override
-    public ItemStack modifyItem(Player player, ItemStack item) {
-        RealNBT nbt = new RealNBT(item);
+    public RealNBT modifyItem(Player player, RealNBT nbt) {
         List<String> lore = nbt.getLore();
         if (lore != null) {
             for (int i = 0; i < lore.size(); i++) {
@@ -155,7 +153,7 @@ public class MinimessageFormat implements ItemBuildModifier {
                     line = line.replace("&>", "}");
                     Locale locale = getLang(player);
                     line = line.replace("?lang_key?", locale.getLang());
-                    RealMessage.sendRaw(line);
+                    // RealMessage.sendRaw(line);
                     if (langs.containsKey(locale.getLang())) {
                         line = PlaceholderConfigParser.parser(line, langs.get(locale.getLang()));
                         lore.set(i, line);
@@ -168,6 +166,6 @@ public class MinimessageFormat implements ItemBuildModifier {
             nbt.setLore(lore);
 
         }
-        return item;
+        return nbt;
     }
 }

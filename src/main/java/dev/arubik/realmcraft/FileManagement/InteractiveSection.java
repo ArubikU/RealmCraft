@@ -5,6 +5,8 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.NotNull;
+
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import lombok.Getter;
 import lombok.val;
@@ -24,21 +26,31 @@ public class InteractiveSection {
         return new InteractiveSection(file, this.path + "." + path);
     }
 
+    public List<InteractiveSection> getSections(String path) {
+        Set<String> keys = file.getKeys(this.path + "." + path);
+        val sections = new InteractiveSection[keys.size()];
+        int i = 0;
+        for (String key : keys) {
+            sections[i] = getSection(path + "." + key);
+            i++;
+        }
+        return List.of(sections);
+
+    }
+
+    public List<InteractiveSection> getSections() {
+        Set<String> keys = file.getKeys(this.path);
+        val sections = new InteractiveSection[keys.size()];
+        int i = 0;
+        for (String key : keys) {
+            sections[i] = getSection(key);
+            i++;
+        }
+        return List.of(sections);
+    }
+
     public void set(String path, Object value) {
         file.set(this.path + "." + path, value);
-    }
-
-    @Nullable
-    public <T> T get(String path, Class<T> clazz) {
-        return file.get(this.path + "." + path, clazz);
-    }
-
-    public <T> T getOrSet(String path, T value) {
-        return file.getOrSet(this.path + "." + path, value);
-    }
-
-    public <T> T getOrDefault(String path, T value) {
-        return file.getOrDefault(this.path + "." + path, value);
     }
 
     public Boolean has(String path) {
@@ -67,7 +79,23 @@ public class InteractiveSection {
         }
     }
 
-    public Object get(String path) {
+    public @Nullable Object get(@NotNull String path) {
         return file.get(this.path + "." + path);
+    }
+
+    public <T> T get(@NotNull String path, @NotNull Class<T> itype) {
+        return file.get(this.path + "." + path, itype);
+    }
+
+    public <T> T getOrSet(@NotNull String path, @NotNull T value) {
+        return file.getOrSet(this.path + "." + path, value);
+    }
+
+    public <T> @NotNull T getOrDefault(@NotNull String path, @NotNull T value) {
+        return file.get(this.path + "." + path) == null ? value : (T) file.get(this.path + "." + path);
+    }
+
+    public InteractiveSection clone() {
+        return new InteractiveSection(file.clone(), path);
     }
 }

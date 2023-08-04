@@ -142,6 +142,18 @@ public class MMOListener implements Listener, Depend {
         defaultRepairMaterial.add(Material.DIAMOND);
         defaultRepairMaterial.add(Material.EMERALD);
         defaultRepairMaterial.add(Material.NETHERITE_INGOT);
+        defaultRepairMaterial.add(Material.COBBLESTONE);
+        defaultRepairMaterial.add(Material.STONE);
+        defaultRepairMaterial.add(Material.OAK_PLANKS);
+        defaultRepairMaterial.add(Material.SPRUCE_PLANKS);
+        defaultRepairMaterial.add(Material.BIRCH_PLANKS);
+        defaultRepairMaterial.add(Material.JUNGLE_PLANKS);
+        defaultRepairMaterial.add(Material.ACACIA_PLANKS);
+        defaultRepairMaterial.add(Material.DARK_OAK_PLANKS);
+        defaultRepairMaterial.add(Material.CRIMSON_PLANKS);
+        defaultRepairMaterial.add(Material.WARPED_PLANKS);
+        defaultRepairMaterial.add(Material.MANGROVE_PLANKS);
+
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)

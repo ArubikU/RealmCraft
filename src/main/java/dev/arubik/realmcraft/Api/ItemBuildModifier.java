@@ -6,17 +6,17 @@ import org.bukkit.inventory.ItemStack;
 import dev.arubik.realmcraft.Api.LoreParser.ContextEvent;
 
 public interface ItemBuildModifier {
-    ItemStack modifyItem(Player player, ItemStack item);
+    RealNBT modifyItem(Player player, RealNBT item);
 
-    default Boolean able(ItemStack item) {
+    default Boolean able(RealNBT item) {
         return true;
     };
 
-    default Boolean able(Player player, ItemStack item) {
+    default Boolean able(Player player, RealNBT item) {
         return true;
     };
 
-    default Boolean able(ItemStack item, ContextEvent event) {
+    default Boolean able(RealNBT item, ContextEvent event) {
         return true;
     };
 }

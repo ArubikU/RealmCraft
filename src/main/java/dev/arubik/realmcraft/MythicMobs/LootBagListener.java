@@ -3,8 +3,10 @@ package dev.arubik.realmcraft.MythicMobs;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -25,8 +27,11 @@ import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+
+import com.comphenix.net.bytebuddy.dynamic.TypeResolutionStrategy.Active;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.RealNBT;
@@ -47,6 +52,9 @@ import net.seyarada.pandeloot.utils.ItemUtils;
 
 public class LootBagListener implements Listener {
 
+    public HashMap<UUID, UUID> LockPlayer = new HashMap<UUID, UUID>();
+    public HashMap<UUID, Boolean> Spread = new HashMap<UUID, Boolean>();
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDeath(EntityDeathEvent e) {
 
@@ -56,13 +64,15 @@ public class LootBagListener implements Listener {
             Player player = e.getEntity().getKiller();
             LivingEntity LivingMob = e.getEntity();
             LivingEntity target = e.getEntity();
-            RealMessage.sendRaw("PLOOT: " + LivingMob.hasMetadata("PLOOT"));
             if (!LivingMob.hasMetadata("PLOOT")) {
                 return;
             }
             String ploot = LivingMob.getMetadata("PLOOT").get(0).asString();
             String type = LivingMob.getMetadata("TYPE").get(0).asString();
             Double chance = LivingMob.getMetadata("CHANCE").get(0).asDouble();
+            Boolean lockPlayer = LivingMob.getMetadata("LOCKPLAYER").get(0).asString().equalsIgnoreCase("True");
+            int ticksLocked = LivingMob.getMetadata("TICKSLOCKED").get(0).asInt();
+            Boolean spread = LivingMob.getMetadata("SPREAD").get(0).asString().equalsIgnoreCase("True");
             if (LivingMob.getLastDamageCause() != null) {
                 EntityDamageEvent event = LivingMob.getLastDamageCause();
                 if (event instanceof EntityDamageByEntityEvent event2) {
@@ -185,7 +195,6 @@ public class LootBagListener implements Listener {
                         String flags = "{explode=true;glow=true;color=" + getColorFromTier(LootBoxTier)
                                 + ";beam=1;preventpickup=true}";
                         lootLine += flags;
-                        RealMessage.sendRaw(lootLine);
                         LootDrop loot = null;
                         try {
                             loot = new LootDrop(lootLine, player, event.getEntity().getLocation())
@@ -203,7 +212,6 @@ public class LootBagListener implements Listener {
                             Field field = clazz.getDeclaredField("itemDrops");
                             field.setAccessible(true);
                             ArrayList<IDrop> baseDropList = (ArrayList<IDrop>) field.get(loot);
-                            RealMessage.sendRaw(Arrays.toString(baseDropList.toArray()));
                             ItemDrop lootBag = (ItemDrop) baseDropList.get(0);
 
                             Field fieldt = Lootclazz.getDeclaredField("itemDrops");
@@ -226,8 +234,8 @@ public class LootBagListener implements Listener {
                             if (newDropList.isEmpty()) {
                                 return;
                             }
-
-                            ActiveDrop activeDrop = run(loot, lootBag);
+                            Pair<ActiveDrop, Entity> pair = run(loot, lootBag);
+                            ActiveDrop activeDrop = pair.getKey();
                             clazz = activeDrop.getClass();
                             field = clazz.getDeclaredField("lootDrop");
                             field.setAccessible(true);
@@ -243,6 +251,15 @@ public class LootBagListener implements Listener {
                             field.setAccessible(true);
                             field.set(activeDrop, lootDrop);
 
+                            if (lockPlayer) {
+                                LockPlayer.put(pair.getValue().getUniqueId(), player.getUniqueId());
+                                Bukkit.getScheduler().runTaskLaterAsynchronously(realmcraft.getInstance(), () -> {
+                                    LockPlayer.remove(pair.getValue().getUniqueId());
+                                }, ticksLocked);
+                            }
+                            if (spread) {
+                                Spread.put(pair.getValue().getUniqueId(), spread);
+                            }
                         } catch (Throwable error) {
                             error.printStackTrace();
                         }
@@ -261,7 +278,6 @@ public class LootBagListener implements Listener {
         double pow2fracLog2x = Math.pow(2, fracLog2x);
         double ceilPow2fracLog2x = Math.ceil(pow2fracLog2x);
         double tierWeight = floorLog2x + ceilPow2fracLog2x / 2.0;
-        RealMessage.sendRaw("Tier weight Calculated: " + tierWeight);
         if (tierWeight >= 8) {
             return "MYTHICAL";
         } else if (tierWeight >= 7) {
@@ -281,7 +297,7 @@ public class LootBagListener implements Listener {
         }
     }
 
-    public ActiveDrop run(LootDrop lootDrop, ItemDrop drop) {
+    public Pair<ActiveDrop, Entity> run(LootDrop lootDrop, ItemDrop drop) {
         Location dropLocation = lootDrop.getLocation();
         if (dropLocation == null) {
             RealMessage
@@ -295,9 +311,10 @@ public class LootBagListener implements Listener {
                 i.getPersistentDataContainer().set(entry.getKey(), PersistentDataType.STRING,
                         ((Object) entry.getValue()).toString());
             }
-            return new ActiveDrop((IDrop) drop, (Entity) i, lootDrop.p, drop.pack, lootDrop);
+
+            return Pair.of(new ActiveDrop((IDrop) drop, (Entity) i, lootDrop.p, drop.pack, lootDrop), (Entity) i);
         } else {
-            return new ActiveDrop((IDrop) drop, null, lootDrop.p, drop.pack, lootDrop);
+            return Pair.of(new ActiveDrop((IDrop) drop, null, lootDrop.p, drop.pack, lootDrop), null);
         }
     }
 
@@ -409,6 +426,19 @@ public class LootBagListener implements Listener {
             iS = item.getItemStack();
             data = iS.getItemMeta().getPersistentDataContainer();
             ActiveDrop aDrop = ActiveDrop.get((Entity) item);
+            if (aDrop == null) {
+                continue;
+            }
+
+            if (LockPlayer.containsKey(i.getUniqueId())) {
+                if (!LockPlayer.get(i.getUniqueId()).equals(e.getPlayer().getUniqueId())
+
+                        && e.getPlayer().hasPermission("realmcraft.lootbag.bypass") == false) {
+                    RealMessage.sendMessage(e.getPlayer(), "<red>No puedes abrir esta bolsa en este momento.");
+                    return;
+                }
+            }
+
             boolean isLocked = data.has(Constants.LOCK_LOOTBAG, PersistentDataType.STRING);
             String id = null;
             if (isLocked) {
@@ -451,11 +481,25 @@ public class LootBagListener implements Listener {
                 field = clazz.getDeclaredField("l");
                 field.setAccessible(true);
                 field.set(lootDrop, item.getLocation());
-                lootDrop.drop();
+
+                if (!Spread.containsKey(i.getUniqueId())) {
+                    Class<?> LootDropClazz = lootDrop.getClass();
+                    Field itemDropsField = LootDropClazz.getField("itemDrops");
+                    itemDropsField.setAccessible(true);
+                    ArrayList<IDrop> drops = (ArrayList<IDrop>) itemDropsField.get(lootDrop);
+                    PlayerInventory pinv = e.getPlayer().getInventory();
+                    for (IDrop dropc : drops) {
+                        pinv.addItem(dropc.getItemStack());
+                    }
+                } else {
+                    lootDrop.drop();
+                    Spread.remove(i.getUniqueId());
+                }
             } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e1) {
                 e1.printStackTrace();
                 new LootDrop((IDrop) ContainerManager.get((String) id), e.getPlayer(), item.getLocation()).build()
                         .drop();
+
             }
             e.setCancelled(true);
             return;

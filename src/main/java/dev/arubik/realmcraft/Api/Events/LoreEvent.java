@@ -3,6 +3,7 @@ package dev.arubik.realmcraft.Api.Events;
 import java.util.List;
 
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.event.EventPriority;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
@@ -96,11 +97,15 @@ public class LoreEvent implements Depend {
                 event.setPacket(packet);
             }
 
-            if (event.getPacketType() == PacketType.Play.Server.OPEN_WINDOW_MERCHANT) {
+            if (event.getPacketType() == PacketType.Play.Server.OPEN_WINDOW_MERCHANT
+                    && realmcraft.getInteractiveConfig().getBoolean("module.merchant_packet", false)) {
 
                 List<MerchantRecipe> recipeList = packet.getMerchantRecipeLists().read(0);
                 for (int i = 0; i < recipeList.size(); i++) {
                     MerchantRecipe recipe = recipeList.get(i);
+                    if (recipe.getResult().getType() == Material.ENCHANTED_BOOK) {
+                        continue;
+                    }
                     List<ItemStack> ingredients = recipe.getIngredients();
                     for (ItemStack ingredient : ingredients) {
                         if (ingredient == null)
@@ -109,7 +114,6 @@ public class LoreEvent implements Depend {
                     }
                     ItemStack result = recipe.getResult();
                     RealNBT nbt = new RealNBT(result);
-                    nbt.setBoolean("IS_MERCHANT_OUTPUT", true);
                     result = nbt.getItemStack();
                     result = parser.forceApply(result);
                     MerchantRecipe recipeCopy = new MerchantRecipe(result, recipe.getUses(), recipe.getMaxUses(),

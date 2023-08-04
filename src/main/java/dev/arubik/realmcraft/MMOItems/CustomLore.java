@@ -16,6 +16,8 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.geysermc.geyser.api.GeyserApi;
+import org.geysermc.geyser.api.connection.GeyserConnection;
 
 import com.willfp.eco.libs.mongodb.internal.connection.DescriptionHelper;
 import com.willfp.ecoenchants.EcoEnchantsPlugin;
@@ -46,13 +48,11 @@ public class CustomLore implements ItemBuildModifier {
     EnchantDisplay display;
 
     @Override
-    public Boolean able(ItemStack item) {
-
+    public Boolean able(RealNBT nbt) {
         List<String> Whitelist = realmcraft.getInteractiveConfig().getStringList("lore-whitelist", RealNBT.EmptyList());
         List<String> Blacklist = realmcraft.getInteractiveConfig().getStringList("lore-blacklist", RealNBT.EmptyList());
         List<String> NBTBlacklist = realmcraft.getInteractiveConfig().getStringList("nbt-blacklist",
                 RealNBT.EmptyList());
-        RealNBT nbt = new RealNBT(item);
         for (String NBTBlacklistLine : NBTBlacklist) {
             if (nbt.hasTag(NBTBlacklistLine)) {
                 return false;
@@ -76,8 +76,7 @@ public class CustomLore implements ItemBuildModifier {
     }
 
     @Override
-    public ItemStack modifyItem(Player player, ItemStack item) {
-        RealNBT nbt = new RealNBT(item);
+    public RealNBT modifyItem(Player player, RealNBT nbt) {
         int debug = 0;
         // RealMessage.sendRaw(player, debug++ + " ");
         // get player viewing container
@@ -90,7 +89,7 @@ public class CustomLore implements ItemBuildModifier {
                         RealNBT.EmptyList());
                 for (String tittleBlacklistLine : tittleBlacklist) {
                     if (tittle.contains(tittleBlacklistLine)) {
-                        return item;
+                        return nbt;
                     }
                 }
 
@@ -100,9 +99,9 @@ public class CustomLore implements ItemBuildModifier {
         // RealMessage.sendRaw(player, debug++ + " ");
         if (nbt.hasDisplayName() && nbt.hasLore()) {
             if (nbt.hasEnchantments() && realmcraft.getInteractiveConfig().getBoolean("show-enchants", true)) {
-                if (!item.getItemMeta().getItemFlags().contains(ItemFlag.HIDE_ENCHANTS)) {
-                    item = getEnchantments(nbt, player);
-                    nbt = new RealNBT(item).addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                if (!nbt.getItemMeta().getItemFlags().contains(ItemFlag.HIDE_ENCHANTS)) {
+                    nbt = RealNBT.fromItemStack(getEnchantments(nbt, player));
+                    nbt = nbt.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 }
             }
             // RealMessage.sendRaw(player, debug++ + " ");
@@ -159,6 +158,15 @@ public class CustomLore implements ItemBuildModifier {
                 lore.add("");
             }
             // RealMessage.sendRaw(player, debug++ + " ");
+            Boolean isBedrock = false;
+            if (GeyserApi.api().isBedrockPlayer(player.getUniqueId())) {
+                isBedrock = true;
+                LoreSuffix = "<white>";
+                LorePrefix = "";
+                LoreBottomPrefix = "";
+                LoreBottomSuffix = "";
+
+            }
 
             for (int i = 0; i < lore.size(); i++) {
                 // verify if is the last line
@@ -172,7 +180,9 @@ public class CustomLore implements ItemBuildModifier {
             // RealMessage.sendRaw(player, debug++ + " ");
             String newName = NameOutside.replace("<original>", name);
             // RealMessage.sendRaw(player, "SetDisplayName: " + newName);
-            nbt.setDisplayName(newName);
+            if (!isBedrock) {
+                nbt.setDisplayName(newName);
+            }
             // RealMessage.sendRaw(player, "SetLore ");
             nbt.setLore(NewLore);
             // RealMessage.sendRaw(player, debug++ + " ");
@@ -189,11 +199,11 @@ public class CustomLore implements ItemBuildModifier {
             newName = null;
 
             // RealMessage.sendRaw(player, debug++ + " ");
-            return item;
+            return nbt;
 
         }
 
-        return item;
+        return nbt;
     }
 
     public static void register() {

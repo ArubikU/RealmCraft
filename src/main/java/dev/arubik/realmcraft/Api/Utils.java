@@ -9,6 +9,7 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +17,7 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
+import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -24,8 +26,21 @@ public class Utils {
     private static Random random = new Random();
 
     public static boolean Chance(double number, int range) {
+        if (number == 0)
+            return false;
+        if (number >= range)
+            return true;
         double random = Math.random() * (range + 1);
         return random <= number;
+    }
+
+    public static String round(double number) {
+        return String.valueOf(Math.round(number));
+    }
+
+    public static String round(double number, int decimals) {
+        // decimals are the number of decimal places
+        return String.format("%." + decimals + "f", number);
     }
 
     public static ItemStack[] itemStackArrayFromBase64(String data) {
@@ -134,6 +149,10 @@ public class Utils {
         return newArray;
     }
 
+    public static <T> T[] from(T... t) {
+        return t;
+    }
+
     public static List<String> removeString(List<String> array, String value) {
         List<String> newArray = new ArrayList<String>();
         for (int i = 0; i < array.size(); i++) {
@@ -164,5 +183,9 @@ public class Utils {
             return null;
         int index = random(0, list.size() - 1);
         return list.get(index);
+    }
+
+    public static void Delay(Runnable object, int slowDuration) {
+        Bukkit.getScheduler().runTaskLater(realmcraft.getInstance(), object, slowDuration);
     }
 }

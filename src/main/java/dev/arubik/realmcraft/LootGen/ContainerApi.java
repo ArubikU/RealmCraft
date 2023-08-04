@@ -1,20 +1,39 @@
 package dev.arubik.realmcraft.LootGen;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.DragType;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.jetbrains.annotations.NotNull;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.RealNBT;
 import dev.arubik.realmcraft.FileManagement.InteractiveFile;
 import dev.arubik.realmcraft.Handlers.RealMessage;
+import lombok.Getter;
+import lombok.Setter;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
-public class ContainerApi {
+public class ContainerApi implements Listener {
 
     public static boolean saveContainer(ContainerInstance instance) {
         if (realmcraft.getContainerInstances() != null) {
@@ -164,4 +183,61 @@ public class ContainerApi {
         return RealNBT.EmptyList();
     }
 
+    public static void fakeOpenChest(LootTable lootTable, Player player) {
+
+        ItemStack[] contents = lootTable.genLoot(InventoryType.BARREL, player);
+        LootTableHolder holder = new LootTableHolder(contents);
+        holder.setPlayer(player);
+        Inventory inv = Bukkit.createInventory(holder, InventoryType.BARREL.getDefaultSize(),
+                MiniMessage.miniMessage().deserialize(lootTable.getDisplayName()));
+        inv.setContents(contents);
+        holder.setInv(inv);
+        player.openInventory(inv);
+    }
+
+    public static void fakeOpenChest(LootTable lootTable, Player player, InventoryType size) {
+
+        ItemStack[] contents = lootTable.genLoot(size, player);
+        LootTableHolder holder = new LootTableHolder(contents);
+        holder.setPlayer(player);
+        Inventory inv = Bukkit.createInventory(holder, size.getDefaultSize(),
+                MiniMessage.miniMessage().deserialize(lootTable.getDisplayName()));
+        inv.setContents(contents);
+        holder.setInv(inv);
+        player.openInventory(inv);
+    }
+
+    public static class LootTableHolder implements InventoryHolder {
+
+        @Setter
+        Inventory inv;
+
+        @Setter
+        @Getter
+        Player player;
+
+        public LootTableHolder(ItemStack[] slots) {
+        }
+
+        @Override
+        public @NotNull Inventory getInventory() {
+            return inv;
+        }
+
+    }
+
+    // on close chest drop all
+    @EventHandler
+    public void onCloseInventory(InventoryCloseEvent event) {
+        if (event.getInventory().getHolder() instanceof LootTableHolder) {
+            Location loc = event.getPlayer().getLocation();
+            for (ItemStack stack : event.getInventory().getContents()) {
+                if (stack != null) {
+                    if (stack.getType() != Material.AIR) {
+                        loc.getWorld().dropItem(loc, stack);
+                    }
+                }
+            }
+        }
+    }
 }

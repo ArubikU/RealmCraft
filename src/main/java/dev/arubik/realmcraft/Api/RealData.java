@@ -45,7 +45,9 @@ public class RealData {
             RealAttribute realAttribute = new RealAttribute();
             realAttribute.name = split[0];
             realAttribute.value = Double.parseDouble(split[1]);
+            
             realAttribute.operation = Operation.valueOf(split[2]);
+            
             realAttribute.slot = split[3];
             attributes.add(realAttribute);
         }
@@ -68,6 +70,7 @@ public class RealData {
         List<NBTTag> nbt = new ArrayList<>();
         for (String tag : list) {
             String[] split = tag.split(":");
+            
             NBTTag nbtTag = new NBTTag(split[0], AllowedTypes.valueOf(split[1]), split[2]);
             nbt.add(nbtTag);
         }

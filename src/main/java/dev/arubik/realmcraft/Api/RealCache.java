@@ -1,10 +1,13 @@
 package dev.arubik.realmcraft.Api;
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+
+import com.willfp.eco.libs.jetbrains.annotations.Nullable;
 
 import dev.arubik.realmcraft.IReplacer.InternalReplacerStructure;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +51,7 @@ public class RealCache<T> {
         set(value);
     }
 
+    @Nullable
     public T get() throws Exception {
         if (isCached) {
             if (updateInterval != 0) {
@@ -71,6 +75,7 @@ public class RealCache<T> {
         return value;
     }
 
+    @Nullable
     public T get(T def) {
         try {
             return get();
@@ -79,6 +84,7 @@ public class RealCache<T> {
         }
     }
 
+    @Nullable
     public T forcedGet() {
         try {
             return get();
@@ -93,7 +99,13 @@ public class RealCache<T> {
         this.isCached = true;
         this.lastUpdate = System.currentTimeMillis();
         timer();
+    }
 
+    public void cache(T value) {
+        this.value = value;
+        this.isCached = true;
+        this.lastUpdate = System.currentTimeMillis();
+        timer();
     }
 
     public void timer() {
@@ -115,6 +127,10 @@ public class RealCache<T> {
 
     public boolean isCached() {
         return isCached;
+    }
+
+    public void refresh() {
+        this.lastUpdate = System.currentTimeMillis();
     }
 
     public static class RealCacheMap<K, V> {
@@ -144,8 +160,32 @@ public class RealCache<T> {
             map.put(key, new RealCache<V>(value, updateInterval, removeInterval));
         }
 
+        @Nullable
         public V get(K key) {
-            return map.get(key).forcedGet();
+            try {
+                return map.get(key).get();
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        @Nullable
+        public RealCache<V> getCache(K key) {
+            return map.get(key);
+        }
+
+        @Nullable
+        public Optional<V> getOptional(K key) {
+            try {
+                return Optional.of(get(key));
+            } catch (Exception e) {
+                return Optional.empty();
+            }
+        }
+
+        @Nullable
+        public V get(K key, V def) {
+            return map.get(key).get(def);
         }
 
         public Set<K> keySet() {
@@ -153,12 +193,19 @@ public class RealCache<T> {
         }
 
         public boolean containsKey(K key) {
-            return map.containsKey(key);
+            Boolean contains = map.containsKey(key);
+            if (contains) {
+                map.get(key).refresh();
+            }
+            return contains;
         }
 
         public void put(K bytes2, V structure) {
             set(bytes2, structure);
         }
 
+        public void remove(K key) {
+            map.remove(key);
+        }
     }
 }

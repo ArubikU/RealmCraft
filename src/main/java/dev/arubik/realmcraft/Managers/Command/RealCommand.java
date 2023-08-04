@@ -33,11 +33,16 @@ public class RealCommand implements Listener {
     @Getter
     @Setter
     private String fallbackPrefix = "realmcraft";
+    public String permission = null;
     public static String[] selectors = { "@a", "@p", "@r", "@s" };
 
     private List<Argument> arguments = new ArrayList<Argument>();
     @Setter
     private Function<Void, List<String>> tabCompleter;
+
+    public void setPermission(String permission) {
+        this.permission = permission;
+    }
 
     public void setArguments(List<Argument> arguments) {
         this.arguments = arguments;
@@ -117,6 +122,7 @@ public class RealCommand implements Listener {
         if (args[0].replaceFirst("/", "").equalsIgnoreCase(this.command.getName())
 
                 || args[0].replaceFirst("/", "").equalsIgnoreCase(this.fallbackPrefix + ":" + this.command.getName())) {
+
             if (args.length == 1) {
                 // RealMessage.sendConsoleMessage(Arrays.toString(getArgumentsList(arguments).toArray()));
                 event.setCompletions(getArgumentsList(arguments));
@@ -251,6 +257,9 @@ public class RealCommand implements Listener {
         command = new Command(name, description, usage, List.of()) {
             @Override
             public boolean execute(@NotNull CommandSender arg0, @NotNull String arg1, @NotNull String[] args) {
+                RealMessage.sendRaw(Arrays.toString(args));
+                RealMessage.sendRaw(arg1);
+                onCommand(arg0, command, args);
                 return true;
             }
         };
@@ -267,31 +276,36 @@ public class RealCommand implements Listener {
         mainfunction = function;
     }
 
-    @EventHandler
-    public void onCommandEvent(PlayerCommandPreprocessEvent event) {
-        String[] args = event.getMessage().split(" ");
-        if (args[0].replaceFirst("/", "").equalsIgnoreCase(this.command.getName())
-                || args[0].replaceFirst("/", "").equalsIgnoreCase(this.fallbackPrefix + ":" + this.command.getName())) {
-            Command command = CommandMapper.getCommands().getOrDefault(args[0].replaceFirst("/", ""), this.command);
-            // create a new array without the first element
-            String[] newArgs = new String[args.length - 1];
-            System.arraycopy(args, 1, newArgs, 0, args.length - 1);
-            onCommand(event.getPlayer(), command, newArgs);
-        }
-    }
-
-    @EventHandler
-    public void onServerCommand(ServerCommandEvent event) {
-        String[] args = event.getCommand().split(" ");
-        if (args[0].replaceFirst("/", "").equalsIgnoreCase(this.command.getName())
-                || args[0].replaceFirst("/", "").equalsIgnoreCase(this.fallbackPrefix + ":" + this.command.getName())) {
-            Command command = CommandMapper.getCommands().getOrDefault(args[0], this.command);
-            // create a new array without the first element
-            String[] newArgs = new String[args.length - 1];
-            System.arraycopy(args, 1, newArgs, 0, args.length - 1);
-            onCommand(event.getSender(), command, newArgs);
-        }
-    }
+    // @EventHandler
+    // public void onCommandEvent(PlayerCommandPreprocessEvent event) {
+    // String[] args = event.getMessage().split(" ");
+    // if (args[0].replaceFirst("/", "").equalsIgnoreCase(this.command.getName())
+    // || args[0].replaceFirst("/", "").equalsIgnoreCase(this.fallbackPrefix + ":" +
+    // this.command.getName())) {
+    // Command command =
+    // CommandMapper.getCommands().getOrDefault(args[0].replaceFirst("/", ""),
+    // this.command);
+    // // create a new array without the first element
+    // String[] newArgs = new String[args.length - 1];
+    // System.arraycopy(args, 1, newArgs, 0, args.length - 1);
+    // onCommand(event.getPlayer(), command, newArgs);
+    // }
+    // }
+    //
+    // @EventHandler
+    // public void onServerCommand(ServerCommandEvent event) {
+    // String[] args = event.getCommand().split(" ");
+    // if (args[0].replaceFirst("/", "").equalsIgnoreCase(this.command.getName())
+    // || args[0].replaceFirst("/", "").equalsIgnoreCase(this.fallbackPrefix + ":" +
+    // this.command.getName())) {
+    // Command command = CommandMapper.getCommands().getOrDefault(args[0],
+    // this.command);
+    // // create a new array without the first element
+    // String[] newArgs = new String[args.length - 1];
+    // System.arraycopy(args, 1, newArgs, 0, args.length - 1);
+    // onCommand(event.getSender(), command, newArgs);
+    // }
+    // }
 
     public void onCommand(CommandSender sender, Command command, String[] args) {
         CommandData data = new CommandData(this, sender, args, command);

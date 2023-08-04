@@ -16,15 +16,21 @@ import lombok.Setter;
 
 public class Argument {
     public String arg;
+    public String permission = null;
     public Argument next = null;
     @Getter
     public List<Argument> nexts = new ArrayList<>();
     @Getter
     public Set<String> Completitions = Set.of();
-    public ArgumentTypes type;
+    public ArgumentTypes type = ArgumentTypes.STRING;
     public Function<CommandData, Boolean> function = (data) -> {
         return true;
     };
+
+    public Argument setPermission(String permission) {
+        this.permission = permission;
+        return this;
+    }
 
     public Argument setArg(String arg) {
         this.arg = arg;

@@ -168,6 +168,7 @@ public class RealStack {
             case REALSTACK: {
                 RealStack stack = RealStack.fromInteractiveSection(section);
                 item = stack.buildItemStack();
+                break;
             }
             case VANILLA:
                 item = new ItemStack(Material.getMaterial(section.get("Item", String.class)));
@@ -186,15 +187,16 @@ public class RealStack {
                         if (stack == null) {
                             RealMessage.alert(
                                     "Invalid item id: " + line
-                                            + "secure the item is a mmoitem \n example: sword:stone_sword");
+                                            + " secure the item is a mmoitem \n example: sword:stone_sword");
                             return RealNBT.Empty;
                         }
                         item = stack;
                     }
                 } else {
                     RealMessage.alert(
-                            "Invalid item id: " + line + "secure the item is a mmoitem \n example: sword:stone_sword");
+                            "Invalid item id: " + line + " secure the item is a mmoitem \n example: sword:stone_sword");
                 }
+                break;
             }
             case MYTHICMOBS: {
                 String line = section.get("Item", String.class);
@@ -203,9 +205,12 @@ public class RealStack {
                             .adapt(MythicBukkit.inst().getItemManager().getItem(line).get().generateItemStack(1));
                 } else {
                     RealMessage.alert(
-                            "Invalid item id: " + line + "secure the item is a mythicitem \n example: wither_crown");
+                            "Invalid item id: " + line + " secure the item is a mythicitem \n example: wither_crown");
                 }
+                break;
             }
+            default:
+                break;
 
         }
         if (section.has("Range")) {
@@ -232,10 +237,13 @@ public class RealStack {
             case REALSTACK: {
                 RealStack stack = RealStack.fromInteractiveSection(section);
                 item = stack.buildItemStack();
-            }
-            case VANILLA:
-                item = new ItemStack(Material.getMaterial(section.get("Item", String.class)));
                 break;
+            }
+            case VANILLA: {
+                item = new ItemStack(Material.getMaterial(section.get("Item", String.class)) == null ? Material.AIR
+                        : Material.getMaterial(section.get("Item", String.class)));
+                break;
+            }
             case MMOITEMS: {
                 String line = section.get("Item", String.class);
                 if (line != null && line.contains(":")) {
@@ -259,6 +267,7 @@ public class RealStack {
                     RealMessage.alert(
                             "Invalid item id: " + line + "secure the item is a mmoitem \n example: sword:stone_sword");
                 }
+                break;
             }
             case MYTHICMOBS: {
                 String line = section.get("Item", String.class);
@@ -266,9 +275,37 @@ public class RealStack {
                     item = BukkitAdapter
                             .adapt(MythicBukkit.inst().getItemManager().getItem(line).get().generateItemStack(1));
                 } else {
-                    RealMessage.alert(
-                            "Invalid item id: " + line + "secure the item is a mythicitem \n example: wither_crown");
+                    if (line != null && line.contains(":")) {
+                        String[] split = line.split(":");
+                        List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
+                                .map(Type::getId).collect(Collectors.toList());
+                        // RealMessage.sendConsoleMessage("Types: " + Arrays.toString(types.toArray()));
+                        if (types.contains(split[0])) {
+                            Type type = MMOItems.plugin.getTypes().get(split[0]);
+                            ItemStack stack;
+                            stack = MMOItems.plugin.getItem(type, split[1]);
+                            if (stack == null) {
+                                RealMessage.alert(
+                                        "Invalid item id: " + line
+                                                + "secure the item is a mmoitem \n example: sword:stone_sword");
+                                return RealNBT.Empty;
+                            }
+                            item = stack;
+                        }
+
+                        RealMessage.alert(
+                                "Item provided is not a mythic item, please check your config \n example: wither_crown\nThe item was processed as MMOITEMS");
+                    } else {
+
+                        RealMessage.alert(
+                                "Invalid item id: " + line
+                                        + " secure the item is a mythicitem \n example: wither_crown");
+                    }
                 }
+                break;
+            }
+            default: {
+                break;
             }
         }
         if (section.has("Range")) {
