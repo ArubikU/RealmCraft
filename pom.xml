@@ -134,6 +134,14 @@
         </dependency>
         <dependency>
             <groupId>Seyarada</groupId>
+            <artifactId>CBB</artifactId>
+            <version>1.5.1</version>
+            <systemPath>${basedir}\CBB.jar</systemPath>
+            <scope>system</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>Seyarada</groupId>
             <artifactId>Eco</artifactId>
             <version>1.5.1</version>
             <systemPath>${basedir}\Eco.jar</systemPath>

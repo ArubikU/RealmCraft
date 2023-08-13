@@ -12,11 +12,14 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
@@ -38,9 +41,15 @@ import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Managers.Depend;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.compatibility.MMOItemsSupport.MMOItemsBlock;
+import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.MMOLineConfig;
 import io.lumine.mythic.lib.api.event.armorequip.ArmorEquipEvent;
 import io.lumine.mythic.lib.api.event.armorequip.ArmorType;
+import io.lumine.mythic.lib.api.stat.provider.StatProvider;
+import io.lumine.mythic.lib.damage.AttackMetadata;
+import io.lumine.mythic.lib.damage.DamageMetadata;
+import io.lumine.mythic.lib.damage.DamageType;
+import io.lumine.mythic.lib.element.Element;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.block.BlockInfo;
 import net.Indyuce.mmocore.manager.RestrictionManager.ToolPermissions;
@@ -283,4 +292,17 @@ public class ChangeGamemode implements Listener, Depend {
     // });
     // }
 
+    @EventHandler
+    public void onEntityDamaged(EntityDamageEvent event) {
+        if (event.getCause() == DamageCause.LIGHTNING) {
+            if (event.getEntity() instanceof LivingEntity living) {
+                Double damage = event.getDamage();
+                event.setDamage(0);
+                DamageMetadata metadata = new DamageMetadata();
+                metadata.add(damage, Element.valueOf("THUNDER"), DamageType.MAGIC);
+                AttackMetadata damageme = new AttackMetadata(metadata, living, StatProvider.get(living));
+                MythicLib.plugin.getDamage().damage(damageme, living);
+            }
+        }
+    }
 }

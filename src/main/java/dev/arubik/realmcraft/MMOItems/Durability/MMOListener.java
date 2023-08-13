@@ -260,6 +260,7 @@ public class MMOListener implements Listener, Depend {
                     // e.getBow().setItemMeta(nbt.getItemMeta());
                     if (durability <= 0) {
                         p.getEquipment().setItem(e.getHand(), RealNBT.Empty);
+
                         p.updateInventory();
                     } else {
                         p.getEquipment().setItem(e.getHand(), nbt.getItemStack());

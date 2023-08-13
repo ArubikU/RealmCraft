@@ -2,6 +2,7 @@ package dev.arubik.realmcraft.Api;
 
 import java.lang.reflect.Field;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -34,6 +35,25 @@ public class RealPlayer {
 
     public static RealPlayer of(Player player) {
         return new RealPlayer(player);
+    }
+
+    public boolean consumeItem(Material mat, int reamount) {
+        if (player.getInventory().contains(mat, reamount)) {
+            player.getInventory().iterator().forEachRemaining(item -> {
+                int amount = reamount;
+                if (item != null && item.getType() == mat) {
+                    if (item.getAmount() > amount) {
+                        item.setAmount(item.getAmount() - amount);
+                        return;
+                    } else {
+                        amount -= item.getAmount();
+                        item.setAmount(0);
+                    }
+                }
+            });
+            return true;
+        }
+        return false;
     }
 
     public StatMap getStatMap() {

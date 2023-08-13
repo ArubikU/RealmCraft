@@ -8,5 +8,6 @@ description: A minecraft plugin for the realmcraft server
 loadbefore:
   - "PacketUpgrades"
   - "MMOItems"
+  - 'gpttalk'
 depend:
   - "MythicLib"

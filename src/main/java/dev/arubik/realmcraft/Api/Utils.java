@@ -38,6 +38,10 @@ public class Utils {
         return String.valueOf(Math.round(number));
     }
 
+    public static int randomNumer(int min, int max) {
+        return random.nextInt(max - min + 1) + min;
+    }
+
     public static String round(double number, int decimals) {
         // decimals are the number of decimal places
         return String.format("%." + decimals + "f", number);

@@ -15,11 +15,13 @@ import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Managers.Depend;
 import dev.arubik.realmcraft.MythicLib.Passive.ComboAttack;
+import dev.arubik.realmcraft.MythicLib.Passive.Daybreaker;
 import dev.arubik.realmcraft.MythicLib.Passive.Flare;
 import dev.arubik.realmcraft.MythicLib.Passive.Frostie;
 import dev.arubik.realmcraft.MythicLib.Passive.NaturalRegen;
 import dev.arubik.realmcraft.MythicLib.Passive.NightHug;
 import dev.arubik.realmcraft.MythicLib.Passive.RegenChance;
+import dev.arubik.realmcraft.MythicLib.Passive.SoulCollector;
 import dev.arubik.realmcraft.MythicLib.Passive.StackedAttack;
 import dev.arubik.realmcraft.MythicLib.Passive.WindMaestery;
 import dev.arubik.realmcraft.MythicLib.Passive.WitherEffectInvulnerability;
@@ -68,7 +70,7 @@ public class SkillHandlerRM implements Depend, Listener {
         RealMessage.sendConsoleMessage("&aRegistering skill handlers...");
         handlers = new SkillHandler[] { new StackedAttack(), new RegenChance(), new ComboAttack(),
                 new Flare(), new Frostie(), new NaturalRegen(), new NightHug(), new WindMaestery(),
-                new WitherEffectInvulnerability() };
+                new WitherEffectInvulnerability(), new SoulCollector(), new Daybreaker() };
         for (SkillHandler handler : handlers) {
             try {
 

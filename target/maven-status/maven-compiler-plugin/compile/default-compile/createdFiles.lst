@@ -4,6 +4,7 @@ dev\arubik\realmcraft\Api\RealBlock.class
 dev\arubik\realmcraft\Api\Listeners\AttackListener.class
 dev\arubik\realmcraft\LootGen\ContainerApi.class
 dev\arubik\realmcraft\MythicMobs\PlayerEmote.class
+dev\arubik\realmcraft\MythicLib\Passive\SoulCollector.class
 dev\arubik\realmcraft\MythicMobs\ModifyLevel$1.class
 dev\arubik\realmcraft\MythicLib\Passive\WitherEffectInvulnerability.class
 dev\arubik\realmcraft\MythicLib\Passive\NightHug.class
@@ -93,6 +94,7 @@ dev\arubik\realmcraft\Handlers\Overlay.class
 dev\arubik\realmcraft\Api\EntityHider$1.class
 dev\arubik\realmcraft\Api\RealAttribute.class
 dev\arubik\realmcraft\MythicLib\MythicPlaceholders.class
+dev\arubik\realmcraft\MythicLib\Passive\Daybreaker.class
 dev\arubik\realmcraft\CustomSouds\WeaponListener.class
 dev\arubik\realmcraft\FileManagement\InteractiveSection.class
 dev\arubik\realmcraft\MythicMobs\LootBagListener.class
@@ -123,6 +125,7 @@ dev\arubik\realmcraft\Api\Events\BuildEvent.class
 dev\arubik\realmcraft\Api\RealMethods$Methods.class
 dev\arubik\realmcraft\Api\RealNBT$NBTTag.class
 dev\arubik\realmcraft\Managers\SchemaValidator.class
+dev\arubik\realmcraft\MythicLib\Passive\AncientBow.class
 dev\arubik\realmcraft\MythicMobs\ModifyLevel$PlayerLevelModifier.class
 dev\arubik\realmcraft\MythicMobs\isNotFromSpawner.class
 dev\arubik\realmcraft\Api\RealCache.class

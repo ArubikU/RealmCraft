@@ -1,6 +1,7 @@
 package dev.arubik.realmcraft;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -210,6 +211,23 @@ public class realmcraft extends JavaPlugin {
                 Bukkit.getServer().getPluginManager().registerEvents(new ContainerApi(), realmcraft.getInstance());
             } catch (Throwable e) {
                 RealMessage.sendConsoleMessage("<red>Failed to register Container");
+                e.printStackTrace();
+            }
+        }
+
+        // verify existence of me.aida.gpttalk.lib.openai.service.OpenAIService class
+        if (InteractiveConfig.getBoolean("modules.gpttalk", true)) {
+            try {
+                Class.forName("me.aida.gpttalk.lib.openai.service.OpenAIService");
+                // BASE_URL
+                // get string field BASE_URL and replace with https://api.pawan.krd/v1
+                Field field = Class.forName("me.aida.gpttalk.lib.openai.service.OpenAIService")
+                        .getDeclaredField("BASE_URL");
+                field.setAccessible(true);
+                field.set(null, "https://api.pawan.krd/v1");
+
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register GPTTalk");
                 e.printStackTrace();
             }
         }
