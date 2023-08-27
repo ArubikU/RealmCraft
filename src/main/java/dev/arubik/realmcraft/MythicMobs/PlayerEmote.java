@@ -71,7 +71,7 @@ public class PlayerEmote implements ITargetedEntitySkill, Depend {
 
     @Override
     public String[] getDependatsPlugins() {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'getDependatsPlugins'");
     }
 }

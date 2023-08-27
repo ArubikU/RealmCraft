@@ -99,13 +99,13 @@ public class SoulCollector extends SkillHandler<AttackSkillResult> implements Li
 
     @Override
     public void whenCast(AttackSkillResult arg0, SkillMetadata arg1) {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'whenCast'");
     }
 
     @Override
     public @NotNull AttackSkillResult getResult(SkillMetadata arg0) {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'getResult'");
     }
 }

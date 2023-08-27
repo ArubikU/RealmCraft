@@ -70,13 +70,13 @@ public class AncientBow extends SkillHandler<AttackSkillResult> implements Liste
 
     @Override
     public @NotNull AttackSkillResult getResult(SkillMetadata arg0) {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'getResult'");
     }
 
     @Override
     public void whenCast(AttackSkillResult arg0, SkillMetadata arg1) {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'whenCast'");
     }
 

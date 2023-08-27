@@ -93,7 +93,7 @@ public class LootTableSkill implements ITargetedEntitySkill, Depend {
 
     @Override
     public String[] getDependatsPlugins() {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'getDependatsPlugins'");
     }
 }

@@ -19,7 +19,7 @@ public class BetterName extends StringStat {
 
     public BetterName(String id, Material mat, String name, String[] lore, String[] types, Material[] materials) {
         super(id, mat, name, lore, types, materials);
-        // TODO Auto-generated constructor stub
+
     }
 
     public BetterName() {

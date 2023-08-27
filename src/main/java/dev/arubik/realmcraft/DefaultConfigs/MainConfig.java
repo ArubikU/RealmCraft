@@ -32,7 +32,6 @@ public class MainConfig implements RealLoader {
 
     @Override
     public Map<Integer, String> getComments() {
-        // TODO Auto-generated method stub
         return null;
     }
 

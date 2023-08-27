@@ -78,6 +78,7 @@ public class SkillHandlerRM implements Depend, Listener {
                 MythicLib.plugin.getSkills().registerSkillHandler(handler);
                 if (handler instanceof Listener)
                     Bukkit.getPluginManager().registerEvents((Listener) handler, realmcraft.getInstance());
+
                 RealMessage.sendConsoleMessage("&aRegistered skill handler: " + handler.getId());
             } catch (Throwable t) {
                 RealMessage.sendConsoleMessage(
@@ -154,13 +155,13 @@ public class SkillHandlerRM implements Depend, Listener {
             field.setAccessible(true);
             skills = (Map<String, net.Indyuce.mmoitems.skill.RegisteredSkill>) field.get(mmoitems);
         } catch (NoSuchFieldException | SecurityException e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
 
@@ -220,7 +221,7 @@ public class SkillHandlerRM implements Depend, Listener {
         try {
             field.set(mmoitems, skills);
         } catch (Throwable e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
 
