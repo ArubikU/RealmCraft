@@ -23,6 +23,11 @@ import java.util.UUID;
 
 public class NaturalRegen extends SkillHandler<AttackSkillResult> implements Listener {
 
+    @Override
+    public String getLowerCaseId() {
+        return getId().toLowerCase() + "_PRIVATESKILL";
+    }
+
     private double regenPercentage = 0.05;
     private int cooldownTime = 30; // 30 seconds in ticks
     private static Map<UUID, Long> cooldownMap = new HashMap<>();

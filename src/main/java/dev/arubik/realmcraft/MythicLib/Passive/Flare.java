@@ -29,6 +29,11 @@ import io.lumine.mythic.lib.skill.trigger.TriggerMetadata;
 
 public class Flare extends SkillHandler<AttackSkillResult> implements Listener {
 
+    @Override
+    public String getLowerCaseId() {
+        return getId().toLowerCase() + "_PRIVATESKILL";
+    }
+
     public Flare() {
         super(false);
         registerModifiers("chance", "radius", "ticks", "damage");

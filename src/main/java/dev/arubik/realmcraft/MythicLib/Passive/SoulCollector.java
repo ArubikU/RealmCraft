@@ -30,6 +30,11 @@ import java.util.UUID;
 
 public class SoulCollector extends SkillHandler<AttackSkillResult> implements Listener {
 
+    @Override
+    public String getLowerCaseId() {
+        return getId().toLowerCase() + "_PRIVATESKILL";
+    }
+
     public SoulCollector() {
         super(false);
         registerModifiers("soul-chance"); // Register the soul-chance modifier
@@ -78,10 +83,15 @@ public class SoulCollector extends SkillHandler<AttackSkillResult> implements Li
 
     }
 
-    static Type type = MMOItems.plugin.getTypes().get("MATERIAL");
-    static ItemStack stack = MMOItems.plugin.getItem(type, "SOUL");
+    static ItemStack stack = null;
 
     private void giveItem(Player player, int amount) {
+
+        if (stack == null) {
+            Type type = MMOItems.plugin.getTypes().get("MATERIAL");
+            stack = MMOItems.plugin.getItem(type, "SOUL");
+        }
+
         ItemStack clone = stack.clone();
         clone.setAmount(amount);
         player.getInventory().addItem(clone);

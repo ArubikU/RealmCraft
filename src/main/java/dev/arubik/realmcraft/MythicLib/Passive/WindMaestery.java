@@ -20,6 +20,11 @@ import java.util.UUID;
 
 public class WindMaestery extends SkillHandler<SimpleSkillResult> implements Listener {
 
+    @Override
+    public String getLowerCaseId() {
+        return getId().toLowerCase() + "_PRIVATESKILL";
+    }
+
     private int cooldownTime = 30 * 20; // 30 seconds in ticks
     private Map<UUID, Long> cooldownMap = new HashMap<>();
     private Map<UUID, Integer> jumpCountMap = new HashMap<>();

@@ -36,7 +36,11 @@ import io.lumine.mythic.lib.skill.trigger.TriggerMetadata;
 
 public class Frostie extends SkillHandler<AttackSkillResult> implements Listener {
 
-    private double slowProbability = 0.10;
+    @Override
+    public String getLowerCaseId() {
+        return getId().toLowerCase() + "_PRIVATESKILL";
+    }
+
     private int slowDuration = 60; // 3 seconds in ticks
 
     public Frostie() {

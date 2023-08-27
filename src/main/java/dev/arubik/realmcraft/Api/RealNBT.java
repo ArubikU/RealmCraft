@@ -29,6 +29,7 @@ import com.comphenix.protocol.wrappers.nbt.NbtBase;
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 import com.georgev22.skinoverlay.bstats.json.JsonObjectBuilder.JsonObject;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import dev.arubik.realmcraft.realmcraft;
@@ -88,6 +89,7 @@ public class RealNBT {
     }
 
     public String getType() {
+
         return "MINECRAFT";
     }
 
@@ -102,7 +104,7 @@ public class RealNBT {
     }
 
     public static enum AllowedTypes {
-        String, Integer, Double, Float, Long, Short, Byte, Boolean, JsonElement, NBTTag, OBJECT;
+        String, Integer, Double, Float, Long, Short, Byte, Boolean, JsonElement, NBTTag, OBJECT, LIST;
 
         <T> T getValue(NBTTag tag) {
             return (T) tag.getValue();
@@ -132,6 +134,8 @@ public class RealNBT {
                     return JsonElement;
                 case "NBT":
                     return NBTTag;
+                case "LIST":
+                    return LIST;
                 default:
                     return AllowedTypes.OBJECT;
             }
@@ -178,8 +182,26 @@ public class RealNBT {
                 case NBTTag:
                     this.value = (NBTTag) value;
                     break;
+                case LIST:
+                    this.value = value;
+
                 default:
+                    this.value = value;
                     break;
+            }
+
+            if (type == AllowedTypes.LIST) {
+                // get first element
+                if (((ArrayList<?>) value).size() > 0) {
+                    Object first = ((ArrayList<?>) value).get(0);
+                    if (first instanceof NBTTag) {
+                        this.type = AllowedTypes.JsonElement;
+                    } else {
+                        this.type = AllowedTypes.OBJECT;
+                    }
+                } else {
+                    this.type = AllowedTypes.OBJECT;
+                }
             }
 
         }
@@ -199,9 +221,18 @@ public class RealNBT {
         public JsonElement toJson() {
             return new JsonBuilder().append("key", key).append("type", type.toString()).append("value", value).toJson();
         }
+
+        public NbtBase<String> toNBT() {
+            switch (type) {
+                default:
+                    return NbtFactory.of(key, (String) value);
+            }
+        }
+
     }
 
     private RealCache<NbtCompound> compoundCache = new RealCache<NbtCompound>(1200);
+    private RealCache<List<String>> loreCache = new RealCache<List<String>>(1200);
 
     public <T> void setInternal(String key, Object value, Class<T> type) {
         NbtCompound compound;
@@ -246,18 +277,34 @@ public class RealNBT {
                 compound.putObject(key, value);
                 break;
             case "JsonElement": {
-                JsonElement jsonElement = (JsonElement) value;
-                NbtCompound jsonCompound = NbtFactory.ofCompound(jsonElement.getAsString());
-                compound.put(key, jsonCompound);
+                // get as list of NbtTags
+                try {
+
+                    List<NBTTag> tags = (List<NBTTag>) value;
+                    List<NbtBase<String>> list = new ArrayList<NbtBase<String>>();
+                    for (NBTTag tag : tags) {
+                        list.add(tag.toNBT());
+                    }
+                    compound.put(key, list);
+                } catch (Throwable e) {
+
+                }
             }
             default:
                 compound.putObject(key, value);
                 break;
         }
         ItemStack item = MinecraftReflection.getBukkitItemStack(itemStack);
-        compoundCache.cache(compound);
         NbtFactory.setItemTag((ItemStack) item, compound);
         itemStack = item;
+
+        updateCache();
+    }
+
+    protected void updateCache() {
+        compoundCache.cache(
+                NbtFactory.asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack))));
+
     }
 
     public <T> T getInternal(String key, Class<T> type) {
@@ -293,8 +340,7 @@ public class RealNBT {
     }
 
     public Set<String> getKeys() {
-        NbtCompound compound = NbtFactory
-                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
+        NbtCompound compound = getNbtCompound();
         return compound.getKeys();
     }
 
@@ -335,6 +381,9 @@ public class RealNBT {
             case JsonElement:
                 setJsonElement(tag.getKey(), (JsonElement) tag.getValue());
                 break;
+            case LIST:
+                setInternal(tag.getKey(), tag.getValue(), JsonElement.class);
+                break;
             default:
                 setInternal(tag.getKey(), tag.getValue(), tag.getValue().getClass());
                 break;
@@ -343,11 +392,10 @@ public class RealNBT {
     }
 
     public NBTTag get(String key) {
-        NbtCompound compound = NbtFactory
-                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
+        NbtCompound compound = getNbtCompound();
         NbtBase wrapper = compound.getValue(key);
-        if (wrapper == null) {
-            return null;
+        if (wrapper == null || wrapper.getValue().getClass().getName().contains("WrappedList")) {
+            return new NBTTag(key, AllowedTypes.String, "NULLVALUEDONTUSE");
         }
         return new NBTTag(key, AllowedTypes.fromString(wrapper.getType().name()), wrapper.getValue());
     }
@@ -359,9 +407,7 @@ public class RealNBT {
             return false;
         if (itemStack.getItemMeta() == null)
             return false;
-
-        NbtCompound compound = NbtFactory
-                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
+        NbtCompound compound = getNbtCompound();
         return compound.containsKey(key);
     }
 
@@ -372,10 +418,27 @@ public class RealNBT {
             return false;
         if (itemStack.getItemMeta() == null)
             return false;
-
-        NbtCompound compound = NbtFactory
-                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
+        NbtCompound compound = getNbtCompound();
         return compound.containsKey(key);
+    }
+
+    protected NbtCompound getNbtCompound() {
+        NbtCompound compound;
+
+        if (compoundCache.isCached()) {
+            try {
+                compound = compoundCache.get();
+            } catch (Exception e) {
+                compound = NbtFactory
+                        .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
+            }
+        } else {
+            compound = NbtFactory
+                    .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
+            compoundCache.cache(compound);
+        }
+
+        return compound;
     }
 
     public void setString(String key, String value) {
@@ -503,11 +566,11 @@ public class RealNBT {
     }
 
     public void remove(String key) {
-        NbtCompound compound = NbtFactory
-                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
+        NbtCompound compound = getNbtCompound();
         compound.remove(key);
         NbtFactory.setItemTag(itemStack, compound);
 
+        updateCache();
     }
 
     public void setLore(List<String> lore) {
@@ -517,9 +580,18 @@ public class RealNBT {
                     .serialize(MiniMessage.miniMessage().deserialize(line)));
         }
         this.itemStack.setLore(newLore);
+
+        updateCache();
+        loreCache.cache(newLore);
     }
 
     public List<String> getLore() {
+        if (loreCache.isCached()) {
+            try {
+                return loreCache.get();
+            } catch (Exception e) {
+            }
+        }
         ArrayList<String> lore = new ArrayList<String>();
         if (this.itemStack.getItemMeta() == null)
             return lore;
@@ -531,6 +603,7 @@ public class RealNBT {
                     .serialize(LegacyComponentSerializer.legacySection().deserialize(line)));
         }
         return lore;
+
     }
 
     public void putLoreLine(String line, LorePosition alignment) {
@@ -601,6 +674,8 @@ public class RealNBT {
         item.setDisplayName(LegacyComponentSerializer.legacySection()
                 .serialize(MiniMessage.miniMessage().deserialize(name)));
         this.itemStack.setItemMeta(item);
+
+        updateCache();
     }
 
     public String getDisplayName() {
@@ -631,7 +706,9 @@ public class RealNBT {
             return RealNBT.fromItemStack(Empty);
         }
         itemStack.setAmount(itemStack.getAmount() - 1);
+
         return this;
+
     }
 
     public ItemStack[] getItemStackArray(String key) {
@@ -669,14 +746,6 @@ public class RealNBT {
     public ItemStack getItemStack() {
         if (getLore().size() == 0) {
             itemStack.editMeta(meta -> meta.lore(null));
-        }
-        if (itemStack.hasItemMeta()) {
-            if (itemStack.getItemMeta().hasDisplayName()) {
-                if (itemStack.getItemMeta().getDisplayName().isEmpty()
-                        || itemStack.getItemMeta().getDisplayNameComponent().length == 0) {
-                    itemStack.editMeta(meta -> meta.setDisplayName(null));
-                }
-            }
         }
         return itemStack;
     }

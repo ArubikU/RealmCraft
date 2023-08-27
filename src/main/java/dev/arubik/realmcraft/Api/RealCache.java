@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import com.willfp.eco.libs.jetbrains.annotations.Nullable;
 
@@ -188,6 +190,21 @@ public class RealCache<T> {
             return map.get(key).get(def);
         }
 
+        @Nullable
+        public V getFunc(K key) {
+            if (containsKey(key)) {
+                return get(key);
+            } else {
+                return function.apply(key);
+            }
+        }
+
+        public Function<K, V> function = null;
+
+        public void setFunction(Function<K, V> function) {
+            this.function = function;
+        }
+
         public Set<K> keySet() {
             return map.keySet();
         }
@@ -195,6 +212,10 @@ public class RealCache<T> {
         public boolean containsKey(K key) {
             Boolean contains = map.containsKey(key);
             if (contains) {
+                if (!map.get(key).isCached()) {
+                    map.remove(key);
+                    return false;
+                }
                 map.get(key).refresh();
             }
             return contains;
@@ -205,6 +226,7 @@ public class RealCache<T> {
         }
 
         public void remove(K key) {
+            map.get(key).remove();
             map.remove(key);
         }
     }

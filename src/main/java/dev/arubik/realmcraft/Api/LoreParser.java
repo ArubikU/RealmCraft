@@ -51,6 +51,8 @@ public class LoreParser {
     public Function<ItemStack, ItemStack> f = new Function<ItemStack, ItemStack>() {
         @Override
         public ItemStack apply(ItemStack item) {
+            if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.CREATIVE)
+                return item;
             if (item == null)
                 return null;
             if (!item.hasItemMeta()) {
@@ -64,23 +66,17 @@ public class LoreParser {
             if (!item.getItemMeta().hasDisplayName()) {
                 return item;
             }
-            RealMessage.sendConsoleMessage(DebugType.LOREPARSER, "Barrier of nullable item reached");
-            if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.CREATIVE)
-                return item;
             RealNBT nbt = new RealNBT(item);
-            if (cache.containsKey(nbt.dump())) {
-                ItemStack cached = cache.get(nbt.dump());
-                if (cached == null) {
-                    cache.remove(nbt.dump());
+            String dump = nbt.dump();
+            if (cache.containsKey(dump)) {
+                if (cache.getCache(dump).forcedGet() != null) {
+
+                    return cache.getCache(dump).isCached() == true ? cache.getCache(dump).forcedGet() : null;
                 } else {
-                    return cached;
+                    cache.remove(dump);
                 }
             }
-
-            RealMessage.sendConsoleMessage(DebugType.LOREPARSER, "Barrier of creative mode reached");
-            RealMessage.sendConsoleMessage(DebugType.LOREPARSER, "Parsing lore for " + item.getType().toString());
             for (RealLore lore : LoreEvent.getLores()) {
-                RealMessage.sendConsoleMessage(DebugType.LOREPARSER, "Parsing lore " + lore.getClass().toString());
                 if (lore.able(item)
                         && lore.able(item, LoreParser.this.getContextEvent())
                         && lore.able(player, item)) {
@@ -111,10 +107,7 @@ public class LoreParser {
             }
             item = nbt.getItemStack();
 
-            cache.put(nbt.dump(), item);
-            if (Utils.checkPermission(player, "gmccache")) {
-                gmccache.put(nbt.dump(), item);
-            }
+            cache.put(dump, item);
             return item; // RealNBT.fromItemStack(item).removedInvisibleNBT().getItemStack();
         }
     };

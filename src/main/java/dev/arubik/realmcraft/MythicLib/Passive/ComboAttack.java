@@ -27,6 +27,11 @@ import lombok.Getter;
 
 public class ComboAttack extends SkillHandler<AttackSkillResult> implements Listener {
 
+    @Override
+    public String getLowerCaseId() {
+        return getId().toLowerCase() + "_PRIVATESKILL";
+    }
+
     public ComboAttack() {
         super(false);
         registerModifiers("damage-multiplier", "max-combo", "delay-remove");

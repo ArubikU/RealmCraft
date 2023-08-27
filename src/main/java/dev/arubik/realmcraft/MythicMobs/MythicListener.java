@@ -2,6 +2,7 @@ package dev.arubik.realmcraft.MythicMobs;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,8 +24,16 @@ import com.comphenix.protocol.reflect.FieldUtils;
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Managers.Depend;
+import io.lumine.mythic.api.adapters.AbstractItemStack;
+import io.lumine.mythic.api.config.MythicLineConfig;
+import io.lumine.mythic.api.drops.DropMetadata;
+import io.lumine.mythic.api.drops.IItemDrop;
+import io.lumine.mythic.bukkit.adapters.BukkitItemStack;
 import io.lumine.mythic.bukkit.events.MythicConditionLoadEvent;
+import io.lumine.mythic.bukkit.events.MythicDropLoadEvent;
 import io.lumine.mythic.bukkit.events.MythicMechanicLoadEvent;
+import io.lumine.mythic.core.drops.Drop;
+import net.Indyuce.mmocore.util.item.CurrencyItemBuilder;
 import net.seyarada.pandeloot.Constants;
 import net.seyarada.pandeloot.drops.ActiveDrop;
 import net.seyarada.pandeloot.drops.IDrop;

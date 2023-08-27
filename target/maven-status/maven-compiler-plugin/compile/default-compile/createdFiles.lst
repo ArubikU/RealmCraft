@@ -1,4 +1,5 @@
 dev\arubik\realmcraft\Managers\Command\RealmcraftCommand$1.class
+dev\arubik\realmcraft\MythicLib\Passive\LavaInmunity.class
 dev\arubik\realmcraft\IReplacer\InternalReplacerStructure.class
 dev\arubik\realmcraft\Api\RealBlock.class
 dev\arubik\realmcraft\Api\Listeners\AttackListener.class
@@ -46,6 +47,7 @@ dev\arubik\realmcraft\Api\RealEnchantment.class
 dev\arubik\realmcraft\FileManagement\InteractiveFolder.class
 dev\arubik\realmcraft\MMOItems\Range\InteractAnimation.class
 dev\arubik\realmcraft\Api\Events\LoreEvent$1.class
+dev\arubik\realmcraft\Api\RealReflect.class
 dev\arubik\realmcraft\Api\RealCache$RealCacheMap.class
 dev\arubik\realmcraft\MMOItems\BetterName.class
 dev\arubik\realmcraft\MythicLib\Passive\StackedAttack.class
@@ -64,7 +66,6 @@ dev\arubik\realmcraft\MMOItems\CustomLore.class
 dev\arubik\realmcraft\Api\ItemBuildModifier.class
 dev\arubik\realmcraft\Api\RealNBT.class
 dev\arubik\realmcraft\Managers\Command\ExampleCommand.class
-dev\arubik\realmcraft\MMOItems\Durability\DurabilityLore$DurabilityModifier.class
 dev\arubik\realmcraft\DefaultConfigs\RealLoader.class
 dev\arubik\realmcraft\MMOCore\Loader$2.class
 dev\arubik\realmcraft\Managers\Command\RealCommand$1.class
@@ -112,6 +113,7 @@ dev\arubik\realmcraft\realmcraft.class
 dev\arubik\realmcraft\DefaultConfigs\LangConfig.class
 dev\arubik\realmcraft\MMOItems\Durability\RepairMaterial.class
 dev\arubik\realmcraft\Api\LoreParser$2.class
+dev\arubik\realmcraft\Api\RealReflect$RealField$RealClazz.class
 dev\arubik\realmcraft\Api\LorePosition.class
 dev\arubik\realmcraft\Api\RealNBT$AllowedTypes.class
 dev\arubik\realmcraft\MMOItems\Durability\MinimessageFormat$1.class
@@ -122,6 +124,7 @@ dev\arubik\realmcraft\Api\EmptyDynamicLine.class
 dev\arubik\realmcraft\Api\Utils.class
 dev\arubik\realmcraft\Api\LoreParser$ContextEvent.class
 dev\arubik\realmcraft\Api\Events\BuildEvent.class
+dev\arubik\realmcraft\Api\RealReflect$RealField.class
 dev\arubik\realmcraft\Api\RealMethods$Methods.class
 dev\arubik\realmcraft\Api\RealNBT$NBTTag.class
 dev\arubik\realmcraft\Managers\SchemaValidator.class
@@ -139,3 +142,4 @@ dev\arubik\realmcraft\MMOItems\Range\RangeStat.class
 dev\arubik\realmcraft\IReplacer\IReplacerListener.class
 dev\arubik\realmcraft\DefaultConfigs\MainConfig.class
 dev\arubik\realmcraft\MythicLib\SkillHandlerRM.class
+dev\arubik\realmcraft\IReplacer\IReplacerListener$2.class

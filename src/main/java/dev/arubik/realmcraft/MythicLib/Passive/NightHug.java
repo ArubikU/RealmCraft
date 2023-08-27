@@ -34,6 +34,11 @@ import java.util.UUID;
 
 public class NightHug extends SkillHandler<AttackSkillResult> implements Listener {
 
+    @Override
+    public String getLowerCaseId() {
+        return getId().toLowerCase() + "_PRIVATESKILL";
+    }
+
     private double stealProbability = 0.05;
     private double stealHealth = 10;
 

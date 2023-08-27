@@ -31,6 +31,11 @@ import io.lumine.mythic.lib.skill.trigger.TriggerMetadata;
 
 public class RegenChance extends SkillHandler<AttackSkillResult> implements Listener {
 
+    @Override
+    public String getLowerCaseId() {
+        return getId().toLowerCase() + "_PRIVATESKILL";
+    }
+
     public RegenChance() {
         super(false);
         registerModifiers("probability", "health-regen");

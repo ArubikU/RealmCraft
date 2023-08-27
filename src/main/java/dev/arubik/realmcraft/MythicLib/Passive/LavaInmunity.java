@@ -15,14 +15,14 @@ import io.lumine.mythic.lib.skill.handler.SkillHandler;
 import io.lumine.mythic.lib.skill.result.def.AttackSkillResult;
 import io.lumine.mythic.lib.skill.trigger.TriggerMetadata;
 
-public class WitherEffectInvulnerability extends SkillHandler<AttackSkillResult> implements Listener {
+public class LavaInmunity extends SkillHandler<AttackSkillResult> implements Listener {
 
     @Override
     public String getLowerCaseId() {
         return getId().toLowerCase() + "_PRIVATESKILL";
     }
 
-    public WitherEffectInvulnerability() {
+    public LavaInmunity() {
         super(false);
     }
 
@@ -30,13 +30,11 @@ public class WitherEffectInvulnerability extends SkillHandler<AttackSkillResult>
     public void onEntityDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
-            if (event.getCause() == DamageCause.WITHER) {
+            if (event.getCause() == DamageCause.FIRE || event.getCause() == DamageCause.FIRE_TICK
+                    || event.getCause() == DamageCause.LAVA) {
                 MMOPlayerData playerData = MMOPlayerData.get(player);
                 if (playerData.getPassiveSkillMap().getSkill(this) != null) {
                     event.setCancelled(true);
-
-                    // remove wither potion effect
-                    player.removePotionEffect(PotionEffectType.WITHER);
                 }
             }
         }

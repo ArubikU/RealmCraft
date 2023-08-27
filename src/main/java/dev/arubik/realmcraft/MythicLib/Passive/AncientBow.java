@@ -33,6 +33,11 @@ import java.util.UUID;
 
 public class AncientBow extends SkillHandler<AttackSkillResult> implements Listener {
 
+    @Override
+    public String getLowerCaseId() {
+        return getId().toLowerCase() + "_PRIVATESKILL";
+    }
+
     public AncientBow() {
         super(false);
         registerModifiers("damage-multiplier", "thunders"); // Register the soul-chance modifier

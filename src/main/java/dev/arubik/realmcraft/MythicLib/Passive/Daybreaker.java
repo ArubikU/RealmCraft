@@ -28,6 +28,11 @@ import java.util.UUID;
 
 public class Daybreaker extends SkillHandler<AttackSkillResult> implements Listener {
 
+    @Override
+    public String getLowerCaseId() {
+        return getId().toLowerCase() + "_PRIVATESKILL";
+    }
+
     public Daybreaker() {
         super(false);
         registerModifiers("chance"); // Register the soul-chance modifier

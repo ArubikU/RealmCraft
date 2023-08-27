@@ -21,7 +21,9 @@ import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.Damageable;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLib;
@@ -35,6 +37,10 @@ import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Handlers.RealMessage.DebugType;
 import dev.arubik.realmcraft.Managers.Depend;
 import io.lumine.mythic.lib.api.item.NBTItem;
+import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.player.PlayerData;
+import net.Indyuce.mmocore.experience.EXPSource;
+import net.Indyuce.mmocore.experience.source.RepairItemExperienceSource;
 import net.Indyuce.mmoitems.api.item.mmoitem.LiveMMOItem;
 
 public class MMOListener implements Listener, Depend {
@@ -80,16 +86,34 @@ public class MMOListener implements Listener, Depend {
                 return;
             RealNBT nbt2 = new RealNBT(inv.getItem(repair));
             String repairMaterial = nbt.getString("MMOITEMS_REPAIR_MATERIAL");
+
             if (!nbt2.contains("MMOITEMS_ITEM_TYPE")) {
                 if (inv.getItem(repair) != null) {
-                    if (!defaultRepairMaterial.contains(inv.getItem(repair).getType())) {
-                        // verify if MMOITEMS_REPAIR_MATERIAL not contains MINECRAFT.${material}
-                        if (!nbt.getString("MMOITEMS_REPAIR_MATERIAL")
-                                .contains("MINECRAFT." + inv.getItem(repair).getType().toString())) {
-                            e.setCancelled(true);
-                            return;
+                    // set the result to null
+
+                    // get second param
+                    String type = repairMaterial.split("\\.")[0];
+                    String id = repairMaterial.split("\\.")[1];
+                    if (type.equalsIgnoreCase("MINECRAFT")
+                            && (id.equalsIgnoreCase("stones") || id.equalsIgnoreCase("woods"))) {
+                        if (id.equalsIgnoreCase("stones")) {
+                            if (!stones.contains(inv.getItem(repair).getType())) {
+                                e.getInventory().setItem(output, RealNBT.Empty);
+                                return;
+                            }
+                        } else if (id.equalsIgnoreCase("woods")) {
+                            if (!woods.contains(inv.getItem(repair).getType())) {
+                                e.getInventory().setItem(output, RealNBT.Empty);
+                                return;
+                            }
                         }
                     }
+                    if (!nbt.getString("MMOITEMS_REPAIR_MATERIAL")
+                            .contains("MINECRAFT." + inv.getItem(repair).getType().toString())) {
+                        e.getInventory().setItem(output, RealNBT.Empty);
+                        return;
+                    }
+
                 }
             }
             if (p.getLevel() < 5)
@@ -115,6 +139,7 @@ public class MMOListener implements Listener, Depend {
                 double b = repairPercent * a;
                 Integer repairAmount = Utils.doubleToInt(b);
                 if (durability + repairAmount > maxDurability) {
+                    repairAmount = maxDurability - durability;
                     durability = maxDurability;
                 } else {
                     durability += repairAmount;
@@ -130,29 +155,56 @@ public class MMOListener implements Listener, Depend {
                 } else {
                     p.setLevel(p.getLevel() - 5);
                 }
+
                 e.setCancelled(true);
+
+                double exp = realmcraft.getInteractiveConfig().getDouble(
+                        "repairs." + nbt.getString("MMOITEMS_ITEM_TYPE") + ":" + nbt.getString("MMOITEMS_ITEM_ID"),
+                        30.0);
+                // exp = exp * repairPercent;
+                // get number in range of repairPercent(-20%) repairPercent(+20%)
+                double r = Utils.randomNumer(0, 40) - 20;
+                // verify if is negative
+                if (r < 0) {
+                    // get the absolute value
+                    r = Math.abs(r);
+                    // get the percentage of the absolute value
+                    r = r / 100;
+                    // get the percentage of the exp
+                    r = exp * r;
+                    // remove the percentage of the exp
+                    exp = exp - r;
+                } else {
+                    exp = exp * (exp * r) / 100;
+                }
+                exp *= 0.1;
+                exp = Double.valueOf(Utils.round(r, 3));
+                PlayerData data = MMOCore.plugin.dataProvider.getDataManager().get(p);
+                MMOCore.plugin.professionManager.get("smithing").giveExperience(data, exp, null, EXPSource.OTHER);
+                // RealMessage.sendRaw(p, "&7You have gained &e" + exp + " &7smithing
+                // experience.");
             }
         }
     }
 
-    public static Set<Material> defaultRepairMaterial = new HashSet<Material>();
+    public static Set<Material> woods = new HashSet<Material>();
+    public static Set<Material> stones = new HashSet<Material>();
     static {
-        defaultRepairMaterial.add(Material.IRON_INGOT);
-        defaultRepairMaterial.add(Material.GOLD_INGOT);
-        defaultRepairMaterial.add(Material.DIAMOND);
-        defaultRepairMaterial.add(Material.EMERALD);
-        defaultRepairMaterial.add(Material.NETHERITE_INGOT);
-        defaultRepairMaterial.add(Material.COBBLESTONE);
-        defaultRepairMaterial.add(Material.STONE);
-        defaultRepairMaterial.add(Material.OAK_PLANKS);
-        defaultRepairMaterial.add(Material.SPRUCE_PLANKS);
-        defaultRepairMaterial.add(Material.BIRCH_PLANKS);
-        defaultRepairMaterial.add(Material.JUNGLE_PLANKS);
-        defaultRepairMaterial.add(Material.ACACIA_PLANKS);
-        defaultRepairMaterial.add(Material.DARK_OAK_PLANKS);
-        defaultRepairMaterial.add(Material.CRIMSON_PLANKS);
-        defaultRepairMaterial.add(Material.WARPED_PLANKS);
-        defaultRepairMaterial.add(Material.MANGROVE_PLANKS);
+        stones.add(Material.COBBLESTONE);
+        stones.add(Material.STONE);
+        stones.add(Material.ANDESITE);
+        stones.add(Material.DIORITE);
+        stones.add(Material.GRANITE);
+        stones.add(Material.BLACKSTONE);
+        woods.add(Material.OAK_PLANKS);
+        woods.add(Material.SPRUCE_PLANKS);
+        woods.add(Material.BIRCH_PLANKS);
+        woods.add(Material.JUNGLE_PLANKS);
+        woods.add(Material.ACACIA_PLANKS);
+        woods.add(Material.DARK_OAK_PLANKS);
+        woods.add(Material.CRIMSON_PLANKS);
+        woods.add(Material.WARPED_PLANKS);
+        woods.add(Material.MANGROVE_PLANKS);
 
     }
 
@@ -175,15 +227,32 @@ public class MMOListener implements Listener, Depend {
 
             if (!nbt2.contains("MMOITEMS_ITEM_TYPE")) {
                 if (inv.getItem(repair) != null) {
-                    if (!defaultRepairMaterial.contains(inv.getItem(repair).getType())) {
-                        // verify if MMOITEMS_REPAIR_MATERIAL not contains MINECRAFT.${material}
-                        if (!nbt.getString("MMOITEMS_REPAIR_MATERIAL")
-                                .contains("MINECRAFT." + inv.getItem(repair).getType().toString())) {
-                            // set the result to null
-                            e.getInventory().setItem(output, RealNBT.Empty);
-                            return;
+                    // set the result to null
+
+                    String repairMaterial = nbt.getString("MMOITEMS_REPAIR_MATERIAL");
+                    // get second param
+                    String type = repairMaterial.split("\\.")[0];
+                    String id = repairMaterial.split("\\.")[1];
+                    if (type.equalsIgnoreCase("MINECRAFT")
+                            && (id.equalsIgnoreCase("stones") || id.equalsIgnoreCase("woods"))) {
+                        if (id.equalsIgnoreCase("stones")) {
+                            if (!stones.contains(inv.getItem(repair).getType())) {
+                                e.getInventory().setItem(output, RealNBT.Empty);
+                                return;
+                            }
+                        } else if (id.equalsIgnoreCase("woods")) {
+                            if (!woods.contains(inv.getItem(repair).getType())) {
+                                e.getInventory().setItem(output, RealNBT.Empty);
+                                return;
+                            }
                         }
                     }
+                    if (!nbt.getString("MMOITEMS_REPAIR_MATERIAL")
+                            .contains("MINECRAFT." + inv.getItem(repair).getType().toString())) {
+                        e.getInventory().setItem(output, RealNBT.Empty);
+                        return;
+                    }
+
                 }
             }
 
@@ -265,29 +334,6 @@ public class MMOListener implements Listener, Depend {
                     } else {
                         p.getEquipment().setItem(e.getHand(), nbt.getItemStack());
                         p.updateInventory();
-                    }
-                }
-            }
-        }
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    public void onBookUse(PlayerInteractEvent e) {
-        if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (e.getItem() == null)
-                return;
-            if (e.getItem().hasItemMeta()) {
-                if (e.getItem().getItemMeta() instanceof BookMeta) {
-                    if (NBTItem.get(e.getItem()).hasTag("MMOITEMS_DISABLE_INTERACTION")) {
-                        e.setCancelled(true);
-                        // open and close a fast inventory
-                        try {
-                            Inventory inv = Bukkit.createInventory(null, 9, " ");
-                            e.getPlayer().openInventory(inv);
-                            e.getPlayer().closeInventory();
-                        } catch (Throwable e1) {
-                            // e1.printStackTrace();
-                        }
                     }
                 }
             }
