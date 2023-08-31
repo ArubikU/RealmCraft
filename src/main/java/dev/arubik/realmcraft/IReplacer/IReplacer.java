@@ -16,12 +16,7 @@ import dev.arubik.realmcraft.FileManagement.InteractiveFile.FileType;
 import dev.arubik.realmcraft.Handlers.JsonBuilder;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Handlers.RealMessage.DebugType;
-import io.lumine.mythic.bukkit.utils.gson.JsonBuilder.JsonArrayBuilder;
-import io.lumine.mythic.lib.gson.JsonArray;
 import lombok.Getter;
-import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
-import net.kyori.adventure.text.serializer.craftbukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class IReplacer {

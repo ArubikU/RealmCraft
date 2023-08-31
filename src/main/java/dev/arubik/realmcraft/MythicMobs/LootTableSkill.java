@@ -15,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import dev.arubik.realmcraft.EmoteHandler.EmoteMain;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Handlers.RealMessage.DebugType;
 import dev.arubik.realmcraft.LootGen.ContainerApi;
@@ -33,7 +32,6 @@ import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.MMOCoreAPI;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.api.player.profess.PlayerClass;
-import xyz.larkyy.aquaticmodelengine.api.model.animation.LoopMode;
 
 public class LootTableSkill implements ITargetedEntitySkill, Depend {
 

@@ -781,6 +781,8 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                 } else {
                     openChest.add(locationBytes);
                 }
+                locationInt = null;
+                locationBytes = null;
             }
 
             for (int i = 0; i < event.getInventory().getSize(); i++) {

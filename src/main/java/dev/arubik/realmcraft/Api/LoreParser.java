@@ -8,10 +8,10 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.georgev22.skinoverlay.commands.acf.lib.yaml.events.Event;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.Events.LoreEvent;
 import dev.arubik.realmcraft.Api.RealCache.RealCacheMap;
 import dev.arubik.realmcraft.Handlers.JsonBuilder;
@@ -40,12 +40,14 @@ public class LoreParser {
     @Setter
     private ContextEvent contextEvent = ContextEvent.ANY;
 
-    private static RealCacheMap<String, ItemStack> cache = new RealCacheMap<String, ItemStack>();
-    private static RealCacheMap<String, ItemStack> gmccache = new RealCacheMap<String, ItemStack>();
+    private static RealCacheMap<String, String> cache = new RealCacheMap<String, String>();
 
     static {
-        cache.setRemoveInterval(12000);
-        gmccache.setRemoveInterval(12000);
+        cache.setRemoveInterval(1200);
+    }
+
+    public static void clearCache() {
+        cache.clear();
     }
 
     public Function<ItemStack, ItemStack> f = new Function<ItemStack, ItemStack>() {
@@ -69,45 +71,46 @@ public class LoreParser {
             RealNBT nbt = new RealNBT(item);
             String dump = nbt.dump();
             if (cache.containsKey(dump)) {
-                if (cache.getCache(dump).forcedGet() != null) {
-
-                    return cache.getCache(dump).isCached() == true ? cache.getCache(dump).forcedGet() : null;
-                } else {
-                    cache.remove(dump);
-                }
+                return cache.getCache(dump).isCached() == true
+                        ? Utils.itemStackArrayFromBase64(cache.getCache(dump).forcedGet())[0]
+                        : null;
             }
-            for (RealLore lore : LoreEvent.getLores()) {
-                if (lore.able(item)
-                        && lore.able(item, LoreParser.this.getContextEvent())
-                        && lore.able(player, item)) {
-                    List<DynamicLoreLine> line = lore.getLoreLines();
-                    List<String> loreList = Lists.newArrayList();
-                    for (DynamicLoreLine l : line) {
-                        if (l != null) {
-                            String lineAdded = l.parseLine(player, item);
-                            loreList.add(lineAdded);
-                            RealMessage.sendConsoleMessage(DebugType.LOREPARSER, "Added line " + lineAdded);
-                        } else {
-                            loreList.add("");
+            if (realmcraft.LoreProtocolParser) {
+                for (RealLore lore : LoreEvent.getLores()) {
+                    if (lore.able(item)
+                            && lore.able(item, LoreParser.this.getContextEvent())
+                            && lore.able(player, item)) {
+                        List<DynamicLoreLine> line = lore.getLoreLines();
+                        List<String> loreList = Lists.newArrayList();
+                        for (DynamicLoreLine l : line) {
+                            if (l != null) {
+                                String lineAdded = l.parseLine(player, item);
+                                loreList.add(lineAdded);
+                                RealMessage.sendConsoleMessage(DebugType.LOREPARSER, "Added line " + lineAdded);
+                            } else {
+                                loreList.add("");
+                            }
                         }
+                        RealMessage.sendConsoleMessage(DebugType.LOREPARSER,
+                                "Lore: " + Arrays.deepToString(nbt.getLore().toArray()));
+                        nbt.putLoreLines(loreList, lore.getLorePosition());
                     }
-                    RealMessage.sendConsoleMessage(DebugType.LOREPARSER,
-                            "Lore: " + Arrays.deepToString(nbt.getLore().toArray()));
-                    nbt.putLoreLines(loreList, lore.getLorePosition());
                 }
             }
-            for (ItemBuildModifier modifier : LoreEvent.getItemBuildModifiers()) {
-                RealMessage.sendConsoleMessage(DebugType.LOREPARSER,
-                        "Parsing modifier " + modifier.getClass().toString());
-                if (modifier.able(nbt)
-                        && modifier.able(nbt, LoreParser.this.getContextEvent())
-                        && modifier.able(player, nbt)) {
-                    nbt = modifier.modifyItem(player, nbt);
+            if (realmcraft.ModifireProtocolParser) {
+                for (ItemBuildModifier modifier : LoreEvent.getItemBuildModifiers()) {
+                    RealMessage.sendConsoleMessage(DebugType.LOREPARSER,
+                            "Parsing modifier " + modifier.getClass().toString());
+                    if (modifier.able(nbt)
+                            && modifier.able(nbt, LoreParser.this.getContextEvent())
+                            && modifier.able(player, nbt)) {
+                        nbt = modifier.modifyItem(player, nbt);
+                    }
                 }
             }
             item = nbt.getItemStack();
 
-            cache.put(dump, item);
+            cache.put(dump, Utils.itemStackArrayToBase64(new ItemStack[] { item }));
             return item; // RealNBT.fromItemStack(item).removedInvisibleNBT().getItemStack();
         }
     };
@@ -123,13 +126,12 @@ public class LoreParser {
         RealMessage.sendConsoleMessage(DebugType.LOREPARSER, "Barrier of nullable item meta reached");
         if (item.getType().isAir())
             return item;
-        if (cache.containsKey(nbt.dump())) {
-            ItemStack cached = cache.get(nbt.dump());
-            if (cached == null) {
-                cache.remove(nbt.dump());
-            } else {
-                return cached;
-            }
+
+        String dump = nbt.dump();
+        if (cache.containsKey(dump)) {
+            return cache.getCache(dump).isCached() == true
+                    ? Utils.itemStackArrayFromBase64(cache.getCache(dump).forcedGet())[0]
+                    : null;
         }
 
         RealMessage.sendConsoleMessage(DebugType.LOREPARSER, "Barrier of air item reached");
@@ -162,7 +164,7 @@ public class LoreParser {
         }
         item = nbt.getItemStack();
         IReplacerListener.mmoitemsPreview(item, IReplacerListener.match(item));
-        cache.put(nbt.dump(), item);
+        cache.put(dump, Utils.itemStackArrayToBase64(new ItemStack[] { item }));
         return item;
     }
 

@@ -9,7 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.willfp.eco.libs.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import dev.arubik.realmcraft.IReplacer.InternalReplacerStructure;
 import lombok.RequiredArgsConstructor;
@@ -144,6 +144,15 @@ public class RealCache<T> {
 
         public RealCacheMap() {
 
+        }
+
+        public RealCacheMap(long removeInterval) {
+            this.removeInterval = removeInterval;
+        }
+
+        public RealCacheMap(long updateInterval, long removeInterval) {
+            this.updateInterval = updateInterval;
+            this.removeInterval = removeInterval;
         }
 
         public void clear() {

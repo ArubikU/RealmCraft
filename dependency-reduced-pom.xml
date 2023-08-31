@@ -102,6 +102,10 @@
       <id>opencollab-snapshot-repo</id>
       <url>https://repo.opencollab.dev/main/</url>
     </repository>
+    <repository>
+      <id>eco-repo</id>
+      <url>https://repo.auxilor.io/repository/maven-public/</url>
+    </repository>
   </repositories>
   <dependencies>
     <dependency>
@@ -133,6 +137,13 @@
       <artifactId>placeholderapi</artifactId>
       <version>2.11.2</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.lumine</groupId>
+      <artifactId>MythicLib-dist</artifactId>
+      <version>1.5.2-SNAPSHOT</version>
+      <scope>provided</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>io.lumine</groupId>
@@ -168,26 +179,26 @@
     </dependency>
     <dependency>
       <groupId>Seyarada</groupId>
-      <artifactId>EcoEnchants</artifactId>
+      <artifactId>Eco1</artifactId>
       <version>1.5.1</version>
       <scope>system</scope>
-      <systemPath>${basedir}\EcoEnchants.jar</systemPath>
+      <systemPath>${basedir}\Eco1.jar</systemPath>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>Seyarada</groupId>
-      <artifactId>CBB</artifactId>
+      <artifactId>Eco2</artifactId>
       <version>1.5.1</version>
       <scope>system</scope>
-      <systemPath>${basedir}\CBB.jar</systemPath>
+      <systemPath>${basedir}\Eco2.jar</systemPath>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>Seyarada</groupId>
-      <artifactId>Eco</artifactId>
+      <artifactId>PandeLootPlus</artifactId>
       <version>1.5.1</version>
       <scope>system</scope>
-      <systemPath>${basedir}\Eco.jar</systemPath>
+      <systemPath>${basedir}\NMS.jar</systemPath>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -196,37 +207,6 @@
       <version>1.5.1</version>
       <scope>system</scope>
       <systemPath>${basedir}\PandeLootPlus.jar</systemPath>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>larky</groupId>
-      <artifactId>SkinOverlay</artifactId>
-      <version>1.5.1</version>
-      <scope>system</scope>
-      <systemPath>${basedir}\SkinOverlay.jar</systemPath>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>larky</groupId>
-      <artifactId>NMS</artifactId>
-      <version>1.5.1</version>
-      <scope>system</scope>
-      <systemPath>${basedir}\NMS.jar</systemPath>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.lumine</groupId>
-      <artifactId>MythicLib-dist</artifactId>
-      <version>1.5.1-20230228.101224-9</version>
-      <scope>system</scope>
-      <systemPath>${basedir}\MythicLib.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>larky</groupId>
-      <artifactId>AquaticEngine</artifactId>
-      <version>1.5.1</version>
-      <scope>system</scope>
-      <systemPath>${basedir}\AquaticModelEngine.jar</systemPath>
       <optional>true</optional>
     </dependency>
   </dependencies>

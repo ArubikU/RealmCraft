@@ -17,17 +17,13 @@ import dev.arubik.realmcraft.Api.Listeners.ChangeGamemode;
 import dev.arubik.realmcraft.CustomSouds.WeaponListener;
 import dev.arubik.realmcraft.DefaultConfigs.LangConfig;
 import dev.arubik.realmcraft.DefaultConfigs.MainConfig;
-import dev.arubik.realmcraft.EmoteHandler.EmoteMain;
 import dev.arubik.realmcraft.FileManagement.InteractiveFile;
-import dev.arubik.realmcraft.Handlers.Overlay;
 import dev.arubik.realmcraft.Handlers.PlaceholderConfigParser;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.IReplacer.IReplacer;
 import dev.arubik.realmcraft.IReplacer.IReplacerListener;
 import dev.arubik.realmcraft.IReplacer.IReplacerModifier;
 import dev.arubik.realmcraft.LootGen.ContainerApi;
-import dev.arubik.realmcraft.MMOCore.Loader;
-import dev.arubik.realmcraft.MMOItems.BetterName;
 import dev.arubik.realmcraft.MMOItems.CustomLore;
 import dev.arubik.realmcraft.MMOItems.Durability.DurabilityLore;
 import dev.arubik.realmcraft.MMOItems.Durability.EnablePlaceholders;
@@ -108,9 +104,6 @@ public class realmcraft extends JavaPlugin {
         if (InteractiveConfig.getBoolean("modules.mythic-mobs", true)) {
             MythicListener.register();
         }
-        if (InteractiveConfig.getBoolean("modules.emotes", true)) {
-            EmoteMain.Register();
-        }
         if (InteractiveConfig.getBoolean("modules.ireplacer", true)) {
             replacer = new IReplacer(this);
             try {
@@ -147,14 +140,6 @@ public class realmcraft extends JavaPlugin {
                 e.printStackTrace();
             }
         }
-        if (InteractiveConfig.getBoolean("modules.overlay", true)) {
-            try {
-                Overlay.register();
-            } catch (Throwable e) {
-                RealMessage.sendConsoleMessage("<red>Failed to register Overlay");
-                e.printStackTrace();
-            }
-        }
         if (InteractiveConfig.getBoolean("modules.lootbag", true)) {
             try {
                 LootBagListener.register();
@@ -167,7 +152,6 @@ public class realmcraft extends JavaPlugin {
             try {
                 RangeListener.register();
                 NBTCompund.register();
-                BetterName.register();
             } catch (Throwable e) {
                 RealMessage.sendConsoleMessage("<red>Failed to register RangeListener");
                 e.printStackTrace();
@@ -248,13 +232,16 @@ public class realmcraft extends JavaPlugin {
 
     public static enum Modules {
         command, durability, placeholder_lore, lang_lore, repair_material_stat, lore_listeners, attack_listeners,
-        vanilla_fix, mythic_mobs, emotes, ireplacer, mmocore_skills, overlay, command_realmcraft;
+        vanilla_fix, mythic_mobs, ireplacer, mmocore_skills, command_realmcraft;
     }
 
     public void reload() {
         reloadConfig();
         reloadReader();
     }
+
+    public static Boolean LoreProtocolParser = false;
+    public static Boolean ModifireProtocolParser = false;
 
     public void reloadReader() {
         fileReader.load();
@@ -268,6 +255,9 @@ public class realmcraft extends JavaPlugin {
         MinecraftLang.create();
         MinecraftLang.loadLoader(new LangConfig());
         separator = InteractiveConfig.getString("file.separator");
+
+        LoreProtocolParser = InteractiveConfig.getBoolean("lore-protocol-parser", true);
+        ModifireProtocolParser = InteractiveConfig.getBoolean("modifier-protocol-parser", true);
 
         if (InteractiveConfig.getBoolean("modules.loot", true)) {
             ContainerInstances = new InteractiveFile("lootinstances.yml", this);

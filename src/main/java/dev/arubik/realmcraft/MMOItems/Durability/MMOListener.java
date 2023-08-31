@@ -178,9 +178,10 @@ public class MMOListener implements Listener, Depend {
                     exp = exp * (exp * r) / 100;
                 }
                 exp *= 0.1;
-                exp = Double.valueOf(Utils.round(r, 3));
+                // round to 1 decimal
+                exp = Utils.roundDouble(exp, 1);
                 PlayerData data = MMOCore.plugin.dataProvider.getDataManager().get(p);
-                MMOCore.plugin.professionManager.get("smithing").giveExperience(data, exp, null, EXPSource.OTHER);
+                MMOCore.plugin.professionManager.get("smithing").giveExperience(data, exp, null, EXPSource.VANILLA);
                 // RealMessage.sendRaw(p, "&7You have gained &e" + exp + " &7smithing
                 // experience.");
             }

@@ -1,10 +1,8 @@
-dev\arubik\realmcraft\Managers\Command\RealmcraftCommand$1.class
 dev\arubik\realmcraft\MythicLib\Passive\LavaInmunity.class
 dev\arubik\realmcraft\IReplacer\InternalReplacerStructure.class
 dev\arubik\realmcraft\Api\RealBlock.class
 dev\arubik\realmcraft\Api\Listeners\AttackListener.class
 dev\arubik\realmcraft\LootGen\ContainerApi.class
-dev\arubik\realmcraft\MythicMobs\PlayerEmote.class
 dev\arubik\realmcraft\MythicLib\Passive\SoulCollector.class
 dev\arubik\realmcraft\MythicMobs\ModifyLevel$1.class
 dev\arubik\realmcraft\MythicLib\Passive\WitherEffectInvulnerability.class
@@ -33,7 +31,6 @@ dev\arubik\realmcraft\Api\EntityHider$3.class
 dev\arubik\realmcraft\Api\Events\LoreEvent$2.class
 dev\arubik\realmcraft\IReplacer\IReplacerModifier$1.class
 dev\arubik\realmcraft\MMOItems\ExtendedLore.class
-dev\arubik\realmcraft\EmoteHandler\EmoteMain.class
 dev\arubik\realmcraft\realmcraft$Modules.class
 dev\arubik\realmcraft\IReplacer\IReplacer.class
 dev\arubik\realmcraft\MythicLib\MythicPlaceholders$MythicEntityGroup.class
@@ -49,7 +46,6 @@ dev\arubik\realmcraft\MMOItems\Range\InteractAnimation.class
 dev\arubik\realmcraft\Api\Events\LoreEvent$1.class
 dev\arubik\realmcraft\Api\RealReflect.class
 dev\arubik\realmcraft\Api\RealCache$RealCacheMap.class
-dev\arubik\realmcraft\MMOItems\BetterName.class
 dev\arubik\realmcraft\MythicLib\Passive\StackedAttack.class
 dev\arubik\realmcraft\Handlers\Schema.class
 dev\arubik\realmcraft\Api\EntityHider$2.class
@@ -91,7 +87,6 @@ dev\arubik\realmcraft\Api\EntityHider$Policy.class
 dev\arubik\realmcraft\Api\Listeners\ChangeGamemode.class
 dev\arubik\realmcraft\Api\RealStack$1.class
 dev\arubik\realmcraft\Handlers\JsonBuilder$1.class
-dev\arubik\realmcraft\Handlers\Overlay.class
 dev\arubik\realmcraft\Api\EntityHider$1.class
 dev\arubik\realmcraft\Api\RealAttribute.class
 dev\arubik\realmcraft\MythicLib\MythicPlaceholders.class

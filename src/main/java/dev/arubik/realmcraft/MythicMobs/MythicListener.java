@@ -55,14 +55,6 @@ public class MythicListener implements Listener, Depend {
             RealMessage.Found("MMOCore is installed, so ModifyLevel mechanic will work.");
             event.register(new ModifyLevel(event.getConfig()));
         }
-        if (event.getMechanicName().equalsIgnoreCase("playeremote")) {
-            if (!Depend.isPluginEnabled("AquaticModelEngine")) {
-                RealMessage.nonFound("AquaticModelEngine is not installed, so playeremote mechanic will not work.");
-                return;
-            }
-            RealMessage.Found("AquaticModelEngine is installed, so playeremote mechanic will work.");
-            event.register(new PlayerEmote(event.getConfig()));
-        }
         if (event.getMechanicName().equalsIgnoreCase("dropequipment")) {
             event.register(new DropEquipment(event.getConfig()));
         }

@@ -28,7 +28,7 @@ import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.nbt.NbtBase;
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtFactory;
-import com.georgev22.skinoverlay.bstats.json.JsonObjectBuilder.JsonObject;
+import com.comphenix.protocol.wrappers.nbt.NbtType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
@@ -38,6 +38,7 @@ import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Managers.Depend;
 import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.item.NBTItem;
+import io.r2dbc.spi.Wrapped;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.Type;
@@ -80,7 +81,9 @@ public class RealNBT {
 
     public Map<String, Integer> getAdvancedEnchantments() {
         Map<String, Integer> enchants = new java.util.HashMap<String, Integer>();
-
+        for (Enchantment enchant : itemStack.getEnchantments().keySet()) {
+            enchants.put(enchant.getKey().toString(), itemStack.getEnchantmentLevel(enchant));
+        }
         return enchants;
     }
 
@@ -394,8 +397,20 @@ public class RealNBT {
     public NBTTag get(String key) {
         NbtCompound compound = getNbtCompound();
         NbtBase wrapper = compound.getValue(key);
-        if (wrapper == null || wrapper.getValue().getClass().getName().contains("WrappedList")) {
-            return new NBTTag(key, AllowedTypes.String, "NULLVALUEDONTUSE");
+        if (wrapper.getType() == NbtType.TAG_COMPOUND) {
+            return new NBTTag(key, AllowedTypes.String, compound.getCompound(key).toString());
+        }
+        if (wrapper.getType() == NbtType.TAG_LIST) {
+            return new NBTTag(key, AllowedTypes.String, wrapper.getValue().toString());
+        }
+        if (key.equalsIgnoreCase("Enchantments")) {
+            Map<String, Integer> enchants = getAdvancedEnchantments();
+            // serialize to string
+            JsonBuilder builder = new JsonBuilder();
+            for (String enchant : enchants.keySet()) {
+                builder.append(enchant, enchants.get(enchant));
+            }
+            return new NBTTag(key, AllowedTypes.String, builder.toString());
         }
         return new NBTTag(key, AllowedTypes.fromString(wrapper.getType().name()), wrapper.getValue());
     }
@@ -803,6 +818,11 @@ public class RealNBT {
         jsonBuilder = jsonBuilder.append("Amount", itemStack.getAmount());
         jsonBuilder = jsonBuilder.append("CustomModelData", itemStack.getItemMeta().hasCustomModelData() == false ? 0
                 : itemStack.getItemMeta().getCustomModelData());
+
+        NbtCompound compound = NbtFactory
+                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
+        compoundCache.cache(compound);
+
         for (String key : getKeys()) {
 
             if (key.equals("CustomModelData"))

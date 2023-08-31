@@ -26,6 +26,11 @@ import lombok.Getter;
 
 public class StackedAttack extends SkillHandler<AttackSkillResult> implements Listener {
 
+    @Override
+    public String getLowerCaseId() {
+        return getId().toLowerCase() + "_PRIVATESKILL";
+    }
+
     public StackedAttack() {
         super(false);
         registerModifiers("probability", "damage-multiplier", "attack-stacks");

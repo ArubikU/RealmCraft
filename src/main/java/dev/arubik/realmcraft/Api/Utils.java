@@ -49,6 +49,12 @@ public class Utils {
         return String.format("%." + decimals + "f", number);
     }
 
+    public static Double roundDouble(double number, int decimals) {
+        // round using math
+        return Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
+
+    }
+
     public static ItemStack[] itemStackArrayFromBase64(String data) {
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
@@ -65,7 +71,7 @@ public class Utils {
         } catch (Throwable e) {
             // throw new IOException("Unable to decode class type.", e);
         }
-        return new ItemStack[0];
+        return new ItemStack[] { RealNBT.Empty };
     }
 
     public static String itemStackArrayToBase64(ItemStack[] objects) throws IllegalStateException {

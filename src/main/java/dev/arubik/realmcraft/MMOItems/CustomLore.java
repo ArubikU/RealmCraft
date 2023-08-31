@@ -45,8 +45,6 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class CustomLore implements ItemBuildModifier {
 
-    EnchantDisplay display;
-
     @Override
     public Boolean able(RealNBT nbt) {
         List<String> Whitelist = realmcraft.getInteractiveConfig().getStringList("lore-whitelist", RealNBT.EmptyList());
@@ -222,7 +220,6 @@ public class CustomLore implements ItemBuildModifier {
         for (Enchantment enchant : sorted) {
             if (enchant instanceof EcoEnchant ecoench) {
                 EcoEnchantLevel lev = ecoench.getLevel(item.getEnchantments().get(enchant));
-                notMeetLines = (lev.getNotMetLines(player));
 
                 enchants.put(new DisplayableEnchant(ecoench, item.getEnchantments().get(enchant)),
                         ecoench.getType().getFormat() + ecoench.getDisplayName() + " " + colorLevel

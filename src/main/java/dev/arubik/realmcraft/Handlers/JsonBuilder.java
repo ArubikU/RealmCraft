@@ -133,7 +133,7 @@ public final class JsonBuilder {
             case OBJECT:
                 return append(tag.getKey(), tag.getValue());
             case JsonElement:
-                break;
+                return append(tag.getKey(), tag.getValue());
             default:
                 break;
         }

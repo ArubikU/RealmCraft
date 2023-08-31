@@ -37,7 +37,6 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\I
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\SkillHandlerRM.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\RealFlag.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicMobs\LootBagListener.java
-C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicMobs\PlayerEmote.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\LavaInmunity.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\IReplacer\IReplacerListener.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\NightHug.java
@@ -73,9 +72,7 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\r
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Handlers\Schema.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicMobs\ModifyLevel.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MMOItems\Durability\RestoreStellium.java
-C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\EmoteHandler\EmoteMain.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\DefaultConfigs\LangConfig.java
-C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Handlers\Overlay.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\RealMethods.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\FileManagement\InteractiveFolder.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Listeners\AttackListener.java
@@ -84,7 +81,6 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\F
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Events\BuildEvent.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Handlers\RealMessage.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Events\RecipeBook.java
-C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MMOItems\BetterName.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\RealBlock.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\YamlComentor.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\SoulCollector.java
