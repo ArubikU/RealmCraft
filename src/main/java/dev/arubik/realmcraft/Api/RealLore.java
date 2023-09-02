@@ -14,15 +14,15 @@ public interface RealLore {
 
     LorePosition getLorePosition();
 
-    default Boolean able(ItemStack item) {
+    default Boolean able(RealNBT item) {
         return true;
     };
 
-    default Boolean able(Player player, ItemStack item) {
+    default Boolean able(Player player, RealNBT item) {
         return true;
     };
 
-    default Boolean able(ItemStack item, ContextEvent event) {
+    default Boolean able(RealNBT item, ContextEvent event) {
         return true;
     };
 }

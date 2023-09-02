@@ -86,6 +86,14 @@ public class RealCache<T> {
         }
     }
 
+    public Optional<T> getOptional() {
+        try {
+            return Optional.of(get());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
     @Nullable
     public T forcedGet() {
         try {
@@ -185,7 +193,6 @@ public class RealCache<T> {
             return map.get(key);
         }
 
-        @Nullable
         public Optional<V> getOptional(K key) {
             try {
                 return Optional.of(get(key));

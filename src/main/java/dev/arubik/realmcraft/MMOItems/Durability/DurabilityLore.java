@@ -27,8 +27,7 @@ public class DurabilityLore implements RealLore {
         }
 
         @Override
-        public String parseLine(Player player, ItemStack item) {
-            RealNBT nbt = new RealNBT(item);
+        public String parseLine(Player player, RealNBT nbt) {
             Integer maxDurability = nbt.getInteger("MMOITEMS_MAX_DURABILITY");
             Integer durability = maxDurability;
             if (nbt.contains("MMOITEMS_DURABILITY"))
@@ -51,8 +50,7 @@ public class DurabilityLore implements RealLore {
     private LorePosition position = LorePosition.BOTTOM;
 
     @Override
-    public Boolean able(ItemStack item) {
-        RealNBT nbt = new RealNBT(item);
+    public Boolean able(RealNBT nbt) {
         return nbt.contains("MMOITEMS_MAX_DURABILITY");
     }
 

@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.GenericGameEvent;
+import org.bukkit.inventory.ItemStack;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.RealNBT;
@@ -24,7 +25,12 @@ public class WeaponListener implements Listener, Depend {
         if (event.getCause() == EntityDamageByEntityEvent.DamageCause.ENTITY_SWEEP_ATTACK
                 || event.getCause() == EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK) {
             if (event.getDamager() instanceof LivingEntity) {
-                RealNBT mainhand = new RealNBT(((LivingEntity) event.getDamager()).getEquipment().getItemInMainHand());
+                final ItemStack item = ((LivingEntity) event.getDamager()).getEquipment().getItemInMainHand();
+                if (item == null)
+                    return;
+                if (item.getType().isAir())
+                    return;
+                RealNBT mainhand = new RealNBT(item);
                 if (mainhand.contains("MMOITEMS_ITEM_TYPE")) {
                     playSound(mainhand.getString("MMOITEMS_ITEM_TYPE") + ":" +
                             mainhand.getString("MMOITEMS_ITEM_ID"), event.getEntity(), CustomSound.ON_ATTACK);
@@ -32,7 +38,6 @@ public class WeaponListener implements Listener, Depend {
                     if (event.getDamager() instanceof Player) {
                         playSound("generic", event.getEntity(), CustomSound.ON_ATTACK);
                     }
-                    // playSound("generic", event.getEntity(), CustomSound.ON_ATTACK);
                 }
             }
         }
@@ -43,6 +48,8 @@ public class WeaponListener implements Listener, Depend {
     public void onInteract(PlayerInteractEvent event) {
         if (event.getAction() == org.bukkit.event.block.Action.LEFT_CLICK_AIR) {
             if (event.getItem() != null) {
+                if (event.getItem().getType().isAir())
+                    return;
                 RealNBT mainhand = new RealNBT(event.getItem());
                 if (mainhand.contains("MMOITEMS_ITEM_TYPE")) {
                     playSound(mainhand.getString("MMOITEMS_ITEM_TYPE") + ":" +

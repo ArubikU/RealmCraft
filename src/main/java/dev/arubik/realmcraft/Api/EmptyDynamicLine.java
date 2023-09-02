@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 public class EmptyDynamicLine implements DynamicLoreLine {
 
     @Override
-    public String parseLine(Player player, ItemStack item) {
+    public String parseLine(Player player, RealNBT item) {
         return "";
     }
 

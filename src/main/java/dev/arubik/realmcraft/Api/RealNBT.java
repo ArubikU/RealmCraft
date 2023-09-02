@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import dev.arubik.realmcraft.realmcraft;
+import dev.arubik.realmcraft.Api.RealCache.RealCacheMap;
 import dev.arubik.realmcraft.Handlers.JsonBuilder;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Managers.Depend;
@@ -43,6 +45,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.Type;
 import net.Indyuce.mmoitems.api.player.PlayerData;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -51,6 +54,9 @@ public class RealNBT {
     private ItemStack item;
     private ItemStack itemStack;
     private RealCache<ItemMeta> metaCache = new RealCache<ItemMeta>(1200);
+    private RealCache<NbtCompound> compoundCache = new RealCache<NbtCompound>(1200);
+    private RealCache<List<String>> loreCache = new RealCache<List<String>>(1200);
+    private static RealCacheMap<String, Component> ComponentCache = new RealCacheMap<String, Component>(1200);
 
     public int getEnchantmentLevel(String enchantment) {
         return getEnchantmentLevel(org.bukkit.enchantments.Enchantment.getByName(enchantment));
@@ -65,12 +71,15 @@ public class RealNBT {
     }
 
     public ItemMeta getItemMeta() {
-        if (metaCache.isCached()) {
-            return metaCache.forcedGet();
+        ItemMeta metaT;
+        Optional<ItemMeta> meta = metaCache.getOptional();
+        if (meta.isPresent()) {
+            metaT = meta.get();
+        } else {
+            metaT = itemStack.getItemMeta();
+            metaCache.cache(metaT);
         }
-        ItemMeta meta = itemStack.getItemMeta();
-        metaCache.set(meta);
-        return meta;
+        return metaT;
     }
 
     public int getEnchantmentLevel(Enchantment enchantment) {
@@ -99,11 +108,11 @@ public class RealNBT {
     public RealNBT(final ItemStack realItem) {
         this.item = realItem;
         this.itemStack = realItem.clone();
+        updateCache();
     }
 
     public static RealNBT fromItemStack(ItemStack item) {
         return new RealNBT(item);
-
     }
 
     public static enum AllowedTypes {
@@ -234,9 +243,6 @@ public class RealNBT {
 
     }
 
-    private RealCache<NbtCompound> compoundCache = new RealCache<NbtCompound>(1200);
-    private RealCache<List<String>> loreCache = new RealCache<List<String>>(1200);
-
     public <T> void setInternal(String key, Object value, Class<T> type) {
         NbtCompound compound;
         if (compoundCache.isCached()) {
@@ -307,7 +313,7 @@ public class RealNBT {
     protected void updateCache() {
         compoundCache.cache(
                 NbtFactory.asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack))));
-
+        metaCache.cache(itemStack.getItemMeta());
     }
 
     public <T> T getInternal(String key, Class<T> type) {
@@ -588,16 +594,24 @@ public class RealNBT {
         updateCache();
     }
 
-    public void setLore(List<String> lore) {
-        ArrayList<String> newLore = new ArrayList<String>();
-        for (String line : lore) {
-            newLore.add(LegacyComponentSerializer.legacySection()
-                    .serialize(MiniMessage.miniMessage().deserialize(line)));
-        }
-        this.itemStack.setLore(newLore);
+    private static MiniMessage miniMessage = MiniMessage.builder().build();
+    private static LegacyComponentSerializer legacyComponentSerializer = LegacyComponentSerializer.legacySection();
 
+    public void setLore(List<String> lore) {
+        loreCache.cache(lore);
+        ArrayList<Component> newLore = new ArrayList<Component>();
+        for (String line : lore) {
+            Component component;
+            if (ComponentCache.getOptional(line).isPresent()) {
+                component = ComponentCache.getOptional(line).get();
+            } else {
+                component = miniMessage.deserialize(line);
+                ComponentCache.set(line, component);
+            }
+            newLore.add(component);
+        }
+        this.itemStack.lore(newLore);
         updateCache();
-        loreCache.cache(newLore);
     }
 
     public List<String> getLore() {
@@ -614,8 +628,8 @@ public class RealNBT {
             return lore;
         }
         for (String line : this.itemStack.getItemMeta().getLore()) {
-            lore.add((String) MiniMessage.miniMessage()
-                    .serialize(LegacyComponentSerializer.legacySection().deserialize(line)));
+            lore.add((String) miniMessage
+                    .serialize(legacyComponentSerializer.deserialize(line)));
         }
         return lore;
 
@@ -684,30 +698,34 @@ public class RealNBT {
 
     public void setDisplayName(String name) {
         ItemMeta item = this.itemStack.getItemMeta();
-        item.setDisplayNameComponent(
-                BungeeComponentSerializer.get().serialize(MiniMessage.miniMessage().deserialize(name)));
-        item.setDisplayName(LegacyComponentSerializer.legacySection()
-                .serialize(MiniMessage.miniMessage().deserialize(name)));
-        this.itemStack.setItemMeta(item);
 
+        Component component;
+        if (ComponentCache.getOptional(name).isPresent()) {
+            component = ComponentCache.getOptional(name).get();
+        } else {
+            component = miniMessage.deserialize(name);
+            ComponentCache.set(name, component);
+        }
+        item.displayName(component);
+        this.itemStack.setItemMeta(item);
         updateCache();
     }
 
     public String getDisplayName() {
-        return (String) MiniMessage.miniMessage().serialize(LegacyComponentSerializer.legacySection()
-                .deserialize(this.itemStack.getItemMeta().getDisplayName()));
+        return (String) miniMessage.serialize(legacyComponentSerializer
+                .deserialize(this.getItemMeta().getDisplayName()));
     }
 
     public Boolean hasDisplayName() {
-        return this.itemStack.getItemMeta().hasDisplayName();
+        return this.getItemMeta().hasDisplayName();
     }
 
     public Boolean hasLore() {
-        return this.itemStack.getItemMeta().hasLore();
+        return this.getItemMeta().hasLore();
     }
 
     public Boolean hasEnchantments() {
-        return itemStack.getItemMeta().hasEnchants();
+        return this.getItemMeta().hasEnchants();
     }
 
     public static final ItemStack Empty = new ItemStack(Material.AIR);
