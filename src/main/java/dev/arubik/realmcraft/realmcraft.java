@@ -240,8 +240,8 @@ public class realmcraft extends JavaPlugin {
         reloadReader();
     }
 
-    public static Boolean LoreProtocolParser = false;
-    public static Boolean ModifireProtocolParser = false;
+    public static boolean LoreProtocolParser = false;
+    public static boolean ModifierProtocolParser = false;
 
     public void reloadReader() {
         fileReader.load();
@@ -257,7 +257,7 @@ public class realmcraft extends JavaPlugin {
         separator = InteractiveConfig.getString("file.separator");
 
         LoreProtocolParser = InteractiveConfig.getBoolean("lore-protocol-parser", true);
-        ModifireProtocolParser = InteractiveConfig.getBoolean("modifier-protocol-parser", true);
+        ModifierProtocolParser = InteractiveConfig.getBoolean("modifier-protocol-parser", true);
 
         if (InteractiveConfig.getBoolean("modules.loot", true)) {
             ContainerInstances = new InteractiveFile("lootinstances.yml", this);

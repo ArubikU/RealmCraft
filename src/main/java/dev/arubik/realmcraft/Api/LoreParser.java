@@ -84,7 +84,7 @@ public class LoreParser {
                     }
                 }
             }
-            if (realmcraft.ModifireProtocolParser) {
+            if (realmcraft.ModifierProtocolParser) {
                 for (ItemBuildModifier modifier : LoreEvent.getItemBuildModifiers()) {
                     RealMessage.sendConsoleMessage(DebugType.LOREPARSER,
                             "Parsing modifier " + modifier.getClass().toString());

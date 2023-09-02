@@ -110,17 +110,17 @@ public class Utils {
         }
     }
 
-    public static Boolean checkPermission(Player p, String permission) {
+    public static boolean checkPermission(Player p, String permission) {
         String fullPerm = "realmcraft." + permission;
         return p.hasPermission(fullPerm);
     }
 
-    public static Boolean checkPermission(CommandSender p, String permission) {
+    public static boolean checkPermission(CommandSender p, String permission) {
         String fullPerm = "realmcraft." + permission;
         return p.hasPermission(fullPerm);
     }
 
-    public static Boolean checkPermissions(Player p, String... permission) {
+    public static boolean checkPermissions(Player p, String... permission) {
         for (String perm : permission) {
             if (checkPermission(p, perm)) {
                 return true;

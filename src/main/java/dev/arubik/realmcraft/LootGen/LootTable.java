@@ -81,7 +81,7 @@ public class LootTable {
         return lootTableNames;
     }
 
-    public static Boolean validLootTable(String lootName) {
+    public static boolean validLootTable(String lootName) {
         for (InteractiveFile file : lootTables) {
             if (file.has(lootName)) {
                 return true;
