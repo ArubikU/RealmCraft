@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -32,6 +33,7 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
     protected final String type;
     protected final int radius;
     protected final int modifier;
+    protected final int maxLevel;
     protected final double multiplier;
     public static HashMap<String, Integer> maxTimes = new HashMap<>();
     protected final String playerLevelModifier;
@@ -74,6 +76,22 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
 
     }
 
+    public class Setteable<T> {
+        private T value;
+
+        public Setteable(T value) {
+            this.value = value;
+        }
+
+        public T get() {
+            return value;
+        }
+
+        public void set(T value) {
+            this.value = value;
+        }
+    }
+
     private final int maxTimesAmount;
 
     public ModifyLevel(MythicLineConfig config) {
@@ -83,6 +101,7 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
         this.playerLevelModifier = config.getString(new String[] { "playerLevelModifier", "plm" }, "MAIN");
         this.maxTimesAmount = config.getInteger(new String[] { "maxTimes", "mt" }, 100);
         this.multiplier = config.getDouble(new String[] { "multiplier", "ml" }, 1);
+        this.maxLevel = config.getInteger(new String[] { "maxLevel", "ml" }, 400);
         RealMessage.sendConsoleMessage(DebugType.MODIFYLEVEL,
                 "Dumping Data: " + type + " " + radius + " " + modifier + " " + playerLevelModifier + "");
     }
@@ -123,16 +142,14 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
             }
             RealMessage.sendConsoleMessage(DebugType.MODIFYLEVEL,
                     "Players: " + Arrays.toString(players.keySet().stream().map(plauer -> plauer.getName()).toArray()));
+            Setteable<Double> newLevelOpt = new Setteable<Double>(0.0);
             switch (ModifierLevelTypes.fromString(type)) {
                 case NEAR:
                     players.entrySet().stream().min(Map.Entry.comparingByValue()).ifPresent(player -> {
                         Double newlevel = levels.get(player.getKey()) * multiplier + modifier;
                         if (newlevel < 1)
                             newlevel = 1.0;
-                        try {
-                            mob.setLevel(newlevel);
-                        } catch (Throwable ta) {
-                        }
+                        newLevelOpt.set(newlevel);
                     });
                     break;
                 case FAR:
@@ -140,10 +157,7 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
                         Double newlevel = levels.get(player.getKey()) * multiplier + modifier;
                         if (newlevel < 1)
                             newlevel = 1.0;
-                        try {
-                            mob.setLevel(newlevel);
-                        } catch (Throwable ta) {
-                        }
+                        newLevelOpt.set(newlevel);
                     });
                     break;
                 case RANDOM:
@@ -151,10 +165,7 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
                         Double newlevel = levels.get(player.getKey()) * multiplier + modifier;
                         if (newlevel < 1)
                             newlevel = 1.0;
-                        try {
-                            mob.setLevel(newlevel);
-                        } catch (Throwable ta) {
-                        }
+                        newLevelOpt.set(newlevel);
                     });
                     break;
                 default: {
@@ -165,10 +176,7 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
                                     + modifier;
                             if (newlevel < 1)
                                 newlevel = 1.0;
-                            try {
-                                mob.setLevel(newlevel);
-                            } catch (Throwable ta) {
-                            }
+                            newLevelOpt.set(newlevel);
                             break;
                         }
                         case LEAST: {
@@ -177,10 +185,7 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
                                     + modifier;
                             if (newlevel < 1)
                                 newlevel = 1.0;
-                            try {
-                                mob.setLevel(newlevel);
-                            } catch (Throwable ta) {
-                            }
+                            newLevelOpt.set(newlevel);
                             break;
                         }
                         case AVERAGE: {
@@ -188,10 +193,7 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
                                     .getAsDouble() * multiplier + modifier;
                             if (newlevel < 1)
                                 newlevel = 1.0;
-                            try {
-                                mob.setLevel(newlevel);
-                            } catch (Throwable ta) {
-                            }
+                            newLevelOpt.set(newlevel);
                             break;
                         }
                         case MAXAVERAGE: {
@@ -201,10 +203,7 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
                             Double newlevel = ((aver + maxLevel) / 2) * multiplier + modifier;
                             if (newlevel < 1)
                                 newlevel = 1.0;
-                            try {
-                                mob.setLevel(newlevel);
-                            } catch (Throwable ta) {
-                            }
+                            newLevelOpt.set(newlevel);
                             break;
                         }
                         case MINAVERAGE: {
@@ -214,10 +213,7 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
                             Double newlevel = ((aver + minLevel) / 2) * multiplier + modifier;
                             if (newlevel < 1)
                                 newlevel = 1.0;
-                            try {
-                                mob.setLevel(newlevel);
-                            } catch (Throwable ta) {
-                            }
+                            newLevelOpt.set(newlevel);
                             break;
                         }
 
@@ -228,6 +224,12 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
                     break;
                 }
             }
+
+            try {
+                mob.setLevel(newLevelOpt.get().intValue() > maxLevel ? maxLevel : newLevelOpt.get().intValue());
+            } catch (Throwable ta) {
+            }
+
             RealMessage.sendConsoleMessage(DebugType.MODIFYLEVEL, "Mob Level: " + mob.getLevel());
         }
         return SkillResult.SUCCESS;

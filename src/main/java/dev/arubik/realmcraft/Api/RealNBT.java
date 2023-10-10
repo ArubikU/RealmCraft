@@ -105,6 +105,10 @@ public class RealNBT {
         return "MINECRAFT";
     }
 
+    public Material getMaterial() {
+        return itemStack.getType();
+    }
+
     public RealNBT(final ItemStack realItem) {
         this.item = realItem;
         this.itemStack = realItem.clone();
@@ -311,6 +315,10 @@ public class RealNBT {
     }
 
     protected void updateCache() {
+        if (itemStack == null)
+            return;
+        if (itemStack.getType().isAir())
+            return;
         compoundCache.cache(
                 NbtFactory.asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack))));
         metaCache.cache(itemStack.getItemMeta());
@@ -594,8 +602,8 @@ public class RealNBT {
         updateCache();
     }
 
-    private static MiniMessage miniMessage = MiniMessage.builder().build();
-    private static LegacyComponentSerializer legacyComponentSerializer = LegacyComponentSerializer.legacySection();
+    public static final MiniMessage miniMessage = MiniMessage.builder().build();
+    public static final LegacyComponentSerializer legacyComponentSerializer = LegacyComponentSerializer.legacySection();
 
     public void setLore(List<String> lore) {
         loreCache.cache(lore);
@@ -628,7 +636,7 @@ public class RealNBT {
             return lore;
         }
         for (String line : this.itemStack.getItemMeta().getLore()) {
-            lore.add((String) miniMessage
+            lore.add(miniMessage
                     .serialize(legacyComponentSerializer.deserialize(line)));
         }
         return lore;
@@ -734,13 +742,13 @@ public class RealNBT {
         return new ArrayList<>();
     }
 
-    public RealNBT take1() {
-        if (itemStack.getAmount() - 1 <= 0) {
-            return RealNBT.fromItemStack(Empty);
+    public ItemStack take(int amount) {
+        if (itemStack.getAmount() - amount <= 0) {
+            return RealNBT.Empty;
         }
-        itemStack.setAmount(itemStack.getAmount() - 1);
+        itemStack.setAmount(itemStack.getAmount() - amount);
 
-        return this;
+        return itemStack;
 
     }
 
@@ -781,6 +789,22 @@ public class RealNBT {
             itemStack.editMeta(meta -> meta.lore(null));
         }
         return itemStack;
+    }
+
+    public void setEnchantments(Map<Enchantment, Integer> enchants) {
+
+        // remove all enchants
+        itemStack.editMeta(meta -> {
+            for (Enchantment enchant : itemStack.getEnchantments().keySet()) {
+                meta.removeEnchant(enchant);
+            }
+        });
+
+        itemStack.editMeta(meta -> {
+            for (Enchantment enchant : enchants.keySet()) {
+                meta.addEnchant(enchant, enchants.get(enchant), true);
+            }
+        });
     }
 
     public ItemStack regenerate(Player player) {
@@ -934,5 +958,13 @@ public class RealNBT {
 
     public void editMeta(Consumer<ItemMeta> consumer) {
         itemStack.editMeta(consumer);
+    }
+
+    public <M extends ItemMeta> void editMeta(Class<M> metaClass, Consumer<? super M> consume) {
+        itemStack.editMeta(metaClass, consume);
+    }
+
+    public int getAmount() {
+        return itemStack.getAmount();
     }
 }

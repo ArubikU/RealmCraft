@@ -5,25 +5,28 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.Plugin;
 
+import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Handlers.RealMessage.DebugType;
+import dev.arubik.realmcraft.Managers.Module;
 import lombok.Getter;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
-public class CommandMapper {
+public class CommandMapper implements Module {
 
     private final static Field COMMAND_MAP_FIELD;
     private final static CommandMap COMMAND_MAP;
     @Getter
     private static HashMap<String, Command> commands = new HashMap<String, Command>();
     private String FALLBACK_PREFIX;
-    private Plugin plugin;
+    private realmcraft plugin;
 
     public CommandMapper(String fallbackPrefix, Plugin plugin) {
         this.FALLBACK_PREFIX = fallbackPrefix;
-        this.plugin = plugin;
+        this.plugin = (realmcraft) plugin;
+        this.plugin.setCommandMapper(this);
     }
 
     static {
@@ -51,6 +54,21 @@ public class CommandMapper {
 
     public void unregister(RealCommand command) {
         COMMAND_MAP.getCommand(command.command.getName()).unregister(COMMAND_MAP);
+    }
+
+    @Override
+    public void register() {
+        this.plugin.setCommandMapper(this);
+    }
+
+    @Override
+    public String configId() {
+        return "command";
+    }
+
+    @Override
+    public String displayName() {
+        return "Command Mapper";
     }
 
 }

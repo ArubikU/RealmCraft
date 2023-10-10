@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.event.EventPriority;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
@@ -132,6 +133,18 @@ public class LoreEvent implements Depend {
     public String[] getDependatsPlugins() {
         return new String[] { "ProtocolLib", "MMOItems" };
     }
+
+    public static PacketAdapter PLAYER_SOUND_CHANGUE = new PacketAdapter(realmcraft.getInstance(),
+            PacketType.Play.Server.NAMED_SOUND_EFFECT) {
+        @Override
+        public void onPacketSending(com.comphenix.protocol.events.PacketEvent event) {
+
+            if (event.getPacket().getSoundEffects().getValues().get(0).equals(Sound.ENTITY_PLAYER_HURT)) {
+                event.getPacket().getSoundEffects().write(0, Sound.ENTITY_ARROW_HIT_PLAYER);
+            }
+
+        }
+    };
 
     public static void registerListener() {
         if (!Depend.isPluginEnabled(new LoreEvent())) {

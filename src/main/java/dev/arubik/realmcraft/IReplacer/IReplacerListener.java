@@ -16,8 +16,12 @@ import javax.annotation.Nullable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Container;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.minecart.StorageMinecart;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Event.Result;
@@ -31,10 +35,17 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.inventory.BlockInventoryHolder;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.metadata.FixedMetadataValue;
+
+import com.google.gson.JsonObject;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.RealNBT;
@@ -333,18 +344,8 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                 .fromInteractiveSection(structure.getSection().getSection("Output-Config"));
                         ItemStack item = stack.buildItemStack();
                         item.setAmount(e.getItem().getItemStack().getAmount());
-                        if (structure.getOutputConfig().has("Pass-Enchantments")
-                                && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
-                            item.addUnsafeEnchantments(e.getItem().getItemStack().getEnchantments());
-                        }
-                        if (structure.getOutputConfig().has("Pass-CMD")
-                                && structure.getOutputConfig().get("Pass-CMD")
-                                        .getAsBoolean()) {
-                            Integer custommoldeldata = e.getItem().getItemStack().getItemMeta().getCustomModelData();
-                            item.editMeta(meta -> {
-                                meta.setCustomModelData(custommoldeldata);
-                            });
-                        }
+
+                        item = PassAble(e.getItem().getItemStack(), item, structure.getOutputConfig());
                         e.getItem().setItemStack(item);
                         break;
                     }
@@ -372,15 +373,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                         && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
                                     stack.addUnsafeEnchantments(e.getItem().getItemStack().getEnchantments());
                                 }
-                                if (structure.getOutputConfig().has("Pass-CMD")
-                                        && structure.getOutputConfig().get("Pass-CMD")
-                                                .getAsBoolean()) {
-                                    Integer custommoldeldata = e.getItem().getItemStack().getItemMeta()
-                                            .getCustomModelData();
-                                    stack.editMeta(meta -> {
-                                        meta.setCustomModelData(custommoldeldata);
-                                    });
-                                }
+                                stack = PassAble(e.getItem().getItemStack(), stack, structure.getOutputConfig());
                                 e.getItem().setItemStack(stack);
                             }
                         }
@@ -398,19 +391,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                     break;
                                 }
                                 stack.setAmount(e.getItem().getItemStack().getAmount());
-                                if (structure.getOutputConfig().has("Pass-Enchantments")
-                                        && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
-                                    stack.addUnsafeEnchantments(e.getItem().getItemStack().getEnchantments());
-                                }
-                                if (structure.getOutputConfig().has("Pass-CMD")
-                                        && structure.getOutputConfig().get("Pass-CMD")
-                                                .getAsBoolean()) {
-                                    Integer custommoldeldata = e.getItem().getItemStack().getItemMeta()
-                                            .getCustomModelData();
-                                    stack.editMeta(meta -> {
-                                        meta.setCustomModelData(custommoldeldata);
-                                    });
-                                }
+                                stack = PassAble(e.getItem().getItemStack(), stack, structure.getOutputConfig());
                                 e.getItem().setItemStack(stack);
                             }
                         }
@@ -426,19 +407,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                             ItemStack stack = new ItemStack(
                                     Material.valueOf(structure.getSection().get("Output-Config.Material").toString()));
                             stack.setAmount(e.getItem().getItemStack().getAmount());
-                            if (structure.getOutputConfig().has("Pass-Enchantments")
-                                    && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
-                                stack.addUnsafeEnchantments(e.getItem().getItemStack().getEnchantments());
-                            }
-                            if (structure.getOutputConfig().has("Pass-CMD")
-                                    && structure.getOutputConfig().get("Pass-CMD")
-                                            .getAsBoolean()) {
-                                Integer custommoldeldata = e.getItem().getItemStack().getItemMeta()
-                                        .getCustomModelData();
-                                stack.editMeta(meta -> {
-                                    meta.setCustomModelData(custommoldeldata);
-                                });
-                            }
+                            stack = PassAble(e.getItem().getItemStack(), stack, structure.getOutputConfig());
                             e.getItem().setItemStack(stack);
                         }
                     default:
@@ -500,18 +469,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                     .fromInteractiveSection(structure.getSection().getSection("Output-Config"));
                             ItemStack item = stack.buildItemStack();
                             item.setAmount(e.getCursor().getAmount());
-                            if (structure.getOutputConfig().has("Pass-Enchantments")
-                                    && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
-                                item.addUnsafeEnchantments(e.getCursor().getEnchantments());
-                            }
-                            if (structure.getOutputConfig().has("Pass-CMD")
-                                    && structure.getOutputConfig().get("Pass-CMD")
-                                            .getAsBoolean()) {
-                                Integer custommoldeldata = e.getCursor().getItemMeta().getCustomModelData();
-                                item.editMeta(meta -> {
-                                    meta.setCustomModelData(custommoldeldata);
-                                });
-                            }
+                            item = PassAble(e.getCursor(), item, structure.getOutputConfig());
                             e.setCursor(item);
                             break;
                         }
@@ -535,18 +493,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                         break;
                                     }
                                     stack.setAmount(e.getCursor().getAmount());
-                                    if (structure.getOutputConfig().has("Pass-Enchantments")
-                                            && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
-                                        stack.addUnsafeEnchantments(e.getCursor().getEnchantments());
-                                    }
-                                    if (structure.getOutputConfig().has("Pass-CMD")
-                                            && structure.getOutputConfig().get("Pass-CMD")
-                                                    .getAsBoolean()) {
-                                        Integer custommoldeldata = e.getCursor().getItemMeta().getCustomModelData();
-                                        stack.editMeta(meta -> {
-                                            meta.setCustomModelData(custommoldeldata);
-                                        });
-                                    }
+                                    stack = PassAble(e.getCursor(), stack, structure.getOutputConfig());
                                     e.setCursor(stack);
                                 }
                             }
@@ -564,18 +511,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                         break;
                                     }
                                     stack.setAmount(e.getCursor().getAmount());
-                                    if (structure.getOutputConfig().has("Pass-Enchantments")
-                                            && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
-                                        stack.addUnsafeEnchantments(e.getCursor().getEnchantments());
-                                    }
-                                    if (structure.getOutputConfig().has("Pass-CMD")
-                                            && structure.getOutputConfig().get("Pass-CMD")
-                                                    .getAsBoolean()) {
-                                        Integer custommoldeldata = e.getCursor().getItemMeta().getCustomModelData();
-                                        stack.editMeta(meta -> {
-                                            meta.setCustomModelData(custommoldeldata);
-                                        });
-                                    }
+                                    stack = PassAble(e.getCursor(), stack, structure.getOutputConfig());
                                     e.setCursor(stack);
                                 }
                             }
@@ -628,19 +564,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                 .fromInteractiveSection(structure.getSection().getSection("Output-Config"));
                         ItemStack item = stack.buildItemStack();
                         item.setAmount(e.getItem().getAmount());
-                        if (structure.getOutputConfig().has("Pass-Enchantments")
-                                && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
-                            item.addUnsafeEnchantments(e.getItem().getEnchantments());
-                        }
-
-                        if (structure.getOutputConfig().has("Pass-CMD")
-                                && structure.getOutputConfig().get("Pass-CMD")
-                                        .getAsBoolean()) {
-                            Integer custommoldeldata = e.getItem().getItemMeta().getCustomModelData();
-                            item.editMeta(meta -> {
-                                meta.setCustomModelData(custommoldeldata);
-                            });
-                        }
+                        item = PassAble(e.getItem(), item, structure.getOutputConfig());
                         e.setItem(item);
                         e.getItem().setData(item.getData());
                         e.getItem().setItemMeta(item.getItemMeta());
@@ -666,19 +590,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                     break;
                                 }
                                 stack.setAmount(e.getItem().getAmount());
-                                if (structure.getOutputConfig().has("Pass-Enchantments")
-                                        && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
-                                    stack.addUnsafeEnchantments(e.getItem().getEnchantments());
-                                }
-
-                                if (structure.getOutputConfig().has("Pass-CMD")
-                                        && structure.getOutputConfig().get("Pass-CMD")
-                                                .getAsBoolean()) {
-                                    Integer custommoldeldata = e.getItem().getItemMeta().getCustomModelData();
-                                    stack.editMeta(meta -> {
-                                        meta.setCustomModelData(custommoldeldata);
-                                    });
-                                }
+                                stack = PassAble(e.getItem(), stack, structure.getOutputConfig());
                                 e.setItem(stack);
                                 e.getItem().setData(stack.getData());
                                 e.getItem().setItemMeta(stack.getItemMeta());
@@ -697,18 +609,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                     break;
                                 }
                                 stack.setAmount(e.getItem().getAmount());
-                                if (structure.getOutputConfig().has("Pass-Enchantments")
-                                        && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
-                                    stack.addUnsafeEnchantments(e.getItem().getEnchantments());
-                                }
-                                if (structure.getOutputConfig().has("Pass-CMD")
-                                        && structure.getOutputConfig().get("Pass-CMD")
-                                                .getAsBoolean()) {
-                                    Integer custommoldeldata = e.getItem().getItemMeta().getCustomModelData();
-                                    stack.editMeta(meta -> {
-                                        meta.setCustomModelData(custommoldeldata);
-                                    });
-                                }
+                                stack = PassAble(e.getItem(), stack, structure.getOutputConfig());
                                 e.setItem(stack);
                                 e.getItem().setData(stack.getData());
                                 e.getItem().setItemMeta(stack.getItemMeta());
@@ -721,13 +622,16 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
         }
     }
 
-    private Set<Byte[]> openChest = new HashSet<Byte[]>();
-
     @EventHandler
     public void onInventoryOpen(InventoryOpenEvent event) {
         if (!realmcraft.getInteractiveConfig().getBoolean("IReplacer.InventoryOpen-Event-Enabled", true)) {
             return;
         }
+
+        if (event.getInventory().getHolder() == null) {
+            return;
+        }
+
         if (event.getView() != null) {
             if (event.getView().getTopInventory() != null) {
                 // get name of container
@@ -745,164 +649,41 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
 
             }
         }
-        if (event.getInventory().getViewers().get(0) instanceof Player) {
 
-            Player player = (Player) event.getInventory().getViewers().get(0);
-            if (!(event.getInventory().getType() == InventoryType.PLAYER
-                    || event.getInventory().getType() == InventoryType.CHEST
-                    || event.getInventory().getType() == InventoryType.DISPENSER
-                    || event.getInventory().getType() == InventoryType.DROPPER
-                    || event.getInventory().getType() == InventoryType.HOPPER
-                    || event.getInventory().getType() == InventoryType.ENDER_CHEST
-                    || event.getInventory().getType() == InventoryType.SHULKER_BOX
-                    || event.getInventory().getType() == InventoryType.BARREL
-                    || event.getInventory().getType() == InventoryType.BEACON
-                    || event.getInventory().getType() == InventoryType.CREATIVE)) {
+        InventoryHolder holder = event.getInventory().getHolder();
+        Block block;
+        if (holder instanceof DoubleChest) {
+            if (((DoubleChest) holder).getLeftSide() instanceof BlockInventoryHolder) {
+                block = ((BlockInventoryHolder) ((DoubleChest) holder).getLeftSide()).getBlock();
+                if (block.getMetadata("ireplacer").size() > 0) {
+                    return;
+                }
+
+                this.convertInventory(((DoubleChest) holder).getLeftSide().getInventory());
+                block.setMetadata("ireplacer", new FixedMetadataValue(realmcraft.getInstance(), true));
+            }
+
+            holder = ((DoubleChest) event.getInventory().getHolder()).getRightSide();
+        }
+
+        if (holder instanceof BlockInventoryHolder) {
+            block = ((BlockInventoryHolder) holder).getBlock();
+
+            if (block.getMetadata("ireplacer").size() > 0) {
                 return;
             }
 
-            // get location of container
-            Location location = event.getInventory().getLocation();
-            if (location != null) {
-                // Hash location to a string
-                String locationString = location.getWorld().getName() + ":" + location.getBlockX() + ":"
-                        + location.getBlockY() + ":" + location.getBlockZ();
-                // convert locationString to a byte array
-                byte[] locationInt = locationString.getBytes();
-                Byte[] locationBytes = new Byte[locationInt.length];
-                int i = 0;
-                for (byte b : locationInt) {
-                    locationBytes[i++] = b;
-                }
-
-                // convert byte array to a hash
-                if (openChest.contains(locationBytes)) {
-                    return;
-                } else {
-                    openChest.add(locationBytes);
-                }
-                locationInt = null;
-                locationBytes = null;
+            this.convertInventory(event.getInventory());
+            block.setMetadata("ireplacer", new FixedMetadataValue(realmcraft.getInstance(), true));
+        } else if (holder instanceof StorageMinecart) {
+            StorageMinecart minecart = (StorageMinecart) holder;
+            if (minecart.hasMetadata("ireplacer")) {
+                return;
             }
 
-            for (int i = 0; i < event.getInventory().getSize(); i++) {
-                ItemStack item = event.getInventory().getItem(i);
-                if (item != null) {
-                    InternalReplacerStructure structure = match(item);
-                    if (structure != null) {
-                        switch (structure.getOutputType()) {
-                            case COMMAND:
-                                if (structure.getOutputConfig().has("Command")) {
-                                    String command = structure.getOutputConfig().get("Command").getAsString();
-                                    command = parsePlaceholders(command, player, item);
-                                    if (realmcraft.getInstance().getServer().getPluginManager()
-                                            .getPlugin("PlaceholderAPI") != null) {
-                                        command = me.clip.placeholderapi.PlaceholderAPI
-                                                .setPlaceholders(player, command);
-                                    }
-                                    org.bukkit.Bukkit.dispatchCommand(org.bukkit.Bukkit.getConsoleSender(), command);
-                                    if (structure.getOutputConfig().has("Remove-Item")
-                                            && structure.getOutputConfig().get("Remove-Item").getAsBoolean()) {
-                                        item.setAmount(0);
-                                    }
-                                }
-                                break;
-                            case REALSTACK: {
-                                RealStack stack = RealStack
-                                        .fromInteractiveSection(structure.getSection().getSection("Output-Config"));
-                                ItemStack itemStack = stack.buildItemStack();
-                                itemStack.setAmount(item.getAmount());
-                                if (structure.getOutputConfig().has("Pass-Enchantments")
-                                        && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
-                                    itemStack.addUnsafeEnchantments(item.getEnchantments());
-                                }
-                                if (structure.getOutputConfig().has("Pass-CMD")
-                                        && structure.getOutputConfig().get("Pass-CMD")
-                                                .getAsBoolean()) {
-                                    Integer custommoldeldata = item.getItemMeta().getCustomModelData();
-                                    itemStack.editMeta(meta -> {
-                                        meta.setCustomModelData(custommoldeldata);
-                                    });
-                                }
-                                item = itemStack;
-                                break;
-                            }
-                            case MMOITEMS: {
-                                if (structure.getOutputConfig().has("Item")) {
-                                    String line = structure.getOutputConfig().get("Item").getAsString();
-                                    String[] split = line.split(":");
-                                    List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
-                                            .map(Type::getId).collect(Collectors.toList());
-                                    // RealMessage.sendConsoleMessage("Types: " + Arrays.toString(types.toArray()));
-                                    if (types.contains(split[0])) {
-                                        Type type = MMOItems.plugin.getTypes().get(split[0]);
-                                        ItemStack stack;
-                                        if (event.getInventory().getHolder() instanceof Player) {
-                                            stack = MMOItems.plugin.getItem(type, split[1],
-                                                    PlayerData.get((Player) event.getInventory().getHolder()));
-                                        } else {
-                                            stack = cacheMMO.get(type + ":" + split[1]);
-                                        }
-
-                                        if (stack == null) {
-                                            break;
-                                        }
-                                        stack.setAmount(item.getAmount());
-                                        if (structure.getOutputConfig().has("Pass-Enchantments")
-                                                && structure.getOutputConfig().get("Pass-Enchantments")
-                                                        .getAsBoolean()) {
-                                            stack.addUnsafeEnchantments(item.getEnchantments());
-                                        }
-                                        if (structure.getOutputConfig().has("Pass-CMD")
-                                                && structure.getOutputConfig().get("Pass-CMD")
-                                                        .getAsBoolean()) {
-                                            Integer custommoldeldata = item.getItemMeta().getCustomModelData();
-                                            stack.editMeta(meta -> {
-                                                meta.setCustomModelData(custommoldeldata);
-                                            });
-                                        }
-                                        item = stack;
-                                    }
-                                }
-                            }
-                            case MYTHICMOBS: {
-                                if (structure.getOutputConfig().has("Item")) {
-                                    String line = structure.getOutputConfig().get("Item").getAsString();
-                                    String[] split = line.split(":");
-                                    if (MythicBukkit.inst().getItemManager().getItem(split[0]).isPresent()) {
-                                        MythicItem mythicItem = MythicBukkit.inst().getItemManager().getItem(split[0])
-                                                .get();
-                                        ItemStack stack = BukkitAdapter
-                                                .adapt(mythicItem.generateItemStack(Integer.parseInt(split[1])));
-                                        if (stack == null) {
-                                            break;
-                                        }
-                                        stack.setAmount(item.getAmount());
-                                        if (structure.getOutputConfig().has("Pass-Enchantments")
-                                                && structure.getOutputConfig().get("Pass-Enchantments")
-                                                        .getAsBoolean()) {
-                                            stack.addUnsafeEnchantments(item.getEnchantments());
-                                        }
-                                        if (structure.getOutputConfig().has("Pass-CMD")
-                                                && structure.getOutputConfig().get("Pass-CMD")
-                                                        .getAsBoolean()) {
-                                            Integer custommoldeldata = item.getItemMeta().getCustomModelData();
-                                            stack.editMeta(meta -> {
-                                                meta.setCustomModelData(custommoldeldata);
-                                            });
-                                        }
-                                        item = stack;
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-                event.getInventory().setItem(i, item);
-            }
+            this.convertInventory(event.getInventory());
+            minecart.setMetadata("ireplaccer", new FixedMetadataValue(realmcraft.getInstance(), true));
         }
-
     }
 
     public static ItemStack getItemPreviewMMOitems(String type, String id) {
@@ -947,20 +728,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                 break;
                             }
                             stack.setAmount(item.getAmount());
-                            if (structure.getOutputConfig().has("Pass-Enchantments")
-                                    && structure.getOutputConfig().get("Pass-Enchantments")
-                                            .getAsBoolean()) {
-                                stack.addUnsafeEnchantments(item.getEnchantments());
-                            }
-                            if (structure.getOutputConfig().has("Pass-CMD")
-                                    && structure.getOutputConfig().get("Pass-CMD")
-                                            .getAsBoolean()) {
-                                Integer custommoldeldata = item.getItemMeta().getCustomModelData();
-                                stack.editMeta(meta -> {
-                                    meta.setCustomModelData(custommoldeldata);
-                                });
-                            }
-                            item = stack;
+                            item = PassAble(item, stack, structure.getOutputConfig());
                         }
                     }
                     break;
@@ -989,20 +757,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                     return item;
                 }
                 stack.setAmount(item.getAmount());
-                if (structure.getOutputConfig().has("Pass-Enchantments")
-                        && structure.getOutputConfig().get("Pass-Enchantments")
-                                .getAsBoolean()) {
-                    stack.addUnsafeEnchantments(item.getEnchantments());
-                }
-                if (structure.getOutputConfig().has("Pass-CMD")
-                        && structure.getOutputConfig().get("Pass-CMD")
-                                .getAsBoolean()) {
-                    Integer custommoldeldata = item.getItemMeta().getCustomModelData();
-                    stack.editMeta(meta -> {
-                        meta.setCustomModelData(custommoldeldata);
-                    });
-                }
-                item = stack;
+                item = PassAble(item, stack, structure.getOutputConfig());
             }
         }
         return item;
@@ -1069,20 +824,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                 break;
                             }
                             stack.setAmount(item.getAmount());
-                            if (structure.getOutputConfig().has("Pass-Enchantments")
-                                    && structure.getOutputConfig().get("Pass-Enchantments")
-                                            .getAsBoolean()) {
-                                stack.addUnsafeEnchantments(item.getEnchantments());
-                            }
-                            if (structure.getOutputConfig().has("Pass-CMD")
-                                    && structure.getOutputConfig().get("Pass-CMD")
-                                            .getAsBoolean()) {
-                                Integer custommoldeldata = item.getItemMeta().getCustomModelData();
-                                stack.editMeta(meta -> {
-                                    meta.setCustomModelData(custommoldeldata);
-                                });
-                            }
-                            item = stack;
+                            item = PassAble(item, stack, structure.getOutputConfig());
                         }
                     }
                     break;
@@ -1098,9 +840,13 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
         convertPlayerInventoryTWO(event.getPlayer());
     }
 
-    public void convertPlayerInventory(Player player) {
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
-            ItemStack item = player.getInventory().getItem(i);
+    public void convertPlayerInventory(Player p) {
+        convertInventory(p.getInventory());
+    }
+
+    public void convertInventory(Inventory inv) {
+        for (int i = 0; i < inv.getSize(); i++) {
+            ItemStack item = inv.getItem(i);
             if (item == null || item.getType() == Material.AIR) {
                 continue;
             }
@@ -1125,32 +871,13 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                         if (types.contains(split[0])) {
                             Type type = MMOItems.plugin.getTypes().get(split[0]);
                             ItemStack stack;
-                            if (player.getOpenInventory().getTopInventory().getHolder() instanceof Player) {
-                                stack = MMOItems.plugin.getItem(type, split[1],
-                                        PlayerData
-                                                .get((Player) player.getOpenInventory().getTopInventory().getHolder()));
-                            } else {
-                                stack = cacheMMO.get(type + ":" + split[1]);
-                            }
+                            stack = cacheMMO.get(type + ":" + split[1]);
 
                             if (stack == null) {
                                 break;
                             }
                             stack.setAmount(item2.getAmount());
-                            if (structure.getOutputConfig().has("Pass-Enchantments")
-                                    && structure.getOutputConfig().get("Pass-Enchantments")
-                                            .getAsBoolean()) {
-                                stack.addUnsafeEnchantments(item2.getEnchantments());
-                            }
-                            if (structure.getOutputConfig().has("Pass-CMD")
-                                    && structure.getOutputConfig().get("Pass-CMD")
-                                            .getAsBoolean()) {
-                                Integer custommoldeldata = item2.getItemMeta().getCustomModelData();
-                                stack.editMeta(meta -> {
-                                    meta.setCustomModelData(custommoldeldata);
-                                });
-                            }
-                            item2 = stack;
+                            item2 = PassAble(item2, stack, structure.getOutputConfig());
                         }
                     }
                     break;
@@ -1159,7 +886,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
 
                 }
             }
-            player.getInventory().setItem(i, item2);
+            inv.setItem(i, item2);
         }
     }
 
@@ -1196,20 +923,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                                 break;
                             }
                             stack.setAmount(item.getAmount());
-                            if (structure.getOutputConfig().has("Pass-Enchantments")
-                                    && structure.getOutputConfig().get("Pass-Enchantments")
-                                            .getAsBoolean()) {
-                                stack.addUnsafeEnchantments(item.getEnchantments());
-                            }
-                            if (structure.getOutputConfig().has("Pass-CMD")
-                                    && structure.getOutputConfig().get("Pass-CMD")
-                                            .getAsBoolean()) {
-                                Integer custommoldeldata = item.getItemMeta().getCustomModelData();
-                                stack.editMeta(meta -> {
-                                    meta.setCustomModelData(custommoldeldata);
-                                });
-                            }
-                            item = stack;
+                            item = PassAble(item, stack, structure.getOutputConfig());
                         }
                     }
                     break;
@@ -1247,20 +961,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                             break;
                         }
                         stack.setAmount(item.getAmount());
-                        if (structure.getOutputConfig().has("Pass-Enchantments")
-                                && structure.getOutputConfig().get("Pass-Enchantments")
-                                        .getAsBoolean()) {
-                            stack.addUnsafeEnchantments(item.getEnchantments());
-                        }
-                        if (structure.getOutputConfig().has("Pass-CMD")
-                                && structure.getOutputConfig().get("Pass-CMD")
-                                        .getAsBoolean()) {
-                            Integer custommoldeldata = item.getItemMeta().getCustomModelData();
-                            stack.editMeta(meta -> {
-                                meta.setCustomModelData(custommoldeldata);
-                            });
-                        }
-                        item = stack;
+                        item = PassAble(item, stack, structure.getOutputConfig());
                     }
                 }
                 break;
@@ -1268,6 +969,28 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
         }
         event.setResult(item);
 
+    }
+
+    public static ItemStack PassAble(ItemStack old, ItemStack newStack, JsonObject config) {
+        if (config.has("Pass-Enchantments") && config.get("Pass-Enchantments").getAsBoolean()) {
+            newStack.addUnsafeEnchantments(old.getEnchantments());
+        }
+        if (config.has("Pass-CMD") && config.get("Pass-CMD").getAsBoolean()) {
+            Integer custommoldeldata = old.getItemMeta().getCustomModelData();
+            newStack.editMeta(meta -> {
+                meta.setCustomModelData(custommoldeldata);
+            });
+        }
+        if (config.has("Pass-ArmorTrims") && config.get("Pass-Trims").getAsBoolean()) {
+            if (old.getItemMeta() instanceof ArmorMeta && newStack.getItemMeta() instanceof ArmorMeta) {
+                ArmorMeta oldMeta = (ArmorMeta) old.getItemMeta();
+                ArmorMeta newMeta = (ArmorMeta) newStack.getItemMeta();
+                if (oldMeta.hasTrim()) {
+                    newMeta.setTrim(oldMeta.getTrim());
+                }
+            }
+        }
+        return newStack;
     }
 
 }

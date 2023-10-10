@@ -3,12 +3,13 @@ package dev.arubik.realmcraft.MMOItems.Durability;
 import org.bukkit.Material;
 
 import dev.arubik.realmcraft.Handlers.RealMessage;
+import dev.arubik.realmcraft.Managers.Module;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.item.build.ItemStackBuilder;
 import net.Indyuce.mmoitems.stat.type.BooleanStat;
 import net.Indyuce.mmoitems.stat.type.StringStat;
 
-public class EnablePlaceholders extends BooleanStat {
+public class EnablePlaceholders extends BooleanStat implements Module {
 
     public EnablePlaceholders(String id, Material mat, String name, String[] lore, String[] types,
             Material[] materials) {
@@ -19,8 +20,18 @@ public class EnablePlaceholders extends BooleanStat {
         super("PLACEHOLDERS_ENABLED", Material.ANVIL, "Enable Placeholders", new String[] {}, new String[] { "all" });
     }
 
-    public static void register() {
-        MMOItems.plugin.getStats().register("PLACEHOLDERS_ENABLED", new RepairMaterial());
-        RealMessage.sendConsoleMessage("<yellow>EnablePlaceholders Enabled!");
+    @Override
+    public void register() {
+        MMOItems.plugin.getStats().register("PLACEHOLDERS_ENABLED", this);
+    }
+
+    @Override
+    public String configId() {
+        return "placeholder-lore";
+    }
+
+    @Override
+    public String displayName() {
+        return "Placeholder Lore Stat";
     }
 }

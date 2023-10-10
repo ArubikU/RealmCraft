@@ -1,4 +1,5 @@
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MMOItems\Range\RangeStat.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Managers\Module.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\LootGen\LootTable.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Managers\FileReader.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\WitherEffectInvulnerability.java
@@ -38,6 +39,7 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\M
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\RealFlag.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicMobs\LootBagListener.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\LavaInmunity.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\market\MarketModule.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\IReplacer\IReplacerListener.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\NightHug.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Locale.java
@@ -70,6 +72,7 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\L
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\RealReflect.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\realmcraft.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Handlers\Schema.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\market\MarketItem.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicMobs\ModifyLevel.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MMOItems\Durability\RestoreStellium.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\DefaultConfigs\LangConfig.java
@@ -78,6 +81,8 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\F
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Listeners\AttackListener.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\RealPotionEffect.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\FileManagement\InteractiveSection.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\market\MarketCommand.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\market\MarketItemVariation.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Events\BuildEvent.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Handlers\RealMessage.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Events\RecipeBook.java

@@ -6,8 +6,9 @@ import org.bukkit.inventory.ItemStack;
 import dev.arubik.realmcraft.Api.ItemBuildModifier;
 import dev.arubik.realmcraft.Api.RealNBT;
 import dev.arubik.realmcraft.Api.Events.LoreEvent;
+import dev.arubik.realmcraft.Managers.Module;
 
-public class PlaceholderEnableLore implements ItemBuildModifier {
+public class PlaceholderEnableLore implements ItemBuildModifier, Module {
 
     @Override
     public RealNBT modifyItem(Player player, RealNBT nbt) {
@@ -20,7 +21,18 @@ public class PlaceholderEnableLore implements ItemBuildModifier {
         return nbt.contains("PLACEHOLDERS_ENABLED");
     }
 
-    public static void register() {
-        LoreEvent.addItemBuildModifier(new PlaceholderEnableLore());
+    @Override
+    public void register() {
+        LoreEvent.addItemBuildModifier(this);
+    }
+
+    @Override
+    public String configId() {
+        return "placeholder-lore";
+    }
+
+    @Override
+    public String displayName() {
+        return "Placeholder Lore";
     }
 }

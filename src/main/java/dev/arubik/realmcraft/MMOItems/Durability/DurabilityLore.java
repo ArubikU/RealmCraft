@@ -16,8 +16,11 @@ import dev.arubik.realmcraft.Api.LorePosition;
 import dev.arubik.realmcraft.Api.RealLore;
 import dev.arubik.realmcraft.Api.RealNBT;
 import dev.arubik.realmcraft.Api.Events.LoreEvent;
+import dev.arubik.realmcraft.Api.LoreParser.ContextEvent;
+import dev.arubik.realmcraft.Managers.Module;
+import net.Indyuce.mmoitems.gui.PluginInventory;
 
-public class DurabilityLore implements RealLore {
+public class DurabilityLore implements RealLore, Module {
 
     class DurabilityLoreLine implements DynamicLoreLine {
         private String line;
@@ -37,10 +40,9 @@ public class DurabilityLore implements RealLore {
         }
     }
 
-    public static void register() {
-        DurabilityLore durabilityLore = new DurabilityLore();
-        LoreEvent.addLore(durabilityLore);
-        // LoreEvent.addItemBuildModifier(durabilityLore.new DurabilityModifier());
+    @Override
+    public void register() {
+        LoreEvent.addLore(this);
     }
 
     private List<DynamicLoreLine> lore = List.of(new EmptyDynamicLine(),
@@ -55,6 +57,25 @@ public class DurabilityLore implements RealLore {
     }
 
     @Override
+    public Boolean able(Player player, RealNBT nbt) {
+        // verify if player has inventory open and if is a PluginInventory holder
+
+        if (player.getOpenInventory() != null) {
+            if (player.getOpenInventory().getTopInventory() != null) {
+                if (!player.getOpenInventory().getTopInventory().contains(nbt.getOriginalItem())) {
+                    return true;
+                }
+                if ((player.getOpenInventory().getTopInventory().getHolder() instanceof PluginInventory)) {
+
+                    return false;
+                }
+            }
+        }
+        return true;
+
+    }
+
+    @Override
     public List<DynamicLoreLine> getLoreLines() {
         return lore;
     }
@@ -62,6 +83,16 @@ public class DurabilityLore implements RealLore {
     @Override
     public LorePosition getLorePosition() {
         return position;
-    };
+    }
+
+    @Override
+    public String configId() {
+        return "durability";
+    }
+
+    @Override
+    public String displayName() {
+        return "MMOItem Durability Lore";
+    }
 
 }

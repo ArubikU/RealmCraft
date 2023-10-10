@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerAnimationType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +43,7 @@ import net.Indyuce.mmoitems.api.MMOItemsAPI;
 import net.Indyuce.mmoitems.api.item.mmoitem.LiveMMOItem;
 import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import net.Indyuce.mmoitems.api.player.RPGPlayer;
+import net.Indyuce.mmoitems.comp.inventory.PlayerInventory;
 import net.Indyuce.mmoitems.stat.type.ItemRestriction;
 import net.Indyuce.mmoitems.stat.type.ItemStat;
 
@@ -150,11 +152,18 @@ public class RangeListener implements Listener, Depend {
     @EventHandler
     public void onPlayerAnimateTwo(PlayerArmSwingEvent event) {
         Player player = event.getPlayer();
-        RealNBT nbt = new RealNBT(player.getInventory().getItemInMainHand());
+        org.bukkit.inventory.PlayerInventory inv = player.getInventory();
+        if (inv.getItemInMainHand() != null) {
+            return;
+        }
+        if (inv.getItemInMainHand().getType().isAir()) {
+            return;
+        }
+        RealNBT nbt = new RealNBT(inv.getItemInMainHand());
         if (!(nbt.hasTag(NBT_TAG) || nbt.hasTag(NBT_TAG_CUSTOM))) {
             return;
         }
-        if (player.getInventory().getItemInMainHand().getType().toString().contains("BOW")) {
+        if (inv.getItemInMainHand().getType().toString().contains("BOW")) {
             return;
         }
         Double range = nbt.getDouble(NBT_TAG, nbt.getDouble(NBT_TAG_CUSTOM));

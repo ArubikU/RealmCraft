@@ -5,6 +5,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -37,6 +39,7 @@ import dev.arubik.realmcraft.MMOItems.Range.NBTCompund;
 import dev.arubik.realmcraft.MMOItems.Range.RangeListener;
 import dev.arubik.realmcraft.Managers.Depend;
 import dev.arubik.realmcraft.Managers.FileReader;
+import dev.arubik.realmcraft.Managers.Module;
 import dev.arubik.realmcraft.Managers.Command.CommandMapper;
 import dev.arubik.realmcraft.Managers.Command.RealmcraftCommand;
 import dev.arubik.realmcraft.MythicLib.SkillHandlerRM;
@@ -44,6 +47,7 @@ import dev.arubik.realmcraft.MythicMobs.LootBagListener;
 import dev.arubik.realmcraft.MythicMobs.MythicListener;
 import io.lumine.mythic.lib.skill.handler.SkillHandler;
 import lombok.Getter;
+import lombok.Setter;
 import net.Indyuce.mmocore.MMOCore;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -55,6 +59,7 @@ public class realmcraft extends JavaPlugin {
     private FileReader fileReader;
     @Getter
     private IReplacer replacer;
+    @Setter
     @Getter
     private CommandMapper commandMapper;
     @Getter
@@ -70,6 +75,36 @@ public class realmcraft extends JavaPlugin {
     @Getter
     private static EntityHider entityHider;
 
+    private Module[] Modules;
+
+    public void loadModules() {
+        for (Module module : Modules) {
+            if (InteractiveConfig.getBoolean("modules." + module.configId(), true)) {
+                try {
+                    module.register();
+                    RealMessage.sendConsoleMessage("<yellow>Registered " + module.displayName());
+                } catch (Throwable e) {
+                    RealMessage.sendConsoleMessage("<red>Failed to register " + module.displayName());
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void unloadModules() {
+        for (Module module : Modules) {
+            if (InteractiveConfig.getBoolean("modules." + module.configId(), true)) {
+                try {
+                    module.unregister();
+                    RealMessage.sendConsoleMessage("<red>Unregister " + module.displayName());
+                } catch (Throwable e) {
+                    RealMessage.sendConsoleMessage("<yellow>Failed to unregister " + module.displayName());
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     @Override
     public void onEnable() {
         instance = this;
@@ -81,17 +116,10 @@ public class realmcraft extends JavaPlugin {
         RealMessage.sendConsoleMessage("<yellow>RealmCraft has been enabled!");
         if (InteractiveConfig.getBoolean("mode.api", false))
             return;
-        if (InteractiveConfig.getBoolean("modules.command", true))
-            commandMapper = new CommandMapper("realmcraft", this);
 
-        if (InteractiveConfig.getBoolean("modules.durability", true)) {
-            MMOListener.register();
-            DurabilityLore.register();
-        }
-        if (InteractiveConfig.getBoolean("modules.placeholder-lore", true)) {
-            EnablePlaceholders.register();
-            PlaceholderEnableLore.register();
-        }
+        this.Modules = new Module[] { new DurabilityLore(), new MMOListener(), new PlaceholderEnableLore(),
+                new EnablePlaceholders(), new CommandMapper("realmcraft", this) };
+        loadModules();
         if (InteractiveConfig.getBoolean("modules.lang-lore", false))
             MinimessageFormat.register();
         if (InteractiveConfig.getBoolean("modules.repair-material-stat", true))

@@ -91,6 +91,18 @@ public class InteractiveFolder {
         }
     }
 
+    public InteractiveFile createFile(String name) {
+        // use interactive file
+        File folder = new File(plugin.getDataFolder(), path);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        InteractiveFile file = new InteractiveFile(path + realmcraft.getInstance().separator + name, plugin);
+        file.create();
+        return file;
+
+    }
+
     public Boolean has(String name) {
         File folder = new File(plugin.getDataFolder(), path);
         if (!folder.exists()) {

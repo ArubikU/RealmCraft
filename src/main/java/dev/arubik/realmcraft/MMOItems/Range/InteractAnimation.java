@@ -36,6 +36,8 @@ public class InteractAnimation extends BooleanStat implements Listener, Depend {
                 || event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
             if (event.getItem() == null)
                 return;
+            if (event.getItem().getType() == Material.AIR)
+                return;
             RealNBT nbt = new RealNBT(event.getItem());
             if (nbt.hasTag("MMOITEMS_INTERACTION_ANIM") || nbt.hasTag("INTERACTION_ANIM")) {
                 event.getPlayer().swingMainHand();
