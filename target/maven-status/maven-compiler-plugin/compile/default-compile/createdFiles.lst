@@ -132,6 +132,7 @@ dev\arubik\realmcraft\Api\RealMethods$Methods.class
 dev\arubik\realmcraft\Api\RealNBT$NBTTag.class
 dev\arubik\realmcraft\Managers\SchemaValidator.class
 dev\arubik\realmcraft\MythicLib\Passive\AncientBow.class
+dev\arubik\realmcraft\Api\Events\LoreEvent$5.class
 dev\arubik\realmcraft\MythicMobs\ModifyLevel$PlayerLevelModifier.class
 dev\arubik\realmcraft\MythicMobs\isNotFromSpawner.class
 dev\arubik\realmcraft\Api\RealCache.class
@@ -140,6 +141,7 @@ dev\arubik\realmcraft\LootGen\ContainerInstance.class
 dev\arubik\realmcraft\MythicLib\Passive\ComboAttack.class
 dev\arubik\realmcraft\MMOItems\Durability\MMOListener.class
 dev\arubik\realmcraft\Managers\Command\CommandMapper.class
+dev\arubik\realmcraft\Api\Events\LoreEvent$4.class
 dev\arubik\realmcraft\Api\RealPlayer.class
 dev\arubik\realmcraft\MMOItems\Range\RangeStat.class
 dev\arubik\realmcraft\IReplacer\IReplacerListener.class

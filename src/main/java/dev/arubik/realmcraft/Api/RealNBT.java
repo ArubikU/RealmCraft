@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -630,14 +631,11 @@ public class RealNBT {
             }
         }
         ArrayList<String> lore = new ArrayList<String>();
-        if (this.itemStack.getItemMeta() == null)
+        if (this.itemStack.lore() == null)
             return lore;
-        if (!this.itemStack.getItemMeta().hasLore()) {
-            return lore;
-        }
-        for (String line : this.itemStack.getItemMeta().getLore()) {
+        for (Component line : this.itemStack.lore()) {
             lore.add(miniMessage
-                    .serialize(legacyComponentSerializer.deserialize(line)));
+                    .serialize(line));
         }
         return lore;
 
@@ -720,8 +718,7 @@ public class RealNBT {
     }
 
     public String getDisplayName() {
-        return (String) miniMessage.serialize(legacyComponentSerializer
-                .deserialize(this.getItemMeta().getDisplayName()));
+        return (String) miniMessage.serialize(this.itemStack.displayName());
     }
 
     public Boolean hasDisplayName() {
