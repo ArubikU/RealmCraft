@@ -111,11 +111,8 @@ public class LoreEvent implements Depend {
                     if (packets.containsKey(event.getPlayer().getUniqueId())) {
                         // verify if exist a packet in the list with the same type
                         List<PacketContainer> list = packets.get(event.getPlayer().getUniqueId());
-                        for (PacketContainer packetContainerT : list) {
-                            if (packetContainerT.getType() == packet.getType()) {
-                                list.remove(packetContainerT);
-                            }
-                        }
+                        list.removeIf(packetContainerT -> packetContainerT.getType() == packet.getType());
+
                         list.add(packet);
                         packets.put(event.getPlayer().getUniqueId(), list);
                     } else {
@@ -206,7 +203,15 @@ public class LoreEvent implements Depend {
             // create a scheduler to send one packet per 5 ticks
             realmcraft.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(realmcraft.getInstance(),
                     () -> {
-                        for (Map.Entry<UUID, List<PacketContainer>> entry : packets.entrySet()) {
+
+                        if (packets.isEmpty()) {
+                            return;
+                        }
+
+                        Map<UUID, List<PacketContainer>> ClonePackets = new HashMap<>(packets);
+                        ClonePackets.putAll(packets);
+
+                        for (Map.Entry<UUID, List<PacketContainer>> entry : ClonePackets.entrySet()) {
                             UUID uuid = entry.getKey();
                             List<PacketContainer> packetsList = new ArrayList<>(entry.getValue());
                             packetsList.addAll(entry.getValue());
@@ -217,14 +222,14 @@ public class LoreEvent implements Depend {
                                     .getGameMode() == GameMode.SPECTATOR) {
                                 continue;
                             }
-                            packetsList.forEach(packet -> {
+                            for (PacketContainer packet : packetsList) {
                                 try {
                                     ProtocolLibrary.getProtocolManager().sendServerPacket(
                                             realmcraft.getInstance().getServer().getPlayer(uuid), packet);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                            });
+                            }
                         }
                         packets.clear();
 
