@@ -26,7 +26,7 @@ public class FileReader {
         this.plugin = plugin;
         folder = new InteractiveFolder("data", plugin);
         textures = new InteractiveFolder("textures", plugin);
-        ItemCache = new InteractiveFile("cache/items.json", plugin);
+        // ItemCache = new InteractiveFile("cache/items.json", plugin);
 
     }
 

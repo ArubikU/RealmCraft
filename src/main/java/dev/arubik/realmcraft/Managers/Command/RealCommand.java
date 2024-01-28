@@ -309,7 +309,7 @@ public class RealCommand implements Listener {
 
     public void onCommand(CommandSender sender, Command command, String[] args) {
         CommandData data = new CommandData(this, sender, args, command);
-        RealMessage.sendConsoleMessage(command.getLabel());
+        // RealMessage.sendConsoleMessage(command.getLabel());
         if (command.getName().equalsIgnoreCase(this.command.getName())) {
             int size = List.of(args).size();
             if (size == 0) {

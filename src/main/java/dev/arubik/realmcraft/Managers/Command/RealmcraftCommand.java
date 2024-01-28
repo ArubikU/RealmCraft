@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.LoreParser;
 import dev.arubik.realmcraft.Api.RealNBT;
+import dev.arubik.realmcraft.Api.RealPlayer;
 import dev.arubik.realmcraft.Api.RealStack;
 import dev.arubik.realmcraft.Api.Utils;
 import dev.arubik.realmcraft.Handlers.RealMessage;
@@ -353,9 +354,32 @@ public class RealmcraftCommand {
                         return true;
 
                     String type = data.args[1];
+                    if (data.args.length < 3) {
+                        Set<String> keys = MMOItems.plugin.getTypes().get(type).getConfigFile().getConfig()
+                                .getKeys(false);
+                        RealMessage.sendMessage(data.sender,
+                                "{path=command.prefix;file=lang.yml} {path=command.preview-get-all;file=lang.yml}",
+                                type);
+                        for (String key : keys) {
+                            ItemStack item = IReplacerListener.getItemPreviewMMOitems(type, key);
+                            if (data.sender instanceof Player player) {
+
+                                // verify if player has space in inventory
+                                if (player.getInventory().firstEmpty() == -1) {
+                                    RealMessage.sendMessage(data.sender,
+                                            "{path=command.prefix;file=lang.yml} {path=command.preview-no-space;file=lang.yml}");
+                                    return true;
+                                }
+                                // nbt.removedInvisibleNBT();
+                                // item = nbt.getItemStack();
+                                player.getInventory().addItem(item);
+                            }
+                        }
+                        return true;
+                    }
                     String id = data.args[2];
                     ItemStack item = IReplacerListener.getItemPreviewMMOitems(type, id);
-                    RealNBT nbt = new RealNBT(item);
+
                     if (item != null) {
                         RealMessage.sendMessage(data.sender,
                                 "{path=command.prefix;file=lang.yml} {path=command.preview-get;file=lang.yml}", type,
@@ -377,6 +401,16 @@ public class RealmcraftCommand {
                     return true;
                 }).setCompletitions(types));
 
+        args.add(new Argument().setArg("debugblock").setNext(null).setType(ArgumentTypes.STRING).setFunction((data) -> {
+            if (data.sender instanceof Player player) {
+                RealPlayer rplayer = RealPlayer.of(player);
+                int range = Integer.parseInt(data.args[1]);
+                rplayer.PlaceBlock(range);
+
+            }
+            return true;
+        }));
+
         command.setArguments(args);
         command.setMainFunction((data) -> {
             return true;
@@ -387,5 +421,7 @@ public class RealmcraftCommand {
 
     public static void Uninitialize() {
         realmcraft.getInstance().getCommandMapper().unregister(command);
+        command = null;
+
     }
 }

@@ -17,14 +17,19 @@ import org.jetbrains.annotations.NotNull;
 import dev.arubik.realmcraft.Api.Utils;
 import io.lumine.mythic.lib.api.event.PlayerAttackEvent;
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
+import io.lumine.mythic.lib.damage.AttackMetadata;
 import io.lumine.mythic.lib.damage.DamageType;
 import io.lumine.mythic.lib.player.skill.PassiveSkill;
+import io.lumine.mythic.lib.skill.Skill;
 import io.lumine.mythic.lib.skill.SkillMetadata;
 import io.lumine.mythic.lib.skill.handler.SkillHandler;
 import io.lumine.mythic.lib.skill.result.def.AttackSkillResult;
 import io.lumine.mythic.lib.skill.trigger.TriggerMetadata;
 import lombok.Getter;
 
+import dev.arubik.realmcraft.MythicLib.SkillTag;
+
+@SkillTag
 public class ComboAttack extends SkillHandler<AttackSkillResult> implements Listener {
 
     @Override
@@ -47,12 +52,19 @@ public class ComboAttack extends SkillHandler<AttackSkillResult> implements List
 
     @Override
     public void whenCast(AttackSkillResult result, SkillMetadata skillMeta) {
-        LivingEntity target = (LivingEntity) skillMeta.getTargetEntityOrNull();
+
+    }
+
+    public void cast(LivingEntity target, Player player, AttackMetadata metadata) {
+        if (!MMOPlayerData.has(player))
+            return;
+        MMOPlayerData playerData = MMOPlayerData.get(player);
+
+        Skill skillMeta = playerData.getPassiveSkillMap().getSkill(this).getTriggeredSkill();
         if (target == null)
             return;
         final double damageMultiplier = skillMeta.getModifier("damage-multiplier");
         final int maxCombo = new Double(skillMeta.getModifier("max-combo")).intValue();
-        final Player player = skillMeta.getCaster().getPlayer();
         if (ComboMap.containsKey(player.getUniqueId())) {
             int currentCombo = ComboMap.get(player.getUniqueId());
             if (!(currentCombo >= maxCombo)) {
@@ -65,12 +77,12 @@ public class ComboAttack extends SkillHandler<AttackSkillResult> implements List
         }
         int currentCombo = ComboMap.get(player.getUniqueId());
         if (currentCombo >= maxCombo) {
-            double damage = skillMeta.getAttack().getDamage().getDamage();
+            double damage = metadata.getDamage().getDamage();
             while (currentCombo > 0) {
                 damage += damage * damageMultiplier;
                 currentCombo--;
             }
-            skillMeta.getAttack().getDamage().add(damage, DamageType.WEAPON);
+            metadata.getDamage().add(damage, DamageType.WEAPON);
             target.getWorld().spawnParticle(Particle.CRIT, target.getLocation(), 10);
             target.getWorld().playSound(target.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1, 1);
         }
@@ -98,7 +110,7 @@ public class ComboAttack extends SkillHandler<AttackSkillResult> implements List
         if (skill == null)
             return;
 
-        skill.getTriggeredSkill().cast(new TriggerMetadata(event.getAttacker(), event.getEntity()));
+        this.cast(target, data.getPlayer(), event.getAttack());
     }
 
 }

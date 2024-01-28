@@ -34,6 +34,9 @@ import io.lumine.mythic.lib.skill.handler.SkillHandler;
 import io.lumine.mythic.lib.skill.result.def.AttackSkillResult;
 import io.lumine.mythic.lib.skill.trigger.TriggerMetadata;
 
+import dev.arubik.realmcraft.MythicLib.SkillTag;
+
+@SkillTag
 public class Frostie extends SkillHandler<AttackSkillResult> implements Listener {
 
     @Override
@@ -53,6 +56,8 @@ public class Frostie extends SkillHandler<AttackSkillResult> implements Listener
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
             MMOPlayerData playerData = MMOPlayerData.get(player);
+            if (!MMOPlayerData.has(player))
+                return;
             if (event.getDamager() instanceof LivingEntity liv) {
                 if (playerData.getPassiveSkillMap().getSkill(this) != null) {
                     Skill meta = playerData.getPassiveSkillMap().getSkill(this).getTriggeredSkill();

@@ -7,6 +7,8 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.google.gson.JsonObject;
+
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import lombok.Getter;
 import lombok.val;

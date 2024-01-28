@@ -26,6 +26,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import dev.arubik.realmcraft.MythicLib.SkillTag;
+
+@SkillTag
 public class Daybreaker extends SkillHandler<AttackSkillResult> implements Listener {
 
     @Override

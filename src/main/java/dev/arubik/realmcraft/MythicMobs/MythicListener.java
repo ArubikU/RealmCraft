@@ -48,11 +48,6 @@ public class MythicListener implements Listener, Depend {
     @EventHandler
     public void onMythicMechanicLoad(MythicMechanicLoadEvent event) {
         if (event.getMechanicName().equalsIgnoreCase("touchlevel")) {
-            if (!Depend.isPluginEnabled("MMOCore")) {
-                RealMessage.nonFound("MMOCore is not installed, so ModifyLevel mechanic will not work.");
-                return;
-            }
-            RealMessage.Found("MMOCore is installed, so ModifyLevel mechanic will work.");
             event.register(new ModifyLevel(event.getConfig()));
         }
         if (event.getMechanicName().equalsIgnoreCase("dropequipment")) {

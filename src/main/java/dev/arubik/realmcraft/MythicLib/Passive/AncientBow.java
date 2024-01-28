@@ -31,6 +31,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import dev.arubik.realmcraft.MythicLib.SkillTag;
+
+@SkillTag
 public class AncientBow extends SkillHandler<AttackSkillResult> implements Listener {
 
     @Override
@@ -49,6 +52,8 @@ public class AncientBow extends SkillHandler<AttackSkillResult> implements Liste
             if (arrow.getShooter() instanceof Player player) {
 
                 MMOPlayerData playerData = MMOPlayerData.get(player);
+                if (!MMOPlayerData.has(player))
+                    return;
                 if (playerData.getPassiveSkillMap().getSkill(this) != null) {
                     if (RealPlayer.of(player).consumeItem(Material.GHAST_TEAR, 1)) {
 

@@ -6,6 +6,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.ehhthan.happyhud.HappyHUD;
+import com.ehhthan.happyhud.api.HudHolder;
+import com.ehhthan.happyhud.api.command.HappyHUDCommand;
+import com.ehhthan.happyhud.api.element.popup.HudPopup;
+import com.ehhthan.happyhud.manager.PopupManager;
+
 import dev.arubik.realmcraft.realmcraft;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -82,8 +88,8 @@ public class RealMessage {
 
     public static void sendActionBar(Player player, String message) {
         message = PlaceholderConfigParser.parser(message);
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                BungeeComponentSerializer.get().serialize(MiniMessage.miniMessage().deserialize(message)));
+
+        bukkitAudiences.sender(player).sendActionBar(MiniMessage.miniMessage().deserialize(message));
     }
 
     public static void sendTittle(Player player, String title, String subtitle, long fadeIn, long stay, long fadeOut) {
@@ -119,5 +125,23 @@ public class RealMessage {
                 MiniMessage.miniMessage().deserialize(subtitle),
                 Title.Times.of(Duration.ofSeconds(fadeIn), Duration.ofSeconds(stay), Duration.ofSeconds(fadeOut)));
         bukkitAudiences.player(player).showTitle(tilemodel);
+    }
+
+    private static Object popup = null;
+
+    public static void PopUp(Player player, String message) {
+        if (popup == null) {
+            if (Bukkit.getPluginManager().getPlugin("HappyHud") != null) {
+                popup = HappyHUD.getInstance().popups().get("death-message");
+            } else {
+                popup = "temp";
+            }
+        }
+        if (popup.equals("temp")) {
+            throw new NullPointerException("Popup is null");
+
+        }
+
+        HudHolder.get(player).sendPopup((HudPopup) popup, 100, message);
     }
 }

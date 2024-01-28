@@ -27,6 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import dev.arubik.realmcraft.MythicLib.SkillTag;
+
+@SkillTag
 
 public class SoulCollector extends SkillHandler<AttackSkillResult> implements Listener {
 
@@ -58,6 +61,8 @@ public class SoulCollector extends SkillHandler<AttackSkillResult> implements Li
         }
 
         MMOPlayerData playerData = MMOPlayerData.get(player);
+        if (!MMOPlayerData.has(player))
+            return;
         if (playerData.getPassiveSkillMap().getSkill(this) != null) {
             if (player.getInventory().getItemInOffHand().getType() == Material.GLASS_BOTTLE) {
                 int amount = player.getInventory().getItemInOffHand().getAmount();

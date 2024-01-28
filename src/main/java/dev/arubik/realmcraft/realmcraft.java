@@ -16,6 +16,7 @@ import dev.arubik.realmcraft.Api.EntityHider;
 import dev.arubik.realmcraft.Api.Events.LoreEvent;
 import dev.arubik.realmcraft.Api.Listeners.AttackListener;
 import dev.arubik.realmcraft.Api.Listeners.ChangeGamemode;
+import dev.arubik.realmcraft.Api.Listeners.ChatListener;
 import dev.arubik.realmcraft.CustomSouds.WeaponListener;
 import dev.arubik.realmcraft.DefaultConfigs.LangConfig;
 import dev.arubik.realmcraft.DefaultConfigs.MainConfig;
@@ -27,6 +28,7 @@ import dev.arubik.realmcraft.IReplacer.IReplacerListener;
 import dev.arubik.realmcraft.IReplacer.IReplacerModifier;
 import dev.arubik.realmcraft.LootGen.ContainerApi;
 import dev.arubik.realmcraft.MMOItems.CustomLore;
+import dev.arubik.realmcraft.MMOItems.MMOExpansion;
 import dev.arubik.realmcraft.MMOItems.Durability.DurabilityLore;
 import dev.arubik.realmcraft.MMOItems.Durability.EnablePlaceholders;
 import dev.arubik.realmcraft.MMOItems.Durability.MMOListener;
@@ -185,6 +187,14 @@ public class realmcraft extends JavaPlugin {
                 e.printStackTrace();
             }
         }
+        if (InteractiveConfig.getBoolean("modules.mmoexpansion", true)) {
+            try {
+                MMOExpansion.Register();
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register MMO Expansion");
+                e.printStackTrace();
+            }
+        }
         if (InteractiveConfig.getBoolean("modules.interactionanimation", true)) {
             try {
                 InteractAnimation.register();
@@ -226,9 +236,17 @@ public class realmcraft extends JavaPlugin {
                 e.printStackTrace();
             }
         }
+        if (InteractiveConfig.getBoolean("modules.chatlistener", true)) {
+            try {
+                new ChatListener(instance);
+            } catch (Throwable e) {
+                RealMessage.sendConsoleMessage("<red>Failed to register Chat Listener");
+                e.printStackTrace();
+            }
+        }
 
         // verify existence of me.aida.gpttalk.lib.openai.service.OpenAIService class
-        if (InteractiveConfig.getBoolean("modules.gpttalk", true)) {
+        if (InteractiveConfig.getBoolean("modules.gpttalk", false)) {
             try {
                 Class.forName("me.aida.gpttalk.lib.openai.service.OpenAIService");
                 // BASE_URL
@@ -260,7 +278,7 @@ public class realmcraft extends JavaPlugin {
 
     public static enum Modules {
         command, durability, placeholder_lore, lang_lore, repair_material_stat, lore_listeners, attack_listeners,
-        vanilla_fix, mythic_mobs, ireplacer, mmocore_skills, command_realmcraft;
+        vanilla_fix, mythic_mobs, ireplacer, mmocore_skills, command_realmcraft, mmoexpansion;
     }
 
     public void reload() {

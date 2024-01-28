@@ -226,6 +226,9 @@ public class ModifyLevel implements ITargetedEntitySkill, Depend {
             }
 
             try {
+                if (newLevelOpt.get().intValue() < 1) {
+                    newLevelOpt.set(1.0);
+                }
                 mob.setLevel(newLevelOpt.get().intValue() > maxLevel ? maxLevel : newLevelOpt.get().intValue());
             } catch (Throwable ta) {
             }

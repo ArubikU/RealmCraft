@@ -33,6 +33,11 @@
               <artifactSet>
                 <includes>
                   <include>net.kyori</include>
+                  <include>org.ecliplse</include>
+                  <include>com.google</include>
+                  <include>org.reflections</include>
+                  <include>com.fasterxml</include>
+                  <include>io.netty</include>
                 </includes>
               </artifactSet>
             </configuration>
@@ -109,6 +114,24 @@
   </repositories>
   <dependencies>
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.12.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>21.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.javassist</groupId>
+      <artifactId>javassist</artifactId>
+      <version>3.22.0-CR1</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.geysermc.geyser</groupId>
       <artifactId>api</artifactId>
       <version>2.1.0-SNAPSHOT</version>
@@ -141,7 +164,7 @@
     <dependency>
       <groupId>io.lumine</groupId>
       <artifactId>MythicLib-dist</artifactId>
-      <version>1.5.2-SNAPSHOT</version>
+      <version>1.6.2-SNAPSHOT</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -207,6 +230,14 @@
       <version>1.5.1</version>
       <scope>system</scope>
       <systemPath>${basedir}\PandeLootPlus.jar</systemPath>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>Ethan</groupId>
+      <artifactId>HappyHud</artifactId>
+      <version>1.5.1</version>
+      <scope>system</scope>
+      <systemPath>${basedir}\HappyHud.jar</systemPath>
       <optional>true</optional>
     </dependency>
   </dependencies>

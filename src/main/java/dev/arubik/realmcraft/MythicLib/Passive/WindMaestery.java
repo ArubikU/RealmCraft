@@ -18,6 +18,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import dev.arubik.realmcraft.MythicLib.SkillTag;
+
+@SkillTag
 public class WindMaestery extends SkillHandler<SimpleSkillResult> implements Listener {
 
     @Override
@@ -38,6 +41,8 @@ public class WindMaestery extends SkillHandler<SimpleSkillResult> implements Lis
     public void onPlayerToggleSprint(PlayerToggleSprintEvent event) {
         Player player = event.getPlayer();
         MMOPlayerData playerData = MMOPlayerData.get(player);
+        if (!MMOPlayerData.has(player))
+            return;
         if (playerData.getPassiveSkillMap().getSkill(this) != null) {
             Skill meta = playerData.getPassiveSkillMap().getSkill(this).getTriggeredSkill();
             cooldownTime = (int) (meta.getModifier("cooldown") * 20);

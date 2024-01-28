@@ -1,12 +1,30 @@
 package dev.arubik.realmcraft.Api;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -164,6 +182,15 @@ public class Utils {
         return random.nextInt(max - min + 1) + min;
     }
 
+    public static double random(double min, double max) {
+        if (min == max)
+            return min;
+        if (min > max) {
+            return random.nextDouble(min - max + 1) + max;
+        }
+        return roundDouble(random.nextDouble(max - min + 1) + min, 2);
+    }
+
     public static Integer[] removeInt(Integer[] array, Integer value) {
         Integer[] newArray = new Integer[array.length - 1];
         int index = 0;
@@ -214,5 +241,51 @@ public class Utils {
 
     public static void Delay(Runnable object, int slowDuration) {
         Bukkit.getScheduler().runTaskLater(realmcraft.getInstance(), object, slowDuration);
+    }
+
+    public static ArrayList<Class<?>> findAllClassesUsingClassLoader(String pkgName) {
+        final String pkgPath = pkgName.replace('.', '/');
+        URI pkg;
+        try {
+            pkg = Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource(pkgPath)).toURI();
+            final ArrayList<Class<?>> allClasses = new ArrayList<Class<?>>();
+
+            Path root;
+            if (pkg.toString().startsWith("jar:")) {
+                try {
+                    root = FileSystems.getFileSystem(pkg).getPath(pkgPath);
+                } catch (final FileSystemNotFoundException e) {
+                    root = FileSystems.newFileSystem(pkg, Collections.emptyMap()).getPath(pkgPath);
+                }
+            } else {
+                root = Paths.get(pkg);
+            }
+
+            final String extension = ".class";
+            try (final Stream<Path> allPaths = Files.walk(root)) {
+                allPaths.filter(Files::isRegularFile).forEach(file -> {
+                    try {
+                        final String path = file.toString().replace('/', '.');
+                        final String name = path.substring(path.indexOf(pkgName), path.length() - extension.length());
+                        allClasses.add(Class.forName(name));
+                    } catch (final ClassNotFoundException | StringIndexOutOfBoundsException ignored) {
+                    }
+                });
+            }
+            return allClasses;
+        } catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Class getClass(String className, String packageName) {
+        try {
+            return Class.forName(packageName + "."
+                    + className.substring(0, className.lastIndexOf('.')));
+        } catch (ClassNotFoundException e) {
+            // handle the exception
+        }
+        return null;
     }
 }

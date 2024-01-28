@@ -32,6 +32,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import dev.arubik.realmcraft.MythicLib.SkillTag;
+
+@SkillTag
 public class NightHug extends SkillHandler<AttackSkillResult> implements Listener {
 
     @Override
@@ -71,6 +74,8 @@ public class NightHug extends SkillHandler<AttackSkillResult> implements Listene
             return;
         Player player = event.getPlayer();
         MMOPlayerData playerData = MMOPlayerData.get(player);
+        if (!MMOPlayerData.has(player))
+            return;
         if (playerData.getPassiveSkillMap().getSkill(this) != null) {
             RealMessage.sendConsoleMessage("NightHug triggered");
 

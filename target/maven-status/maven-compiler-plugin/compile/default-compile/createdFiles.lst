@@ -9,8 +9,10 @@ dev\arubik\realmcraft\MythicMobs\ModifyLevel$1.class
 dev\arubik\realmcraft\MythicLib\Passive\WitherEffectInvulnerability.class
 dev\arubik\realmcraft\MythicLib\Passive\NightHug.class
 dev\arubik\realmcraft\MythicMobs\LootTableSkill.class
+dev\arubik\realmcraft\Api\RealPlayer$1.class
 dev\arubik\realmcraft\Api\Locale.class
 dev\arubik\realmcraft\MythicLib\Passive\Frostie.class
+dev\arubik\realmcraft\MythicLib\Cromes\Adversar.class
 dev\arubik\realmcraft\Managers\FileReader.class
 dev\arubik\realmcraft\MythicMobs\ModifyLevel.class
 dev\arubik\realmcraft\FileManagement\InteractiveFile$FileType.class
@@ -20,10 +22,12 @@ dev\arubik\realmcraft\Api\Events\LoreEvent.class
 dev\arubik\realmcraft\Managers\Command\RealmcraftCommand.class
 dev\arubik\realmcraft\Api\LoreParser$1.class
 dev\arubik\realmcraft\MMOCore\Loader$1.class
+dev\arubik\realmcraft\MythicLib\Cromes\Arrows.class
 dev\arubik\realmcraft\Api\RealLore.class
 dev\arubik\realmcraft\Api\RealMethods.class
 dev\arubik\realmcraft\Api\DynamicLoreLine.class
 dev\arubik\realmcraft\Handlers\JsonEditor.class
+dev\arubik\realmcraft\MythicLib\SkillTag.class
 dev\arubik\realmcraft\Api\RealStack.class
 dev\arubik\realmcraft\MythicLib\Passive\NaturalRegen.class
 dev\arubik\realmcraft\MMOItems\Range\RangeListener.class
@@ -34,10 +38,12 @@ dev\arubik\realmcraft\Api\Events\LoreEvent$2.class
 dev\arubik\realmcraft\IReplacer\IReplacerModifier$1.class
 dev\arubik\realmcraft\MMOItems\ExtendedLore.class
 dev\arubik\realmcraft\realmcraft$Modules.class
+dev\arubik\realmcraft\Api\Listeners\ChatListener.class
 dev\arubik\realmcraft\IReplacer\IReplacer.class
 dev\arubik\realmcraft\MythicLib\MythicPlaceholders$MythicEntityGroup.class
 dev\arubik\realmcraft\Api\RealData.class
 dev\arubik\realmcraft\Managers\Command\RealCommand$2.class
+dev\arubik\realmcraft\MythicLib\Cromes\BasicCromeSkill.class
 dev\arubik\realmcraft\MMOCore\Loader.class
 dev\arubik\realmcraft\MythicLib\Passive\Flare.class
 dev\arubik\realmcraft\LootGen\LootTable.class
@@ -57,6 +63,7 @@ dev\arubik\realmcraft\Api\EntityHider.class
 dev\arubik\realmcraft\Api\RealNBT$1.class
 dev\arubik\realmcraft\Managers\Command\Argument.class
 dev\arubik\realmcraft\Api\LineConfig.class
+dev\arubik\realmcraft\MythicLib\Cromes\UntilTheMorning.class
 dev\arubik\realmcraft\MMOItems\Durability\RestoreStellium.class
 dev\arubik\realmcraft\MythicLib\Passive\RegenChance.class
 dev\arubik\realmcraft\IReplacer\IReplacerModifier.class
@@ -81,7 +88,9 @@ dev\arubik\realmcraft\MMOItems\Range\NBTCompund.class
 dev\arubik\realmcraft\IReplacer\IReplacerListener$1.class
 dev\arubik\realmcraft\Managers\SchemaValidator$InvalidSchema.class
 dev\arubik\realmcraft\Handlers\RealMessage$DebugType.class
+dev\arubik\realmcraft\Api\Listeners\ChatListener$Replacement.class
 dev\arubik\realmcraft\MMOItems\Durability\MinimessageFormat.class
+dev\arubik\realmcraft\MythicLib\Cromes\Ambar.class
 dev\arubik\realmcraft\MMOItems\Durability\DurabilityLore$DurabilityLoreLine.class
 dev\arubik\realmcraft\MMOItems\Durability\DurabilityLore.class
 dev\arubik\realmcraft\Api\LoreParser.class
@@ -112,6 +121,7 @@ dev\arubik\realmcraft\Handlers\PlaceholderConfigParser.class
 dev\arubik\realmcraft\MythicLib\Passive\ComboAttack$1.class
 dev\arubik\realmcraft\Api\RealFlag.class
 dev\arubik\realmcraft\FileManagement\InteractiveFile.class
+dev\arubik\realmcraft\MythicLib\Cromes\DartingArrows.class
 dev\arubik\realmcraft\realmcraft.class
 dev\arubik\realmcraft\DefaultConfigs\LangConfig.class
 dev\arubik\realmcraft\MMOItems\Durability\RepairMaterial.class
@@ -130,12 +140,16 @@ dev\arubik\realmcraft\Api\Events\BuildEvent.class
 dev\arubik\realmcraft\Api\RealReflect$RealField.class
 dev\arubik\realmcraft\Api\RealMethods$Methods.class
 dev\arubik\realmcraft\Api\RealNBT$NBTTag.class
+dev\arubik\realmcraft\MythicLib\Cromes\Vacio.class
 dev\arubik\realmcraft\Managers\SchemaValidator.class
 dev\arubik\realmcraft\MythicLib\Passive\AncientBow.class
 dev\arubik\realmcraft\Api\Events\LoreEvent$5.class
 dev\arubik\realmcraft\MythicMobs\ModifyLevel$PlayerLevelModifier.class
+dev\arubik\realmcraft\Api\Events\CustomEvent.class
+dev\arubik\realmcraft\MythicLib\Cromes\SecretVote.class
 dev\arubik\realmcraft\MythicMobs\isNotFromSpawner.class
 dev\arubik\realmcraft\Api\RealCache.class
+dev\arubik\realmcraft\Api\RealPlayer$PlaceType.class
 dev\arubik\realmcraft\Api\Events\OnRebuildLoreListener.class
 dev\arubik\realmcraft\LootGen\ContainerInstance.class
 dev\arubik\realmcraft\MythicLib\Passive\ComboAttack.class
@@ -147,5 +161,6 @@ dev\arubik\realmcraft\MMOItems\Range\RangeStat.class
 dev\arubik\realmcraft\IReplacer\IReplacerListener.class
 dev\arubik\realmcraft\DefaultConfigs\MainConfig.class
 dev\arubik\realmcraft\market\MarketModule.class
+dev\arubik\realmcraft\MythicLib\Cromes\BrighterThanSun.class
 dev\arubik\realmcraft\MythicLib\SkillHandlerRM.class
 dev\arubik\realmcraft\IReplacer\IReplacerListener$2.class

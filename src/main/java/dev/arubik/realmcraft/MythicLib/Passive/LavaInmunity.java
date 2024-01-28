@@ -15,6 +15,9 @@ import io.lumine.mythic.lib.skill.handler.SkillHandler;
 import io.lumine.mythic.lib.skill.result.def.AttackSkillResult;
 import io.lumine.mythic.lib.skill.trigger.TriggerMetadata;
 
+import dev.arubik.realmcraft.MythicLib.SkillTag;
+
+@SkillTag
 public class LavaInmunity extends SkillHandler<AttackSkillResult> implements Listener {
 
     @Override
@@ -33,6 +36,8 @@ public class LavaInmunity extends SkillHandler<AttackSkillResult> implements Lis
             if (event.getCause() == DamageCause.FIRE || event.getCause() == DamageCause.FIRE_TICK
                     || event.getCause() == DamageCause.LAVA) {
                 MMOPlayerData playerData = MMOPlayerData.get(player);
+                if (!MMOPlayerData.has(player))
+                    return;
                 if (playerData.getPassiveSkillMap().getSkill(this) != null) {
                     event.setCancelled(true);
                 }

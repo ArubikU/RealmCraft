@@ -2,9 +2,11 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\M
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Managers\Module.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\LootGen\LootTable.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Managers\FileReader.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Cromes\Adversar.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\WitherEffectInvulnerability.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Listeners\ChangeGamemode.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\DefaultConfigs\MainConfig.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Cromes\Vacio.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Managers\Command\ArgumentTypes.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\LootGen\ContainerInstance.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\LineConfig.java
@@ -23,6 +25,7 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\M
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\RealCache.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MMOItems\Durability\DurabilityLore.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\Flare.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Cromes\Ambar.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\RealData.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Handlers\PlaceholderConfigParser.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\RealAttribute.java
@@ -32,6 +35,7 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\I
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Managers\Command\CommandData.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MMOItems\Range\RangeListener.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicMobs\MythicListener.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Cromes\UntilTheMorning.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Handlers\JsonBuilder.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MMOItems\Durability\RepairMaterial.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\IReplacer\IReplacer.java
@@ -44,10 +48,12 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\I
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\NightHug.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Locale.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\MythicPlaceholders.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Cromes\Arrows.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\AncientBow.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\EntityHider.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\DefaultConfigs\RealLoader.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\RealEnchantment.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Cromes\SecretVote.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\Daybreaker.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Managers\Command\Argument.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MMOItems\Durability\MMOListener.java
@@ -63,6 +69,7 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\M
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\Frostie.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\DynamicLoreLine.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\LorePosition.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Events\CustomEvent.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicMobs\IsFromSpawner.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Managers\Command\CommandMapper.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\RealStack.java
@@ -83,9 +90,12 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\A
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\FileManagement\InteractiveSection.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\market\MarketCommand.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\market\MarketItemVariation.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Cromes\BrighterThanSun.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\SkillTag.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Events\BuildEvent.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Handlers\RealMessage.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Events\RecipeBook.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Cromes\DartingArrows.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\RealBlock.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\YamlComentor.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\SoulCollector.java
@@ -100,3 +110,5 @@ C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\M
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Passive\StackedAttack.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MMOItems\CustomLore.java
 C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Events\LoreEvent.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\Api\Listeners\ChatListener.java
+C:\Users\ejane\OneDrive\Desktop\RealmCraft\src\main\java\dev\arubik\realmcraft\MythicLib\Cromes\BasicCromeSkill.java

@@ -54,6 +54,8 @@ public class CommandMapper implements Module {
 
     public void unregister(RealCommand command) {
         COMMAND_MAP.getCommand(command.command.getName()).unregister(COMMAND_MAP);
+        commands.remove(command.command.getName());
+
     }
 
     @Override

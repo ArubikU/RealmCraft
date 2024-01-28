@@ -619,4 +619,18 @@ public class InteractiveFile {
         return new InteractiveFile(Path, plugin);
     }
 
+    public InteractiveSection[] getSections(String string) {
+        if (type == FileType.JSON) {
+        } else {
+            if (has(string)) {
+                List<InteractiveSection> sections = new ArrayList<InteractiveSection>();
+                for (String key : ((FileConfiguration) json).getConfigurationSection(string).getKeys(false)) {
+                    sections.add(new InteractiveSection(this, string + "." + key));
+                }
+                return sections.toArray(new InteractiveSection[0]);
+            }
+        }
+        return null;
+    }
+
 }

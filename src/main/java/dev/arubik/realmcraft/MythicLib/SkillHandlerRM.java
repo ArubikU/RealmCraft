@@ -4,14 +4,22 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.reflections.Reflections;
 
 import dev.arubik.realmcraft.realmcraft;
+import dev.arubik.realmcraft.Api.Utils;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Managers.Depend;
 import dev.arubik.realmcraft.MythicLib.Passive.ComboAttack;
@@ -36,21 +44,6 @@ import net.Indyuce.mmocore.skill.RegisteredSkill;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.manager.SkillManager;
 import net.Indyuce.mmoitems.util.MMOUtils;
-import io.lumine.mythic.lib.MythicLib;
-import io.lumine.mythic.lib.skill.handler.SkillHandler;
-import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.api.ConfigFile;
-import net.Indyuce.mmocore.api.util.MMOCoreUtils;
-import net.Indyuce.mmocore.skill.RegisteredSkill;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.*;
-import java.util.logging.Level;
 
 public class SkillHandlerRM implements Depend, Listener {
     @Getter
@@ -62,27 +55,49 @@ public class SkillHandlerRM implements Depend, Listener {
     @Getter
     private static MythicPlaceholders mythicPlaceholders;
 
-    public static SkillHandler[] handlers;
+    public static List<SkillHandler> handlers = new ArrayList<SkillHandler>();
+
+    public static void registerSkills() {
+        handlers = new ArrayList<SkillHandler>();
+        RealMessage.sendConsoleMessage("<green>Registering skill handlers...");
+        // handlers.addAll(List.of(new SkillHandler[] { new StackedAttack(), new
+        // RegenChance(), new ComboAttack(),
+        // new Flare(), new Frostie(), new NaturalRegen(), new NightHug(), new
+        // WindMaestery(),
+        // new WitherEffectInvulnerability(), new SoulCollector(), new Daybreaker(), new
+        // LavaInmunity() }));
+        Reflections reflections = new Reflections(".*");
+
+        for (Class clazz : reflections.getTypesAnnotatedWith(SkillTag.class)) {
+            // if (!Modifier.isAbstract(clazz.getModifiers())) {
+            RealMessage.sendConsoleMessage("<green>Adding skill handler: " + clazz.getSimpleName());
+            try {
+                handlers.add((SkillHandler) clazz.getDeclaredConstructors()[0].newInstance());
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException | SecurityException e) {
+                RealMessage.sendConsoleMessage("<red>Failed to add: " + clazz.getSimpleName());
+                e.printStackTrace();
+            }
+            // }
+        }
+
+        // dev.arubik.realmcraft.MythicLib.Passive
+    }
 
     public static void register() {
         MythicPlaceholders mythicPlaceholders = new MythicPlaceholders();
         mythicPlaceholders.register();
-
-        RealMessage.sendConsoleMessage("&aRegistering skill handlers...");
-        handlers = new SkillHandler[] { new StackedAttack(), new RegenChance(), new ComboAttack(),
-                new Flare(), new Frostie(), new NaturalRegen(), new NightHug(), new WindMaestery(),
-                new WitherEffectInvulnerability(), new SoulCollector(), new Daybreaker(), new LavaInmunity() };
+        registerSkills();
         for (SkillHandler handler : handlers) {
             try {
-
                 MythicLib.plugin.getSkills().registerSkillHandler(handler);
                 if (handler instanceof Listener)
                     Bukkit.getPluginManager().registerEvents((Listener) handler, realmcraft.getInstance());
 
-                RealMessage.sendConsoleMessage("&aRegistered skill handler: " + handler.getId());
+                RealMessage.sendConsoleMessage("<green>Registered skill handler: " + handler.getId());
             } catch (Throwable t) {
                 RealMessage.sendConsoleMessage(
-                        "&cCould not register skill handler: " + handler.getId() + " &c" + t.getMessage());
+                        "<red>Could not register skill handler: " + handler.getId() + " &c" + t.getMessage());
             }
         }
 

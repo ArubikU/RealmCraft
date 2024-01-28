@@ -1,12 +1,17 @@
 package dev.arubik.realmcraft.Api.Listeners;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
@@ -23,6 +28,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
@@ -36,7 +42,9 @@ import org.jetbrains.annotations.Nullable;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.RealNBT;
+import dev.arubik.realmcraft.Api.RealPlayer;
 import dev.arubik.realmcraft.Api.Utils;
+import dev.arubik.realmcraft.Api.Events.LoreEvent;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Managers.Depend;
 import io.lumine.mythic.bukkit.MythicBukkit;
@@ -58,6 +66,79 @@ import net.Indyuce.mmoitems.api.MMOItemsAPI;
 import net.seyarada.pandeloot.Constants;
 
 public class ChangeGamemode implements Listener, Depend {
+
+    private List<UUID> delay = new ArrayList<>();
+    public static Map<UUID, Integer> lastMined = new HashMap<>();
+
+    @EventHandler
+    public void onBreakBlock(BlockBreakEvent event) {
+        LoreEvent.clearPackets(event.getPlayer().getUniqueId());
+        lastMined.put(event.getPlayer().getUniqueId(), Bukkit.getCurrentTick());
+    }
+
+    // On right click on air
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onRightClick(PlayerInteractEvent event) {
+
+        RealPlayer player = new RealPlayer(event.getPlayer());
+        ItemStack offhand = event.getPlayer().getInventory().getItemInOffHand();
+        if (offhand.getType().equals(Material.WHEAT) && offhand.getItemMeta().getCustomModelData() == 10001) {
+            RealNBT nbt = new RealNBT(offhand);
+            int durability = nbt.getInt("MMOITEMS_DURABILITY", 1);
+            boolean pass = false;
+            if (durability != 0) {
+
+                if (delay.contains(event.getPlayer().getUniqueId()))
+                    return;
+                delay.add(event.getPlayer().getUniqueId());
+                Bukkit.getScheduler().runTaskLater(realmcraft.getInstance(), () -> {
+                    delay.remove(event.getPlayer().getUniqueId());
+                }, 5L);
+
+                pass = player.PlaceBlock(Integer.valueOf(nbt.getString("RANGE", "7")));
+            } else {
+                offhand.setType(Material.AIR);
+                event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
+
+            }
+
+            if (pass) {
+
+                if (nbt.contains("MMOITEMS_DURABILITY")) {
+                    durability = nbt.getInt("MMOITEMS_DURABILITY");
+                    if (durability > 0) {
+                        nbt.setInt("MMOITEMS_DURABILITY", durability - 1);
+                        if ((durability - 1) <= 0) {
+                            offhand.setType(Material.AIR);
+                            event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
+
+                            // event.getPlayer().spawnParticle(Particle.ITEM_CRACK,
+                            // event.getPlayer().getLocation(), 10, (Object) offhand);
+                        } else {
+                            event.getPlayer().swingOffHand();
+                        }
+                        offhand = nbt.getItemStack();
+                        event.getPlayer().getInventory().setItemInOffHand(offhand);
+                    }
+                } else if (nbt.contains("MMOITEMS_MAX_DURABILITY")) {
+                    durability = nbt.getInt("MMOITEMS_MAX_DURABILITY");
+                    if (durability > 0) {
+                        nbt.setInt("MMOITEMS_DURABILITY", durability - 1);
+                        event.getPlayer().swingOffHand();
+                        offhand = nbt.getItemStack();
+                        event.getPlayer().getInventory().setItemInOffHand(offhand);
+                    }
+                } else {
+
+                    event.getPlayer().swingOffHand();
+                }
+
+                LoreEvent.sendPackets();
+                event.setCancelled(true);
+            }
+        }
+    }
+
     @EventHandler
     public void onPlayerJoin(org.bukkit.event.player.PlayerJoinEvent event) {
         // clear all the attributes
@@ -241,11 +322,15 @@ public class ChangeGamemode implements Listener, Depend {
     public void onItemPickup(org.bukkit.event.entity.EntityPickupItemEvent event) {
         if (event.getEntity() instanceof Player player) {
             // verify if item is stackable
-            if (event.getItem().getItemStack().hasItemMeta()
-                    && (event.getItem().getItemStack().getItemMeta().getPersistentDataContainer()).has(
-                            Constants.LOOTBAG_KEY,
-                            PersistentDataType.STRING))
+            if (event.getItem().getItemStack().hasItemMeta())
                 return;
+            if (Depend.isPluginEnabled("PandeLoot")) {
+                if ((event.getItem().getItemStack().getItemMeta().getPersistentDataContainer()).has(
+                        Constants.LOOTBAG_KEY,
+                        PersistentDataType.STRING)) {
+                    return;
+                }
+            }
             event.setCancelled(true);
             player.getInventory().addItem(event.getItem().getItemStack());
             event.getItem().setVelocity(new Vector(0, 0.2, 0));

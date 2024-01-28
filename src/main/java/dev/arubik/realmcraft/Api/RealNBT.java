@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -608,17 +609,14 @@ public class RealNBT {
 
     public void setLore(List<String> lore) {
         loreCache.cache(lore);
-        ArrayList<Component> newLore = new ArrayList<Component>();
-        for (String line : lore) {
-            Component component;
-            if (ComponentCache.getOptional(line).isPresent()) {
-                component = ComponentCache.getOptional(line).get();
-            } else {
-                component = miniMessage.deserialize(line);
-                ComponentCache.set(line, component);
-            }
-            newLore.add(component);
-        }
+        List<Component> newLore = lore.stream()
+                .map(line -> ComponentCache.getOptional(line).orElseGet(() -> {
+                    Component component = miniMessage.deserialize(line);
+                    ComponentCache.set(line, component);
+                    return component;
+                }))
+                .collect(Collectors.toCollection(ArrayList::new));
+
         this.itemStack.lore(newLore);
         updateCache();
     }
@@ -628,78 +626,73 @@ public class RealNBT {
             try {
                 return loreCache.get();
             } catch (Exception e) {
+                e.printStackTrace(); // Manejar la excepción adecuadamente o imprimir un mensaje de registro.
             }
         }
-        ArrayList<String> lore = new ArrayList<String>();
-        if (this.itemStack.lore() == null)
-            return lore;
-        for (Component line : this.itemStack.lore()) {
-            lore.add(miniMessage
-                    .serialize(line));
-        }
-        return lore;
 
+        if (this.itemStack.lore() == null)
+            return new ArrayList<>();
+
+        return this.itemStack.lore().stream()
+                .map(line -> miniMessage.serialize(line))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private List<String> serializeLore(List<Component> loreComponents) {
+        return loreComponents.stream()
+                .map(line -> miniMessage.serialize(line))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private List<Component> deserializeLore(List<String> loreStrings) {
+        return loreStrings.stream()
+                .map(line -> ComponentCache.getOptional(line).orElseGet(() -> {
+                    Component component = miniMessage.deserialize(line);
+                    ComponentCache.set(line, component);
+                    return component;
+                }))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void putLoreLine(String line, LorePosition alignment) {
-        List<String> lore = this.getLore();
-        if (lore == null) {
-            lore = new ArrayList<String>();
-        }
+        List<String> lore = new ArrayList<>(getLore());
         switch (alignment) {
-            case TOP: {
+            case TOP:
                 lore.add(0, line);
                 break;
-            }
-            case MID: {
+            case MID:
                 lore.add(lore.size() / 2, line);
                 break;
-            }
-            case BOTTOM: {
+            case BOTTOM:
                 lore.add(line);
-            }
+                break;
         }
-        this.setLore(lore);
+        setLore(lore);
     }
 
     public void putLoreLines(List<String> lines, LorePosition alignment) {
-        List<String> lore = this.getLore();
-        if (lore == null) {
-            lore = new ArrayList<String>();
-        }
+        List<String> lore = new ArrayList<>(getLore());
         switch (alignment) {
-            case TOP: {
-                for (int i = 0; i < lines.size(); ++i) {
-                    lore.add(i, lines.get(i));
-                }
+            case TOP:
+                lore.addAll(0, lines);
                 break;
-            }
-            case MID: {
-                for (int i = 0; i < lines.size(); ++i) {
-                    lore.add(lore.size() / 2 + i, lines.get(i));
-                }
+            case MID:
+                lore.addAll(lore.size() / 2, lines);
                 break;
-            }
-            case BOTTOM: {
-                for (int i = 0; i < lines.size(); ++i) {
-                    lore.add(lines.get(i));
-                }
+            case BOTTOM:
+                lore.addAll(lines);
                 break;
-            }
-            case REPLACE: {
+            case REPLACE:
                 for (int i = 0; i < lore.size(); ++i) {
                     String s = lore.get(i);
-                    if (s != alignment.replace)
-                        continue;
-                    for (int a = 0; a < lines.size(); ++a) {
-                        lore.add(lines.get(a));
+                    if (Objects.equals(s, alignment.replace)) {
+                        lore.addAll(i, lines);
+                        break;
                     }
-                    break;
                 }
                 break;
-            }
         }
-        this.setLore(lore);
+        setLore(lore);
     }
 
     public void setDisplayName(String name) {
@@ -885,6 +878,41 @@ public class RealNBT {
     @Override
     public String toString() {
         return dump();
+    }
+
+    public String dumpIgnoringTags(String... tags) {
+        JsonBuilder jsonBuilder = new JsonBuilder();
+        jsonBuilder = jsonBuilder.append("Type", getType());
+        jsonBuilder = jsonBuilder.append("Material", itemStack.getType().toString());
+        jsonBuilder = jsonBuilder.append("Amount", itemStack.getAmount());
+        jsonBuilder = jsonBuilder.append("CustomModelData", itemStack.getItemMeta().hasCustomModelData() == false ? 0
+                : itemStack.getItemMeta().getCustomModelData());
+
+        NbtCompound compound = NbtFactory
+                .asCompound(NbtFactory.fromItemTag(MinecraftReflection.getBukkitItemStack(itemStack)));
+        compoundCache.cache(compound);
+
+        for (String key : getKeys()) {
+
+            if (key.equals("CustomModelData"))
+                continue;
+
+            if (Arrays.asList(tags).contains(key))
+                continue;
+
+            jsonBuilder = jsonBuilder.append(get(key));
+        }
+
+        String display = JsonBuilder.create().append("Name", itemStack.getItemMeta().hasDisplayName() == false ? ""
+                : itemStack.getItemMeta().getDisplayName())
+                .append("Lore", itemStack.getItemMeta().hasLore() == false ? new ArrayList<>()
+                        : itemStack.getItemMeta().getLore())
+                .toString();
+
+        jsonBuilder = jsonBuilder.append("Display", display);
+
+        return jsonBuilder.toString();
+
     }
 
     public String dumpWithColor(String[]... patterns) {
