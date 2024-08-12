@@ -1,7 +1,6 @@
 package dev.arubik.realmcraft.Api;
 
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import dev.arubik.realmcraft.Api.LoreParser.ContextEvent;
 

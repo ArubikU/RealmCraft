@@ -55,9 +55,9 @@ public class Frostie extends SkillHandler<AttackSkillResult> implements Listener
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
-            MMOPlayerData playerData = MMOPlayerData.get(player);
             if (!MMOPlayerData.has(player))
                 return;
+            MMOPlayerData playerData = MMOPlayerData.get(player);
             if (event.getDamager() instanceof LivingEntity liv) {
                 if (playerData.getPassiveSkillMap().getSkill(this) != null) {
                     Skill meta = playerData.getPassiveSkillMap().getSkill(this).getTriggeredSkill();

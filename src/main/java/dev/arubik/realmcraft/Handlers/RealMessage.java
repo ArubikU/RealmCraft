@@ -8,26 +8,33 @@ import org.bukkit.entity.Player;
 
 import com.ehhthan.happyhud.HappyHUD;
 import com.ehhthan.happyhud.api.HudHolder;
-import com.ehhthan.happyhud.api.command.HappyHUDCommand;
 import com.ehhthan.happyhud.api.element.popup.HudPopup;
-import com.ehhthan.happyhud.manager.PopupManager;
 
 import dev.arubik.realmcraft.realmcraft;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.platform.bukkit.MinecraftComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.title.Title;
-import net.md_5.bungee.api.ChatMessageType;
 
 public class RealMessage {
 
     private static BukkitAudiences bukkitAudiences = BukkitAudiences.create(realmcraft.getInstance());
     private static Audience console = bukkitAudiences.console();
 
+    public static String deserialize(Component component) {
+        return MiniMessage.miniMessage().serialize(component);
+    }
+
     public static void sendConsoleMessage(String message) {
+        console.sendMessage(MiniMessage.miniMessage().deserialize(message));
+    }
+
+    public static void sendConsoleMessage(String message, String... args) {
+        message = PlaceholderConfigParser.parser(message);
+        for (int i = 0; i < args.length; i++) {
+            message = message.replace("<" + i + ">", args[i]);
+        }
         console.sendMessage(MiniMessage.miniMessage().deserialize(message));
     }
 
@@ -43,16 +50,32 @@ public class RealMessage {
         DEBUG, INFO, WARNING, ERROR, LOREPARSER, ANVILREPAIR, DEPENDECY, MODIFYLEVEL, IREPLACER
     }
 
+    public static void sendConsoleMessage(String debugType, String message, String... args) {
+        if (realmcraft.getInteractiveConfig().getBoolean("debug." + debugType, false)) {
+            message = PlaceholderConfigParser.parser(message);
+            for (int i = 0; i < args.length; i++) {
+                message = message.replace("<" + i + ">", args[i]);
+            }
+            console.sendMessage(MiniMessage.miniMessage().deserialize(message));
+        }
+    }
+
     public static void sendConsoleMessage(String debugType, String message) {
         if (realmcraft.getInteractiveConfig().getBoolean("debug." + debugType, false)) {
             console.sendMessage(MiniMessage.miniMessage().deserialize(message));
         }
     }
 
+    public static void sendConsoleMessage(DebugType debugType, String message, String... args) {
+        sendConsoleMessage(debugType.toString(), message, args);
+    }
+
     public static void sendConsoleMessage(DebugType debugType, String message) {
-        if (realmcraft.getInteractiveConfig().getBoolean("debug." + debugType, false)) {
-            console.sendMessage(MiniMessage.miniMessage().deserialize(message));
-        }
+        sendConsoleMessage(debugType.toString(), message);
+    }
+
+    public static boolean isDebugEnabled(DebugType type) {
+        return realmcraft.getInteractiveConfig().getBoolean("debug." + type.toString(), false);
     }
 
     public static void nonFound(String message) {

@@ -71,6 +71,7 @@ public class IReplacerModifier implements ItemBuildModifier {
     }
 
     public static void Register() {
+        // TO-DO Disabled until we can find a efficient way to handle this
         // LoreEvent.addItemBuildModifier(new IReplacerModifier(),
         // EventPriority.HIGHEST);
     }

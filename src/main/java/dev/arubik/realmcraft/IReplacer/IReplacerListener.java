@@ -1,70 +1,51 @@
 package dev.arubik.realmcraft.IReplacer;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.Random;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.block.DoubleChest;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.StorageMinecart;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Event.Result;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MerchantRecipe;
-import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 
-import com.google.gson.JsonObject;
-
 import dev.arubik.realmcraft.realmcraft;
-import dev.arubik.realmcraft.Api.RealNBT;
-import dev.arubik.realmcraft.Api.RealStack;
-import dev.arubik.realmcraft.Api.Utils;
 import dev.arubik.realmcraft.Api.RealCache.RealCacheMap;
+import dev.arubik.realmcraft.Api.RealNBT;
+import dev.arubik.realmcraft.Api.Utils;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Handlers.RealMessage.DebugType;
+import dev.arubik.realmcraft.LootGen.VanillaLootListener;
 import dev.arubik.realmcraft.Managers.Depend;
-import io.lumine.mythic.bukkit.BukkitAdapter;
-import io.lumine.mythic.bukkit.MythicBukkit;
-import io.lumine.mythic.core.items.MythicItem;
 import io.lumine.mythic.lib.gui.PluginInventory;
 import io.papermc.paper.event.player.PlayerTradeEvent;
-import net.Indyuce.mmoitems.MMOItems;
-import net.Indyuce.mmoitems.api.Type;
-import net.Indyuce.mmoitems.api.crafting.ConfigMMOItem;
-import net.Indyuce.mmoitems.api.item.template.MMOItemTemplate;
-import net.Indyuce.mmoitems.api.player.PlayerData;
+import lombok.Getter;
 import net.Indyuce.mmoitems.comp.inventory.PlayerInventory;
 
 public class IReplacerListener implements org.bukkit.event.Listener, Depend {
@@ -91,6 +72,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
 
     private static RealCacheMap<String, InternalReplacerStructure> cache = new RealCacheMap<String, InternalReplacerStructure>();
 
+    @Getter
     private static RealCacheMap<String, ItemStack> cacheMMO = new RealCacheMap<String, ItemStack>();
 
     public static void clearCache() {
@@ -289,29 +271,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
         return Optional.ofNullable(match(stack));
     }
 
-    public String parsePlaceholders(String toParse, LivingEntity entity, ItemStack stack) {
-        toParse = toParse.replace("%player%", entity.getName());
-        toParse = toParse.replace("%item%", stack.getType().toString());
-        toParse = toParse.replace("%amount%", stack.getAmount() + "");
-        // %uuid% %world% %x% %y% %z% %pitch% %yaw% & if e.getEntity() instanceof Player
-        // parse PlaceholderAPI
-        toParse = toParse.replace("%uuid%", entity.getUniqueId().toString());
-        toParse = toParse.replace("%world%", entity.getWorld().getName());
-        toParse = toParse.replace("%x%", entity.getLocation().getBlockX() + "");
-        toParse = toParse.replace("%y%", entity.getLocation().getBlockY() + "");
-        toParse = toParse.replace("%z%", entity.getLocation().getBlockZ() + "");
-        toParse = toParse.replace("%pitch%", entity.getLocation().getPitch() + "");
-        toParse = toParse.replace("%yaw%", entity.getLocation().getYaw() + "");
-        toParse = toParse.replace("%itemname%", stack.getItemMeta().getDisplayName());
-        if (entity instanceof Player) {
-            if (realmcraft.getInstance().getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                toParse = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders((Player) entity, toParse);
-            }
-        }
-        return toParse;
-    }
-
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void itemPickup(EntityPickupItemEvent e) {
         if (!realmcraft.getInteractiveConfig().getBoolean("IReplacer.Pickup-Event-Enabled", true)) {
             return;
@@ -319,101 +279,9 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
         if (e.getItem().getItemStack() != null) {
             InternalReplacerStructure structure = match(e.getItem().getItemStack());
             if (structure != null) {
-                switch (structure.getOutputType()) {
-                    case COMMAND:
-                        if (structure.getOutputConfig().has("Command")) {
-                            String command = structure.getOutputConfig().get("Command").getAsString();
-                            command = parsePlaceholders(command, e.getEntity(), e.getItem().getItemStack());
-                            if (e.getEntity() instanceof Player) {
-                                if (realmcraft.getInstance().getServer().getPluginManager()
-                                        .getPlugin("PlaceholderAPI") != null) {
-                                    command = me.clip.placeholderapi.PlaceholderAPI
-                                            .setPlaceholders((Player) e.getEntity(), command);
-                                }
-                            }
-                            org.bukkit.Bukkit.dispatchCommand(org.bukkit.Bukkit.getConsoleSender(), command);
-                            if (structure.getOutputConfig().has("Remove-Item")
-                                    && structure.getOutputConfig().get("Remove-Item").getAsBoolean()) {
-                                e.getItem().setItemStack(RealNBT.Empty);
-                                e.getItem().remove();
-                            }
-                        }
-                        break;
-                    case REALSTACK: {
-                        RealStack stack = RealStack
-                                .fromInteractiveSection(structure.getSection().getSection("Output-Config"));
-                        ItemStack item = stack.buildItemStack();
-                        item.setAmount(e.getItem().getItemStack().getAmount());
-
-                        item = PassAble(e.getItem().getItemStack(), item, structure.getOutputConfig());
-                        e.getItem().setItemStack(item);
-                        break;
-                    }
-                    case MMOITEMS: {
-                        if (structure.getOutputConfig().has("Item")) {
-                            String line = structure.getOutputConfig().get("Item").getAsString();
-                            String[] split = line.split(":");
-                            List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
-                                    .map(Type::getId).collect(Collectors.toList());
-                            // RealMessage.sendConsoleMessage("Types: " + Arrays.toString(types.toArray()));
-                            if (types.contains(split[0])) {
-                                Type type = MMOItems.plugin.getTypes().get(split[0]);
-                                ItemStack stack;
-                                if (e.getEntity() instanceof Player) {
-                                    stack = MMOItems.plugin.getItem(type, split[1],
-                                            PlayerData.get((Player) e.getEntity()));
-                                } else {
-                                    stack = cacheMMO.get(type + ":" + split[1]);
-                                }
-                                if (stack == null) {
-                                    break;
-                                }
-                                stack.setAmount(e.getItem().getItemStack().getAmount());
-                                if (structure.getOutputConfig().has("Pass-Enchantments")
-                                        && structure.getOutputConfig().get("Pass-Enchantments").getAsBoolean()) {
-                                    stack.addUnsafeEnchantments(e.getItem().getItemStack().getEnchantments());
-                                }
-                                stack = PassAble(e.getItem().getItemStack(), stack, structure.getOutputConfig());
-                                e.getItem().setItemStack(stack);
-                            }
-                        }
-                        break;
-                    }
-                    case MYTHICMOBS: {
-                        if (structure.getOutputConfig().has("Item")) {
-                            String line = structure.getOutputConfig().get("Item").getAsString();
-                            String[] split = line.split(":");
-                            if (MythicBukkit.inst().getItemManager().getItem(split[0]).isPresent()) {
-                                MythicItem mythicItem = MythicBukkit.inst().getItemManager().getItem(split[0]).get();
-                                ItemStack stack = BukkitAdapter
-                                        .adapt(mythicItem.generateItemStack(Integer.parseInt(split[1])));
-                                if (stack == null) {
-                                    break;
-                                }
-                                stack.setAmount(e.getItem().getItemStack().getAmount());
-                                stack = PassAble(e.getItem().getItemStack(), stack, structure.getOutputConfig());
-                                e.getItem().setItemStack(stack);
-                            }
-                        }
-                        break;
-                    }
-
-                    case VANILLA:
-                        if (structure.getSection().has("Output-Config.Material")) {
-                            if (Material
-                                    .valueOf(structure.getSection().get("Output-Config.Material").toString()) == null) {
-                                break;
-                            }
-                            ItemStack stack = new ItemStack(
-                                    Material.valueOf(structure.getSection().get("Output-Config.Material").toString()));
-                            stack.setAmount(e.getItem().getItemStack().getAmount());
-                            stack = PassAble(e.getItem().getItemStack(), stack, structure.getOutputConfig());
-                            e.getItem().setItemStack(stack);
-                        }
-                    default:
-                        break;
-
-                }
+                structure.apply(e.getItem().getItemStack(), (item) -> {
+                    e.getItem().setItemStack(item);
+                }, ReplacementContext.ofEvent(e));
             }
         }
     }
@@ -445,79 +313,10 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
             if (e.getCursor() != null) {
                 InternalReplacerStructure structure = match(e.getCursor());
                 if (structure != null) {
-                    switch (structure.getOutputType()) {
-                        case COMMAND:
-                            if (structure.getOutputConfig().has("Command")) {
-                                String command = structure.getOutputConfig().get("Command").getAsString();
-                                command = parsePlaceholders(command, e.getWhoClicked(), e.getCursor());
-                                if (e.getWhoClicked() instanceof Player) {
-                                    if (realmcraft.getInstance().getServer().getPluginManager()
-                                            .getPlugin("PlaceholderAPI") != null) {
-                                        command = me.clip.placeholderapi.PlaceholderAPI
-                                                .setPlaceholders((Player) e.getWhoClicked(), command);
-                                    }
-                                }
-                                org.bukkit.Bukkit.dispatchCommand(org.bukkit.Bukkit.getConsoleSender(), command);
-                                if (structure.getOutputConfig().has("Remove-Item")
-                                        && structure.getOutputConfig().get("Remove-Item").getAsBoolean()) {
-                                    e.getCursor().setAmount(0);
-                                }
-                            }
-                            break;
-                        case REALSTACK: {
-                            RealStack stack = RealStack
-                                    .fromInteractiveSection(structure.getSection().getSection("Output-Config"));
-                            ItemStack item = stack.buildItemStack();
-                            item.setAmount(e.getCursor().getAmount());
-                            item = PassAble(e.getCursor(), item, structure.getOutputConfig());
-                            e.setCursor(item);
-                            break;
-                        }
-                        case MMOITEMS: {
-                            if (structure.getOutputConfig().has("Item")) {
-                                String line = structure.getOutputConfig().get("Item").getAsString();
-                                String[] split = line.split(":");
-                                List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
-                                        .map(Type::getId).collect(Collectors.toList());
-                                // RealMessage.sendConsoleMessage("Types: " + Arrays.toString(types.toArray()));
-                                if (types.contains(split[0])) {
-                                    Type type = MMOItems.plugin.getTypes().get(split[0]);
-                                    ItemStack stack;
-                                    if (e.getWhoClicked() instanceof Player) {
-                                        stack = MMOItems.plugin.getItem(type, split[1],
-                                                PlayerData.get((Player) e.getWhoClicked()));
-                                    } else {
-                                        stack = cacheMMO.get(type + ":" + split[1]);
-                                    }
-                                    if (stack == null) {
-                                        break;
-                                    }
-                                    stack.setAmount(e.getCursor().getAmount());
-                                    stack = PassAble(e.getCursor(), stack, structure.getOutputConfig());
-                                    e.setCursor(stack);
-                                }
-                            }
-                        }
-                        case MYTHICMOBS: {
-                            if (structure.getOutputConfig().has("Item")) {
-                                String line = structure.getOutputConfig().get("Item").getAsString();
-                                String[] split = line.split(":");
-                                if (MythicBukkit.inst().getItemManager().getItem(split[0]).isPresent()) {
-                                    MythicItem mythicItem = MythicBukkit.inst().getItemManager().getItem(split[0])
-                                            .get();
-                                    ItemStack stack = BukkitAdapter
-                                            .adapt(mythicItem.generateItemStack(Integer.parseInt(split[1])));
-                                    if (stack == null) {
-                                        break;
-                                    }
-                                    stack.setAmount(e.getCursor().getAmount());
-                                    stack = PassAble(e.getCursor(), stack, structure.getOutputConfig());
-                                    e.setCursor(stack);
-                                }
-                            }
-                            break;
-                        }
-                    }
+                    structure.apply(e.getCursor(), (item) -> {
+                        e.setCursor(item);
+                    }, ReplacementContext.ofEvent(e));
+
                 }
             }
         }
@@ -539,85 +338,9 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
         if (e.getItem() != null) {
             InternalReplacerStructure structure = match(e.getItem());
             if (structure != null) {
-                switch (structure.getOutputType()) {
-                    case COMMAND:
-                        if (structure.getOutputConfig().has("Command")) {
-                            String command = structure.getOutputConfig().get("Command").getAsString();
-                            command = parsePlaceholders(command, (LivingEntity) e.getInitiator().getHolder(),
-                                    e.getItem());
-                            if (e.getInitiator().getHolder() instanceof Player) {
-                                if (realmcraft.getInstance().getServer().getPluginManager()
-                                        .getPlugin("PlaceholderAPI") != null) {
-                                    command = me.clip.placeholderapi.PlaceholderAPI
-                                            .setPlaceholders((Player) e.getInitiator().getHolder(), command);
-                                }
-                            }
-                            org.bukkit.Bukkit.dispatchCommand(org.bukkit.Bukkit.getConsoleSender(), command);
-                            if (structure.getOutputConfig().has("Remove-Item")
-                                    && structure.getOutputConfig().get("Remove-Item").getAsBoolean()) {
-                                e.getItem().setAmount(0);
-                            }
-                        }
-                        break;
-                    case REALSTACK: {
-                        RealStack stack = RealStack
-                                .fromInteractiveSection(structure.getSection().getSection("Output-Config"));
-                        ItemStack item = stack.buildItemStack();
-                        item.setAmount(e.getItem().getAmount());
-                        item = PassAble(e.getItem(), item, structure.getOutputConfig());
-                        e.setItem(item);
-                        e.getItem().setData(item.getData());
-                        e.getItem().setItemMeta(item.getItemMeta());
-                        break;
-                    }
-                    case MMOITEMS: {
-                        if (structure.getOutputConfig().has("Item")) {
-                            String line = structure.getOutputConfig().get("Item").getAsString();
-                            String[] split = line.split(":");
-                            List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
-                                    .map(Type::getId).collect(Collectors.toList());
-                            // RealMessage.sendConsoleMessage("Types: " + Arrays.toString(types.toArray()));
-                            if (types.contains(split[0])) {
-                                Type type = MMOItems.plugin.getTypes().get(split[0]);
-                                ItemStack stack;
-                                if (e.getInitiator().getHolder() instanceof Player) {
-                                    stack = MMOItems.plugin.getItem(type, split[1],
-                                            PlayerData.get((Player) e.getInitiator().getHolder()));
-                                } else {
-                                    stack = cacheMMO.get(type + ":" + split[1]);
-                                }
-                                if (stack == null) {
-                                    break;
-                                }
-                                stack.setAmount(e.getItem().getAmount());
-                                stack = PassAble(e.getItem(), stack, structure.getOutputConfig());
-                                e.setItem(stack);
-                                e.getItem().setData(stack.getData());
-                                e.getItem().setItemMeta(stack.getItemMeta());
-                            }
-                        }
-                    }
-                    case MYTHICMOBS: {
-                        if (structure.getOutputConfig().has("Item")) {
-                            String line = structure.getOutputConfig().get("Item").getAsString();
-                            String[] split = line.split(":");
-                            if (MythicBukkit.inst().getItemManager().getItem(split[0]).isPresent()) {
-                                MythicItem mythicItem = MythicBukkit.inst().getItemManager().getItem(split[0]).get();
-                                ItemStack stack = BukkitAdapter
-                                        .adapt(mythicItem.generateItemStack(Integer.parseInt(split[1])));
-                                if (stack == null) {
-                                    break;
-                                }
-                                stack.setAmount(e.getItem().getAmount());
-                                stack = PassAble(e.getItem(), stack, structure.getOutputConfig());
-                                e.setItem(stack);
-                                e.getItem().setData(stack.getData());
-                                e.getItem().setItemMeta(stack.getItemMeta());
-                            }
-                        }
-                        break;
-                    }
-                }
+                structure.apply(e.getItem(), (item) -> {
+                    e.setItem(item);
+                }, ReplacementContext.ofEvent(e));
             }
         }
     }
@@ -659,11 +382,12 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                     return;
                 }
 
-                this.convertInventory(((DoubleChest) holder).getLeftSide().getInventory());
+                this.convertInventory(((DoubleChest) holder).getLeftSide().getInventory(),
+                        ReplacementContext.ofEvent(event));
                 block.setMetadata("ireplacer", new FixedMetadataValue(realmcraft.getInstance(), true));
             }
 
-            holder = ((DoubleChest) event.getInventory().getHolder()).getRightSide();
+            holder = ((DoubleChest) holder).getRightSide();
         }
 
         if (holder instanceof BlockInventoryHolder) {
@@ -673,7 +397,7 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                 return;
             }
 
-            this.convertInventory(event.getInventory());
+            this.convertInventory(event.getInventory(), ReplacementContext.ofEvent(event));
             block.setMetadata("ireplacer", new FixedMetadataValue(realmcraft.getInstance(), true));
         } else if (holder instanceof StorageMinecart) {
             StorageMinecart minecart = (StorageMinecart) holder;
@@ -681,18 +405,9 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
                 return;
             }
 
-            this.convertInventory(event.getInventory());
-            minecart.setMetadata("ireplaccer", new FixedMetadataValue(realmcraft.getInstance(), true));
+            this.convertInventory(event.getInventory(), ReplacementContext.ofEvent(event));
+            minecart.setMetadata("ireplacer", new FixedMetadataValue(realmcraft.getInstance(), true));
         }
-    }
-
-    public static ItemStack getItemPreviewMMOitems(String type, String id) {
-        if (Type.isValid(type)) {
-            MMOItemTemplate template = MMOItems.plugin.getTemplates().getTemplate(Type.get(type), id);
-            ConfigMMOItem configMMOItem = new ConfigMMOItem(template, 1);
-            return configMMOItem.getPreview();
-        }
-        return null;
     }
 
     @EventHandler
@@ -702,65 +417,25 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
             return;
         }
         if (event.getInventory().getViewers().get(0) instanceof Player) {
-            ItemStack item = event.getInventory().getResult();
-            if (item == null || item.getType() == Material.AIR) {
+            ItemStack result = event.getInventory().getResult();
+            if (result == null || result.getType() == Material.AIR) {
                 return;
             }
-            String hashed = Utils.itemStackArrayToBase64(new ItemStack[] { item });
-            InternalReplacerStructure structure = match(item);
+            String hashed = Utils.itemStackArrayToBase64(new ItemStack[] { result });
+            InternalReplacerStructure structure = match(result);
             if (structure == null) {
                 return;
             }
-            switch (structure.getOutputType()) {
-                case MMOITEMS: {
+            structure.apply(result, (item) -> {
 
-                    if (structure.getOutputConfig().has("Item")) {
-                        String line = structure.getOutputConfig().get("Item").getAsString();
-                        String[] split = line.split(":");
-                        List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
-                                .map(Type::getId).collect(Collectors.toList());
-                        // RealMessage.sendConsoleMessage("Types: " + Arrays.toString(types.toArray()));
-                        if (types.contains(split[0])) {
-                            Type type = MMOItems.plugin.getTypes().get(split[0]);
-                            ItemStack stack = getItemPreviewMMOitems(split[0], split[1]);
+                RealNBT nbt = new RealNBT(item);
+                nbt.setString("IReplacer", hashed);
+                item = nbt.getItemStack();
+                event.getInventory().setResult(item);
 
-                            if (stack == null) {
-                                break;
-                            }
-                            stack.setAmount(item.getAmount());
-                            item = PassAble(item, stack, structure.getOutputConfig());
-                        }
-                    }
-                    break;
-                }
-            }
-            RealNBT nbt = new RealNBT(item);
-            nbt.setString("IReplacer", hashed);
-            item = nbt.getItemStack();
-            event.getInventory().setResult(item);
+            }, ReplacementContext.ofEvent(event));
         }
 
-    }
-
-    public static ItemStack mmoitemsPreview(ItemStack item, InternalReplacerStructure structure) {
-        if (structure == null)
-            return item;
-        if (structure.getOutputConfig().has("Item")) {
-            String line = structure.getOutputConfig().get("Item").getAsString();
-            String[] split = line.split(":");
-            List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
-                    .map(Type::getId).collect(Collectors.toList());
-            // RealMessage.sendConsoleMessage("Types: " + Arrays.toString(types.toArray()));
-            if (types.contains(split[0])) {
-                ItemStack stack = getItemPreviewMMOitems(split[0], split[1]);
-                if (stack == null) {
-                    return item;
-                }
-                stack.setAmount(item.getAmount());
-                item = PassAble(item, stack, structure.getOutputConfig());
-            }
-        }
-        return item;
     }
 
     @EventHandler
@@ -792,59 +467,26 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
             if (structure == null) {
                 return;
             }
-            switch (structure.getOutputType()) {
-                case MMOITEMS: {
-                    if (event.isShiftClick()) {
-                        // event.getInventory().setResult(item);
-                        // event.setCursor(item);
-                        // event.setCurrentItem(item);
-                        Bukkit.getScheduler().runTaskLater(realmcraft.getInstance(), () -> {
-                            convertPlayerInventory(player);
-                        }, 0);
-                        return;
-                    }
-
-                    if (structure.getOutputConfig().has("Item")) {
-                        String line = structure.getOutputConfig().get("Item").getAsString();
-                        String[] split = line.split(":");
-                        List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
-                                .map(Type::getId).collect(Collectors.toList());
-                        // RealMessage.sendConsoleMessage("Types: " + Arrays.toString(types.toArray()));
-                        if (types.contains(split[0])) {
-                            Type type = MMOItems.plugin.getTypes().get(split[0]);
-                            ItemStack stack;
-                            if (event.getInventory().getHolder() instanceof Player) {
-                                stack = MMOItems.plugin.getItem(type, split[1],
-                                        PlayerData.get((Player) event.getInventory().getHolder()));
-                            } else {
-                                stack = cacheMMO.get(type + ":" + split[1]);
-                            }
-
-                            if (stack == null) {
-                                break;
-                            }
-                            stack.setAmount(item.getAmount());
-                            item = PassAble(item, stack, structure.getOutputConfig());
-                        }
-                    }
-                    break;
-                }
+            if (event.isShiftClick()) {
+                Bukkit.getScheduler().runTaskLater(realmcraft.getInstance(), () -> {
+                    convertInventory(player.getInventory(), ReplacementContext.ofEvent(event));
+                }, 0);
+                return;
             }
-            event.setCurrentItem(item);
+
+            structure.apply(item, (output) -> {
+                event.setCurrentItem(output);
+            }, ReplacementContext.ofEvent(event));
         }
 
     }
 
     @EventHandler
     public void onPlayerTradeEvent(PlayerTradeEvent event) {
-        convertPlayerInventoryTWO(event.getPlayer());
+        convertInventory(event.getPlayer().getInventory(), ReplacementContext.ofEvent(event));
     }
 
-    public void convertPlayerInventory(Player p) {
-        convertInventory(p.getInventory());
-    }
-
-    public void convertInventory(Inventory inv) {
+    public void convertInventory(Inventory inv, ReplacementContext context) {
         for (int i = 0; i < inv.getSize(); i++) {
             ItemStack item = inv.getItem(i);
             if (item == null || item.getType() == Material.AIR) {
@@ -860,76 +502,12 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
             if (structure == null) {
                 continue;
             }
-            switch (structure.getOutputType()) {
-                case MMOITEMS: {
-                    if (structure.getOutputConfig().has("Item")) {
-                        String line = structure.getOutputConfig().get("Item").getAsString();
-                        String[] split = line.split(":");
-                        List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
-                                .map(Type::getId).collect(Collectors.toList());
-                        // RealMessage.sendConsoleMessage("Types: " + Arrays.toString(types.toArray()));
-                        if (types.contains(split[0])) {
-                            Type type = MMOItems.plugin.getTypes().get(split[0]);
-                            ItemStack stack;
-                            stack = cacheMMO.get(type + ":" + split[1]);
+            int slot = i;
 
-                            if (stack == null) {
-                                break;
-                            }
-                            stack.setAmount(item2.getAmount());
-                            item2 = PassAble(item2, stack, structure.getOutputConfig());
-                        }
-                    }
-                    break;
-                }
-                case MMODIGICONVERT: {
-
-                }
-            }
+            structure.apply(item2, (output) -> {
+                inv.setItem(slot, output);
+            }, context);
             inv.setItem(i, item2);
-        }
-    }
-
-    public void convertPlayerInventoryTWO(Player player) {
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
-            ItemStack item = player.getInventory().getItem(i);
-            if (item == null || item.getType() == Material.AIR) {
-                continue;
-            }
-            InternalReplacerStructure structure = match(item);
-            if (structure == null) {
-                continue;
-            }
-            switch (structure.getOutputType()) {
-                case MMOITEMS: {
-                    if (structure.getOutputConfig().has("Item")) {
-                        String line = structure.getOutputConfig().get("Item").getAsString();
-                        String[] split = line.split(":");
-                        List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
-                                .map(Type::getId).collect(Collectors.toList());
-                        // RealMessage.sendConsoleMessage("Types: " + Arrays.toString(types.toArray()));
-                        if (types.contains(split[0])) {
-                            Type type = MMOItems.plugin.getTypes().get(split[0]);
-                            ItemStack stack;
-                            if (player.getOpenInventory().getTopInventory().getHolder() instanceof Player) {
-                                stack = MMOItems.plugin.getItem(type, split[1],
-                                        PlayerData
-                                                .get((Player) player.getOpenInventory().getTopInventory().getHolder()));
-                            } else {
-                                stack = cacheMMO.get(type + ":" + split[1]);
-                            }
-
-                            if (stack == null) {
-                                break;
-                            }
-                            stack.setAmount(item.getAmount());
-                            item = PassAble(item, stack, structure.getOutputConfig());
-                        }
-                    }
-                    break;
-                }
-            }
-            player.getInventory().setItem(i, item);
         }
     }
 
@@ -944,53 +522,88 @@ public class IReplacerListener implements org.bukkit.event.Listener, Depend {
         if (structure == null) {
             return;
         }
-        switch (structure.getOutputType()) {
-            case MMOITEMS: {
 
-                if (structure.getOutputConfig().has("Item")) {
-                    String line = structure.getOutputConfig().get("Item").getAsString();
-                    String[] split = line.split(":");
-                    List<String> types = MMOItems.plugin.getTypes().getAll().parallelStream()
-                            .map(Type::getId).collect(Collectors.toList());
-                    // RealMessage.sendConsoleMessage("Types: " + Arrays.toString(types.toArray()));
-                    if (types.contains(split[0])) {
-                        Type type = MMOItems.plugin.getTypes().get(split[0]);
-                        ItemStack stack = cacheMMO.get(type + ":" + split[1]);
-
-                        if (stack == null) {
-                            break;
-                        }
-                        stack.setAmount(item.getAmount());
-                        item = PassAble(item, stack, structure.getOutputConfig());
-                    }
-                }
-                break;
-            }
-        }
-        event.setResult(item);
+        structure.apply(event.getResult(), (output) -> {
+            event.setResult(output);
+        }, ReplacementContext.ofEvent(event));
 
     }
 
-    public static ItemStack PassAble(ItemStack old, ItemStack newStack, JsonObject config) {
-        if (config.has("Pass-Enchantments") && config.get("Pass-Enchantments").getAsBoolean()) {
-            newStack.addUnsafeEnchantments(old.getEnchantments());
+    private static Random seed = new Random();
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onLootGen(LootGenerateEvent event) {
+
+        if (!realmcraft.getInteractiveConfig().getBoolean("IReplacer.LootGen-Enabled", true)) {
+            return;
         }
-        if (config.has("Pass-CMD") && config.get("Pass-CMD").getAsBoolean()) {
-            Integer custommoldeldata = old.getItemMeta().getCustomModelData();
-            newStack.editMeta(meta -> {
-                meta.setCustomModelData(custommoldeldata);
-            });
-        }
-        if (config.has("Pass-ArmorTrims") && config.get("Pass-Trims").getAsBoolean()) {
-            if (old.getItemMeta() instanceof ArmorMeta && newStack.getItemMeta() instanceof ArmorMeta) {
-                ArmorMeta oldMeta = (ArmorMeta) old.getItemMeta();
-                ArmorMeta newMeta = (ArmorMeta) newStack.getItemMeta();
-                if (oldMeta.hasTrim()) {
-                    newMeta.setTrim(oldMeta.getTrim());
+        if (event.getInventoryHolder() instanceof Container container) {
+            long longseed = seed.nextLong(0, 100000000);
+            seed.setSeed(longseed);
+            ReplacementContext context = ReplacementContext.ofEvent(event);
+            Collection<ItemStack> items = event.getLootTable().populateLoot(seed, event.getLootContext());
+            List<ItemStack> newItems = items.stream().map((ItemStack item) -> {
+                if (item == null || item.getType() == Material.AIR) {
+                    return item;
+                }
+                InternalReplacerStructure structure = match(item);
+                if (structure == null) {
+                    return item;
+                }
+                ItemStack[] items2 = new ItemStack[] { item };
+
+                structure.apply(item, (output) -> {
+                    items2[0] = output;
+                }, context);
+                return items2[0];
+
+            }).toList();
+            newItems = VanillaLootListener.verifyLoot(newItems, event);
+            event.setLoot(newItems);
+            container.getInventory().setContents(newItems.toArray(ItemStack[]::new));
+            if (RealMessage.isDebugEnabled(DebugType.INFO)) {
+                RealMessage.sendConsoleMessage(DebugType.INFO,
+                        "Generated loot on <0> <1> <2> <3> seed:<4> loottable:<5>",
+                        context.getLocation().getBlockX() + "", context.getLocation().getBlockY() + "",
+                        context.getLocation().getBlockZ() + "", context.getLocation().getWorld().getName(),
+                        longseed + "", event.getLootTable().getKey().toString());
+            }
+
+        } else if (event.getInventoryHolder() instanceof Entity entity) {
+
+            if (entity instanceof StorageMinecart container) {
+
+                Random seed = new Random();
+                long longseed = seed.nextLong(0, 100000000);
+                ReplacementContext context = ReplacementContext.ofEvent(event);
+                Collection<ItemStack> items = event.getLootTable().populateLoot(seed, event.getLootContext());
+                List<ItemStack> newItems = items.stream().map((ItemStack item) -> {
+                    if (item == null || item.getType() == Material.AIR) {
+                        return item;
+                    }
+                    InternalReplacerStructure structure = match(item);
+                    if (structure == null) {
+                        return item;
+                    }
+                    ItemStack[] items2 = new ItemStack[] { item };
+
+                    structure.apply(item, (output) -> {
+                        items2[0] = output;
+                    }, context);
+                    return items2[0];
+
+                }).toList();
+                newItems = VanillaLootListener.verifyLoot(newItems, event);
+                event.setLoot(newItems);
+                container.getInventory().setContents(newItems.toArray(ItemStack[]::new));
+                if (RealMessage.isDebugEnabled(DebugType.INFO)) {
+                    RealMessage.sendConsoleMessage(DebugType.INFO, "Generated loot on <0> <1> <2> <3> seed:<4>",
+                            context.getLocation().getBlockX() + "", context.getLocation().getBlockY() + "",
+                            context.getLocation().getBlockZ() + "", context.getLocation().getWorld().getName(),
+                            longseed + "");
                 }
             }
         }
-        return newStack;
     }
 
 }

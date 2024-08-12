@@ -23,7 +23,8 @@ public class PlaceholderEnableLore implements ItemBuildModifier, Module {
 
     @Override
     public void register() {
-        LoreEvent.addItemBuildModifier(this);
+        // TO-DO Disabled until we can find a efficient way to handle this
+        // LoreEvent.addItemBuildModifier(this);
     }
 
     @Override

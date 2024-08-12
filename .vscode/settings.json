@@ -1,9 +1,4 @@
 {
-    "java.dependency.packagePresentation": "hierarchical",
     "java.compile.nullAnalysis.mode": "automatic",
-    "java.configuration.updateBuildConfiguration": "automatic",
-    "yaml.schemas": {
-        "https://json.schemastore.org/bukkit-plugin.json": "file:///c%3A/Users/ejane/AppData/Local/Temp/Rar%24DIa18616.27416/plugin.yml"
-    },
-    "commentTranslate.targetLanguage": "es"
+    "java.configuration.updateBuildConfiguration": "automatic"
 }

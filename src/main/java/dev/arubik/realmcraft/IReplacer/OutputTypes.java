@@ -3,7 +3,6 @@ package dev.arubik.realmcraft.IReplacer;
 public enum OutputTypes {
     VANILLA,
     MMOITEMS,
-    MMODIGICONVERT,
     MYTHICMOBS,
     REALSTACK,
     COMMAND;
@@ -15,9 +14,6 @@ public enum OutputTypes {
             }
             case "MMOITEMS": {
                 return MMOITEMS;
-            }
-            case "MMODIGICONVERT": {
-                return MMODIGICONVERT;
             }
             case "MYTHICMOBS": {
                 return MYTHICMOBS;

@@ -205,6 +205,7 @@ public class CustomLore implements ItemBuildModifier {
     }
 
     public static void register() {
+        // TO-DO Disabled until we can find a efficient way to handle this
         LoreEvent.addItemBuildModifier(new CustomLore());
     }
 

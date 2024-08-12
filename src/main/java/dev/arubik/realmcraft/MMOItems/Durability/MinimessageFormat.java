@@ -6,27 +6,21 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
+import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientSettings;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.ItemBuildModifier;
 import dev.arubik.realmcraft.Api.Locale;
 import dev.arubik.realmcraft.Api.RealNBT;
-import dev.arubik.realmcraft.Api.Events.LoreEvent;
+import dev.arubik.realmcraft.Api.RealProtocol.PacketAdapter;
 import dev.arubik.realmcraft.FileManagement.InteractiveFile;
 import dev.arubik.realmcraft.FileManagement.InteractiveFolder;
 import dev.arubik.realmcraft.Handlers.PlaceholderConfigParser;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Managers.Depend;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.translation.GlobalTranslator;
 
 public class MinimessageFormat implements ItemBuildModifier {
 
@@ -84,12 +78,13 @@ public class MinimessageFormat implements ItemBuildModifier {
     }
 
     public static PacketAdapter PlayerSettingListener = new PacketAdapter(realmcraft.getInstance(),
-            PacketType.Play.Client.SETTINGS) {
+            PacketType.Play.Client.CLIENT_SETTINGS) {
         @Override
-        public void onPacketReceiving(com.comphenix.protocol.events.PacketEvent event) {
-            if (event.getPacketType() == PacketType.Play.Client.SETTINGS) {
-                String lang = event.getPacket().getStrings().read(0);
-                UUID uuid = event.getPlayer().getUniqueId();
+        public void onPacketReceiving(PacketReceiveEvent event) {
+            if (event.getPacketType() == PacketType.Play.Client.CLIENT_SETTINGS) {
+                WrapperPlayClientSettings packet = new WrapperPlayClientSettings(event);
+                String lang = packet.getLocale();
+                UUID uuid = ((Player) event.getPlayer()).getUniqueId();
                 Playerslang.put(uuid, lang);
             }
         }
@@ -103,18 +98,19 @@ public class MinimessageFormat implements ItemBuildModifier {
     public static Map<String, InteractiveFile> langs = new HashMap<String, InteractiveFile>();
 
     public static void register() {
-        LoreEvent.addItemBuildModifier(new MinimessageFormat());
+        // TO-DO Disabled until we can find a efficient way to handle this
+        // LoreEvent.addItemBuildModifier(new MinimessageFormat());
         if (!Depend.isPluginEnabled("ProtocolLib")) {
             RealMessage.nonFound("ProtocolLib or MMOItems is not installed, so LoreEvent will not work.");
             return;
         }
         RealMessage.Found("LangFormater is registered");
-        ProtocolLibrary.getProtocolManager().addPacketListener(PlayerSettingListener);
+        PlayerSettingListener.register();
         regenLang();
     }
 
     public static void unregister() {
-        ProtocolLibrary.getProtocolManager().removePacketListener(PlayerSettingListener);
+        PlayerSettingListener.unregister();
     }
 
     public static void regenLang() {

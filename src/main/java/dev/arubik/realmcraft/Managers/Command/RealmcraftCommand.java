@@ -1,12 +1,8 @@
 package dev.arubik.realmcraft.Managers.Command;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.bukkit.Location;
@@ -16,17 +12,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.LoreParser;
 import dev.arubik.realmcraft.Api.RealNBT;
 import dev.arubik.realmcraft.Api.RealPlayer;
-import dev.arubik.realmcraft.Api.RealStack;
 import dev.arubik.realmcraft.Api.Utils;
+import dev.arubik.realmcraft.Api.Listeners.ChatListener;
+import dev.arubik.realmcraft.Api.Listeners.ChatListener.Replacement;
+import dev.arubik.realmcraft.Api.Listeners.CraftingEnhance;
+import dev.arubik.realmcraft.FileManagement.InteractiveFile;
+import dev.arubik.realmcraft.FileManagement.InteractiveSection;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.IReplacer.IReplacerListener;
 import dev.arubik.realmcraft.LootGen.ContainerApi;
 import dev.arubik.realmcraft.LootGen.ContainerInstance;
 import dev.arubik.realmcraft.LootGen.LootTable;
+import dev.arubik.realmcraft.Managers.BloodMoon;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.Type;
 import net.md_5.bungee.api.ChatColor;
@@ -46,6 +48,29 @@ public class RealmcraftCommand {
                     return true;
                 });
 
+        reloadArg.addNext(new Argument().setArg("chat")
+                .setNext(null)
+                .setType(ArgumentTypes.STRING)
+                .setFunction((data) -> {
+                    if (Utils.checkPermission(data.sender, "reload.chat")) {
+
+                        ChatListener.file = new InteractiveFile("chatreplacements.yml", realmcraft.getInstance());
+                        if (ChatListener.file.has("replacements")) {
+                            for (InteractiveSection section : ChatListener.file.getSections("replacements")) {
+                                ChatListener.replacements.add(Replacement.fromSection(section));
+                                RealMessage
+                                        .sendConsoleMessage(
+                                                "<green>Loaded replacement: " + section.get("toReplace") + " -> "
+                                                        + section.get("replacement"));
+                            }
+                        }
+                        ChatListener.onReload();
+                        RealMessage.sendMessage(data.sender,
+                                "{path=command.prefix;file=lang.yml} {path=command.reload-chat;file=lang.yml}");
+                    }
+                    return true;
+                }));
+
         reloadArg.addNext(new Argument().setArg("config")
                 .setNext(null)
                 .setType(ArgumentTypes.STRING)
@@ -54,6 +79,17 @@ public class RealmcraftCommand {
                         realmcraft.getInstance().reloadConfig();
                         RealMessage.sendMessage(data.sender,
                                 "{path=command.prefix;file=lang.yml} {path=command.reload;file=lang.yml}");
+                    }
+                    return true;
+                }));
+        reloadArg.addNext(new Argument().setArg("bloodmon")
+                .setNext(null)
+                .setType(ArgumentTypes.STRING)
+                .setFunction((data) -> {
+                    if (Utils.checkPermission(data.sender, "reload.bloodmon")) {
+                        BloodMoon.Reload();
+                        RealMessage.sendMessage(data.sender,
+                                "{path=command.prefix;file=lang.yml} {path=command.reload-moon;file=lang.yml}");
                     }
                     return true;
                 }));
@@ -89,7 +125,74 @@ public class RealmcraftCommand {
             }
             return true;
         }));
+        reloadArg.addNext(new Argument().setArg("listener").setType(ArgumentTypes.STRING).setFunction((data) -> {
+            if (Utils.checkPermission(data.sender, "reload.listener")) {
+                Long currenTime = System.currentTimeMillis();
+
+                if (!realmcraft.CRAFT_ENHANCED_ENABLED) {
+                    CraftingEnhance.register();
+                    realmcraft.CRAFT_ENHANCED_ENABLED = true;
+                }
+                RealMessage.sendMessage(data.sender,
+                        "{path=command.prefix;file=lang.yml} {path=command.reload-listener;file=lang.yml}",
+                        currenTime.toString());
+            }
+            return true;
+        }));
         args.add(reloadArg);
+
+        args.add(new Argument().setArg("repair").setType(ArgumentTypes.STRING).setFunction(data -> {
+            if (Utils.checkPermission(data.sender, "cmi.repair")) {
+                if (data.sender instanceof Player player) {
+                    RealNBT nbt = new RealNBT(player.getInventory().getItemInMainHand());
+                    nbt.repair();
+                    player.getInventory().setItemInMainHand(nbt.getItemStack());
+                    RealMessage.sendMessage(data.sender,
+                            "{path=command.prefix;file=lang.yml} {path=command.repair;file=lang.yml}");
+                }
+
+            }
+            return true;
+        }));
+
+        String REPAIR_TAG = "MMOITEMS_DURABILITY";
+
+        args.add(new Argument().setArg("repairall").setType(ArgumentTypes.STRING).setFunction(data -> {
+            if (Utils.checkPermission(data.sender, "cmi.repair")) {
+                if (data.sender instanceof Player player) {
+                    // repair all items in inventory if they have MMOITEMS_DURABILITY tag
+                    ItemStack[] items = player.getInventory().getContents();
+                    for (int i = 0; i < items.length; i++) {
+                        ItemStack item = items[i];
+                        if (item == null)
+                            continue;
+                        RealNBT nbt = new RealNBT(item);
+                        if (nbt.contains(REPAIR_TAG)) {
+                            nbt.repair();
+                            items[i] = nbt.getItemStack();
+                        }
+                    }
+                    player.getInventory().setContents(items);
+                    RealMessage.sendMessage(data.sender,
+                            "{path=command.prefix;file=lang.yml} {path=command.repair-all;file=lang.yml}");
+                }
+
+            }
+            return true;
+        }));
+
+        args.add(new Argument().setArg("loadReplacementGroups").setType(ArgumentTypes.STRING).setFunction(data -> {
+            if (Utils.checkPermission(data.sender, "reload.chat")) {
+                Long currenTime = System.currentTimeMillis();
+                ChatListener.loadGroups();
+                currenTime = System.currentTimeMillis() - currenTime;
+                RealMessage.sendMessage(data.sender,
+                        "{path=command.prefix;file=lang.yml} {path=command.load-groups-chatreplace;file=lang.yml}",
+                        currenTime.toString());
+            }
+            return true;
+        }));
+
         if (realmcraft.getInteractiveConfig().getBoolean("modules.loot", true)) {
             args.add(new Argument().setArg("loot").setCompletitions(LootTable.getLootTableNames())
                     .setFunction((data) -> {
@@ -361,7 +464,7 @@ public class RealmcraftCommand {
                                 "{path=command.prefix;file=lang.yml} {path=command.preview-get-all;file=lang.yml}",
                                 type);
                         for (String key : keys) {
-                            ItemStack item = IReplacerListener.getItemPreviewMMOitems(type, key);
+                            ItemStack item = Utils.getItemPreviewMMOitems(type, key);
                             if (data.sender instanceof Player player) {
 
                                 // verify if player has space in inventory
@@ -378,7 +481,7 @@ public class RealmcraftCommand {
                         return true;
                     }
                     String id = data.args[2];
-                    ItemStack item = IReplacerListener.getItemPreviewMMOitems(type, id);
+                    ItemStack item = Utils.getItemPreviewMMOitems(type, id);
 
                     if (item != null) {
                         RealMessage.sendMessage(data.sender,

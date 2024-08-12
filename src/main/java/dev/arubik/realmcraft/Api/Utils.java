@@ -30,7 +30,12 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.codec.binary.Base64OutputStream;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
+import org.bukkit.block.Hopper;
+import org.bukkit.block.data.Directional;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -39,6 +44,11 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Handlers.RealMessage;
+import dev.arubik.realmcraft.MythicMobs.MoveToNearestContainer.Side;
+import net.Indyuce.mmoitems.MMOItems;
+import net.Indyuce.mmoitems.api.Type;
+import net.Indyuce.mmoitems.api.crafting.ConfigMMOItem;
+import net.Indyuce.mmoitems.api.item.template.MMOItemTemplate;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
@@ -285,6 +295,80 @@ public class Utils {
                     + className.substring(0, className.lastIndexOf('.')));
         } catch (ClassNotFoundException e) {
             // handle the exception
+        }
+        return null;
+    }
+
+    public static Block getRelativeBlock(Block block, Side side) {
+        switch (side) {
+            case DOWN:
+                return block.getRelative(0, -1, 0);
+            case NORTH:
+                return block.getRelative(0, 0, -1);
+            case SOUTH:
+                return block.getRelative(0, 0, 1);
+            case EAST:
+                return block.getRelative(1, 0, 0);
+            case WEST:
+                return block.getRelative(-1, 0, 0);
+            case RANDOM:
+                return block.getRelative(random(-1, 1), random(-1, 1), random(-1, 1));
+            case UP:
+                return block.getRelative(0, 1, 0);
+        }
+        return block;
+    }
+
+    public static Side getFacingOfHopper(Block hopper) {
+        Directional hopperDirection = (Directional) hopper.getBlockData();
+        switch (hopperDirection.getFacing()) {
+            case DOWN:
+                return Side.DOWN;
+            case NORTH:
+                return Side.NORTH;
+            case SOUTH:
+                return Side.SOUTH;
+            case EAST:
+                return Side.EAST;
+            case WEST:
+                return Side.WEST;
+            case UP:
+                return Side.UP;
+        }
+        return Side.RANDOM;
+
+    }
+
+    public static String parsePlaceholders(String toParse, Entity entity, ItemStack stack) {
+        toParse = toParse.replace("%item%", stack.getType().toString());
+        toParse = toParse.replace("%amount%", stack.getAmount() + "");
+        toParse = toParse.replace("%itemname%", stack.getItemMeta().getDisplayName());
+        // %uuid% %world% %x% %y% %z% %pitch% %yaw% & if e.getEntity() instanceof Player
+        // parse PlaceholderAPI
+        if (entity != null) {
+            toParse = toParse.replace("%uuid%", entity.getUniqueId().toString());
+            toParse = toParse.replace("%world%", entity.getWorld().getName());
+            toParse = toParse.replace("%x%", entity.getLocation().getBlockX() + "");
+            toParse = toParse.replace("%y%", entity.getLocation().getBlockY() + "");
+            toParse = toParse.replace("%z%", entity.getLocation().getBlockZ() + "");
+            toParse = toParse.replace("%pitch%", entity.getLocation().getPitch() + "");
+            toParse = toParse.replace("%yaw%", entity.getLocation().getYaw() + "");
+            toParse = toParse.replace("%name%", entity.getName());
+        }
+        if (entity instanceof Player) {
+            toParse = toParse.replace("%player%", entity.getName());
+            if (realmcraft.getInstance().getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                toParse = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders((Player) entity, toParse);
+            }
+        }
+        return toParse;
+    }
+
+    public static ItemStack getItemPreviewMMOitems(String type, String id) {
+        if (Type.isValid(type)) {
+            MMOItemTemplate template = MMOItems.plugin.getTemplates().getTemplate(Type.get(type), id);
+            ConfigMMOItem configMMOItem = new ConfigMMOItem(template, 1);
+            return configMMOItem.getPreview();
         }
         return null;
     }

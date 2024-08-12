@@ -1,22 +1,16 @@
 package dev.arubik.realmcraft.Api.Listeners;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,32 +19,20 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MerchantInventory;
-import org.bukkit.inventory.MerchantRecipe;
-import org.bukkit.inventory.SmithingInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.RealNBT;
 import dev.arubik.realmcraft.Api.RealPlayer;
-import dev.arubik.realmcraft.Api.Utils;
 import dev.arubik.realmcraft.Api.Events.LoreEvent;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Managers.Depend;
-import io.lumine.mythic.bukkit.MythicBukkit;
-import io.lumine.mythic.bukkit.compatibility.MMOItemsSupport.MMOItemsBlock;
 import io.lumine.mythic.lib.MythicLib;
-import io.lumine.mythic.lib.api.MMOLineConfig;
 import io.lumine.mythic.lib.api.event.armorequip.ArmorEquipEvent;
 import io.lumine.mythic.lib.api.event.armorequip.ArmorType;
 import io.lumine.mythic.lib.api.stat.provider.StatProvider;
@@ -58,11 +40,6 @@ import io.lumine.mythic.lib.damage.AttackMetadata;
 import io.lumine.mythic.lib.damage.DamageMetadata;
 import io.lumine.mythic.lib.damage.DamageType;
 import io.lumine.mythic.lib.element.Element;
-import net.Indyuce.mmocore.MMOCore;
-import net.Indyuce.mmocore.api.block.BlockInfo;
-import net.Indyuce.mmocore.manager.RestrictionManager.ToolPermissions;
-import net.Indyuce.mmoitems.MMOItems;
-import net.Indyuce.mmoitems.api.MMOItemsAPI;
 import net.seyarada.pandeloot.Constants;
 
 public class ChangeGamemode implements Listener, Depend {
@@ -318,7 +295,7 @@ public class ChangeGamemode implements Listener, Depend {
     }
 
     // listen item pickup event to fix stacking items not stackin
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onItemPickup(org.bukkit.event.entity.EntityPickupItemEvent event) {
         if (event.getEntity() instanceof Player player) {
             // verify if item is stackable
@@ -331,10 +308,13 @@ public class ChangeGamemode implements Listener, Depend {
                     return;
                 }
             }
-            event.setCancelled(true);
-            player.getInventory().addItem(event.getItem().getItemStack());
+
+            ItemStack item = event.getItem().getItemStack();
             event.getItem().setVelocity(new Vector(0, 0.2, 0));
             event.getItem().remove();
+
+            event.setCancelled(true);
+            player.getInventory().addItem(item);
             // play sound
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1, 1);
 

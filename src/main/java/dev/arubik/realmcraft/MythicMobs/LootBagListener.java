@@ -2,7 +2,6 @@ package dev.arubik.realmcraft.MythicMobs;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +29,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-
-import com.comphenix.net.bytebuddy.dynamic.TypeResolutionStrategy.Active;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.RealNBT;

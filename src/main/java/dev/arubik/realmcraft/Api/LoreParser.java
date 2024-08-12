@@ -19,6 +19,7 @@ import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Handlers.RealMessage.DebugType;
 import dev.arubik.realmcraft.IReplacer.IReplacerListener;
 import dev.arubik.realmcraft.IReplacer.OutputTypes;
+import dev.arubik.realmcraft.IReplacer.ReplacementContext;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -132,7 +133,13 @@ public class LoreParser {
             }
         }
         item = nbt.getItemStack();
-        IReplacerListener.mmoitemsPreview(item, IReplacerListener.match(item));
+        if (IReplacerListener.match(item) != null) {
+            ItemStack[] tempHolder = new ItemStack[1];
+            IReplacerListener.match(item).apply(item, (output) -> {
+                tempHolder[0] = output;
+            }, new ReplacementContext());
+            item = tempHolder[0];
+        }
         return item;
     }
 

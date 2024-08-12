@@ -23,10 +23,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.RealNBT;
+import dev.arubik.realmcraft.Api.Utils;
 import dev.arubik.realmcraft.FileManagement.InteractiveFile;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import lombok.Getter;
@@ -143,6 +145,34 @@ public class ContainerApi implements Listener {
                     refillContainer(instance);
                 }
             }
+        }
+    }
+
+    public static void dropLoot(String lootTable, Location loc, InventoryType inv, Vector direction,
+            Vector variation) {
+
+        if (realmcraft.getContainerInstances() != null) {
+            if (!LootTable.exist(lootTable))
+                return;
+            LootTable table = new LootTable(lootTable);
+
+            for (ItemStack drop : table.genLoot(inv)) {
+                if (drop == null)
+                    continue;
+                loc.getWorld().dropItem(loc, drop, (item) -> {
+                    double x = Utils.random(direction.getX() - variation.getX(),
+                            direction.getX() + variation.getX());
+                    double y = Utils.random(direction.getY() - variation.getY(),
+                            direction.getY() + variation.getY());
+                    double z = Utils.random(direction.getZ() - variation.getZ(),
+                            direction.getZ() + variation.getZ());
+                    Vector result = new Vector(x, y, z);
+                    item.setCanMobPickup(false);
+                    item.setPersistent(true);
+                    item.setVelocity(result);
+                });
+            }
+
         }
     }
 

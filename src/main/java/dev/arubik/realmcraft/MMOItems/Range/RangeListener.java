@@ -2,7 +2,6 @@ package dev.arubik.realmcraft.MMOItems.Range;
 
 import java.util.ArrayList;
 
-import org.apache.logging.log4j.spi.ExtendedLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
@@ -14,36 +13,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.event.player.PlayerAnimationType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-
-import com.google.common.collect.Range;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.RealNBT;
 import dev.arubik.realmcraft.Handlers.RealMessage;
+import dev.arubik.realmcraft.MMOItems.DeathLore;
 import dev.arubik.realmcraft.MMOItems.ExtendedLore;
 import dev.arubik.realmcraft.Managers.Depend;
-import io.lumine.mythic.core.players.PlayerData;
-import io.lumine.mythic.lib.MythicLib;
 import io.lumine.mythic.lib.api.event.PlayerAttackEvent;
 import io.lumine.mythic.lib.api.event.PlayerKillEntityEvent;
 import io.lumine.mythic.lib.api.item.NBTItem;
-import io.lumine.mythic.lib.api.player.EquipmentSlot;
 import io.lumine.mythic.lib.api.player.MMOPlayerData;
-import io.lumine.mythic.lib.damage.AttackMetadata;
-import io.lumine.mythic.lib.damage.DamageMetadata;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import net.Indyuce.mmoitems.MMOItems;
-import net.Indyuce.mmoitems.api.MMOItemsAPI;
 import net.Indyuce.mmoitems.api.item.mmoitem.LiveMMOItem;
-import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import net.Indyuce.mmoitems.api.player.RPGPlayer;
-import net.Indyuce.mmoitems.comp.inventory.PlayerInventory;
 import net.Indyuce.mmoitems.stat.type.ItemRestriction;
 import net.Indyuce.mmoitems.stat.type.ItemStat;
 
@@ -62,6 +48,7 @@ public class RangeListener implements Listener, Depend {
         Bukkit.getPluginManager().registerEvents(listener, realmcraft.getInstance());
         MMOItems.plugin.getStats().register("RANGE_CUSTOM", new RangeStat());
         MMOItems.plugin.getStats().register("EXTENDED_LORE", new ExtendedLore());
+        MMOItems.plugin.getStats().register("DEATH_LORE", new DeathLore());
     }
 
     public static String NBT_TAG = "MMOITEMS_RANGE";
@@ -74,11 +61,12 @@ public class RangeListener implements Listener, Depend {
             return;
         }
         RealNBT nbt = new RealNBT(player.getInventory().getItemInMainHand());
-
-        if (!(nbt.hasTag(NBT_TAG) || nbt.hasTag(NBT_TAG_CUSTOM))) {
-            return;
+        Double range = null;
+        if (nbt.hasTag(NBT_TAG)) {
+            range = nbt.getDouble(NBT_TAG);
+        } else if (nbt.hasTag(NBT_TAG_CUSTOM)) {
+            range = nbt.getDouble(NBT_TAG_CUSTOM);
         }
-        Double range = nbt.getDouble(NBT_TAG, nbt.getDouble(NBT_TAG_CUSTOM));
         if (range == null) {
             return;
         }

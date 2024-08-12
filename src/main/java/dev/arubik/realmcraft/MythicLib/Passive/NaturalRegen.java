@@ -44,6 +44,8 @@ public class NaturalRegen extends SkillHandler<AttackSkillResult> implements Lis
     public void onEntityDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
+            if (!MMOPlayerData.has(player))
+                return;
             MMOPlayerData playerData = MMOPlayerData.get(player);
             if (playerData.getPassiveSkillMap().getSkill(this) != null) {
                 if (canTriggerSkill(player)) {

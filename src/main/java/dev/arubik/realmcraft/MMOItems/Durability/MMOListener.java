@@ -1,6 +1,5 @@
 package dev.arubik.realmcraft.MMOItems.Durability;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -12,37 +11,25 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.inventory.InventoryType.SlotType;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.AnvilInventory;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.Damageable;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLib;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketContainer;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.RealNBT;
 import dev.arubik.realmcraft.Api.Utils;
 import dev.arubik.realmcraft.Handlers.RealMessage;
-import dev.arubik.realmcraft.Handlers.RealMessage.DebugType;
 import dev.arubik.realmcraft.Managers.Depend;
 import dev.arubik.realmcraft.Managers.Module;
-import io.lumine.mythic.lib.api.item.NBTItem;
 import net.Indyuce.mmocore.MMOCore;
 import net.Indyuce.mmocore.api.player.PlayerData;
 import net.Indyuce.mmocore.experience.EXPSource;
-import net.Indyuce.mmocore.experience.source.RepairItemExperienceSource;
-import net.Indyuce.mmoitems.api.item.mmoitem.LiveMMOItem;
 
 public class MMOListener implements Listener, Depend, Module {
 
@@ -392,28 +379,89 @@ public class MMOListener implements Listener, Depend, Module {
             RealNBT ToolNBT = new RealNBT(e.getBow());
             if (ToolNBT.contains(MMOITEMS_ITEM_TYPE) && ToolNBT.contains(MMOITEMS_ITEM_ID)
                     && ToolNBT.contains("MMOITEMS_MAX_DURABILITY")) {
-                Integer durability = ToolNBT.getInt("MMOITEMS_MAX_DURABILITY");
-                if (ToolNBT.contains(MMOITEMS_DURABILITY))
-                    durability = ToolNBT.getInt(MMOITEMS_DURABILITY, durability);
-                // get unbreaking enchantment level
-                Integer unbreaking = ToolNBT.getEnchantmentLevel(Enchantment.DURABILITY);
-                // calculate chance to break
-                double chance = unbreaking * 15;
-                // random number
-                Random random = new Random();
-                // if random number is less than chance to break, break
-                if ((random.nextInt(100) > chance) || unbreaking == 0) {
-                    durability--;
-                    ToolNBT.setInt(MMOITEMS_DURABILITY, durability);
-                    // e.getBow().setItemMeta(ToolNBT.getItemMeta());
-                    if (durability <= 0) {
-                        p.getEquipment().setItem(e.getHand(), RealNBT.Empty);
+                if (e.getBow().getType() == Material.BOW) {
+                    Integer durability = ToolNBT.getInt("MMOITEMS_MAX_DURABILITY");
+                    if (ToolNBT.contains(MMOITEMS_DURABILITY))
+                        durability = ToolNBT.getInt(MMOITEMS_DURABILITY, durability);
+                    // get unbreaking enchantment level
+                    Integer unbreaking = ToolNBT.getEnchantmentLevel(Enchantment.DURABILITY);
+                    // calculate chance to break
+                    double chance = unbreaking * 15;
+                    // random number
+                    Random random = new Random();
+                    // if random number is less than chance to break, break
+                    if ((random.nextInt(100) > chance) || unbreaking == 0) {
+                        durability--;
+                        ToolNBT.setInt(MMOITEMS_DURABILITY, durability);
+                        // e.getBow().setItemMeta(ToolNBT.getItemMeta());
+                        if (durability <= 0) {
+                            p.getEquipment().setItem(e.getHand(), RealNBT.Empty);
 
-                        p.updateInventory();
-                    } else {
-                        p.getEquipment().setItem(e.getHand(), ToolNBT.getItemStack());
-                        p.updateInventory();
+                            p.updateInventory();
+                        } else {
+
+                            ItemStack bow = ToolNBT.getItemStack();
+                            // set durability of item base on the durability of the item
+                            final double ddmage = durability;
+                            bow.editMeta(Damageable.class, (Damageable meta) -> {
+                                int maxVanillDurability = bow.getType().getMaxDurability();
+                                // get what percent is durability of max durability
+                                double percent = (double) ddmage / (double) ToolNBT.getInt("MMOITEMS_MAX_DURABILITY");
+                                // get the new durability
+                                int newVanillaDurability = (int) (maxVanillDurability * percent);
+                                // set the new durability
+                                meta.setDamage(maxVanillDurability - newVanillaDurability);
+
+                            });
+
+                            p.getEquipment().setItem(e.getHand(), ToolNBT.getItemStack());
+                            p.updateInventory();
+                        }
                     }
+                } else if (e.getBow().getType() == Material.CROSSBOW) {
+                    Integer durability = ToolNBT.getInt("MMOITEMS_MAX_DURABILITY");
+                    if (ToolNBT.contains(MMOITEMS_DURABILITY))
+                        durability = ToolNBT.getInt(MMOITEMS_DURABILITY, durability);
+                    // get unbreaking enchantment level
+                    Integer unbreaking = ToolNBT.getEnchantmentLevel(Enchantment.DURABILITY);
+                    // calculate chance to break
+                    double chance = unbreaking * 15;
+                    // random number
+                    Random random = new Random();
+                    // if random number is less than chance to break, break
+                    if ((random.nextInt(100) > chance) || unbreaking == 0) {
+                        durability--;
+                        ToolNBT.setInt(MMOITEMS_DURABILITY, durability);
+                        // remove arrow from crossbow
+
+                        // e.getBow().setItemMeta(ToolNBT.getItemMeta());
+                        if (durability <= 0) {
+                            p.getEquipment().setItem(e.getHand(), RealNBT.Empty);
+
+                            p.updateInventory();
+                        } else {
+
+                            ItemStack crossbow = ToolNBT.getItemStack();
+                            final double ddmage = durability;
+                            crossbow.editMeta(Damageable.class, (Damageable meta) -> {
+                                int maxVanillDurability = crossbow.getType().getMaxDurability();
+                                // get what percent is durability of max durability
+                                double percent = (double) ddmage / (double) ToolNBT.getInt("MMOITEMS_MAX_DURABILITY");
+                                // get the new durability
+                                int newVanillaDurability = (int) (maxVanillDurability * percent);
+                                // set the new durability
+                                meta.setDamage(maxVanillDurability - newVanillaDurability);
+
+                            });
+                            crossbow.editMeta(CrossbowMeta.class, (CrossbowMeta meta) -> {
+                                meta.setChargedProjectiles(null);
+                            });
+
+                            p.getEquipment().setItem(e.getHand(), crossbow);
+                            p.updateInventory();
+                        }
+                    }
+
                 }
             }
         }

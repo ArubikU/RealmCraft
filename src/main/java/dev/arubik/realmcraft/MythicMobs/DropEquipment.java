@@ -1,37 +1,19 @@
 package dev.arubik.realmcraft.MythicMobs;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
-import org.bukkit.persistence.PersistentDataType;
-
-import com.comphenix.protocol.utility.Util;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Api.RealNBT;
 import dev.arubik.realmcraft.Api.Utils;
-import dev.arubik.realmcraft.Handlers.RealMessage;
-import dev.arubik.realmcraft.Managers.Depend;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.ITargetedEntitySkill;
@@ -39,20 +21,6 @@ import io.lumine.mythic.api.skills.SkillMetadata;
 import io.lumine.mythic.api.skills.SkillResult;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
-import io.lumine.mythic.bukkit.utils.adventure.bossbar.BossBar.Flag;
-import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
-import net.Indyuce.mmoitems.api.item.template.MMOItemTemplate;
-import net.seyarada.pandeloot.PandeLoot;
-import net.seyarada.pandeloot.api.LootProvider;
-import net.seyarada.pandeloot.drops.ActiveDrop;
-import net.seyarada.pandeloot.drops.IDrop;
-import net.seyarada.pandeloot.drops.ItemDrop;
-import net.seyarada.pandeloot.drops.LootDrop;
-import net.seyarada.pandeloot.flags.FlagPack;
-import net.seyarada.pandeloot.flags.FlagPackFactory;
-import net.seyarada.pandeloot.flags.conditions.DamageFlag;
-import net.seyarada.pandeloot.flags.enums.FlagTrigger;
-import net.seyarada.pandeloot.loot.Providers;
 
 public class DropEquipment implements ITargetedEntitySkill {
     private double chance = 0.08;

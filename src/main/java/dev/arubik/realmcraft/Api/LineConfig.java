@@ -10,6 +10,7 @@ import org.bukkit.Color;
 
 import io.lumine.mythic.bukkit.utils.lib.lang3.Validate;
 
+@SuppressWarnings("deprecation")
 public class LineConfig {
     public static LineConfig of(String line) {
         return new LineConfig(line);
@@ -68,9 +69,9 @@ public class LineConfig {
             int start = 0;
             int pos = 0;
             int depth = 0;
-            String lastKey = "";
-            String lastVal = "";
-            boolean inb = false;
+            // String lastKey = "";
+            // String lastVal = "";
+            // boolean inb = false;
             s = s + "}";
             for (char c : s.toCharArray()) {
                 if (c == '{' || c == '[')
@@ -414,6 +415,7 @@ public class LineConfig {
         int count = 0;
         int ss = 0;
         int sc = 0;
+        @SuppressWarnings("unused")
         int ec = 0;
         String parsed = "";
         for (char c : s.toCharArray()) {
@@ -426,8 +428,8 @@ public class LineConfig {
             if (c == '}' && count == 0) {
                 ec = pos;
                 String f = s.substring(ss, sc);
-                String m = s.substring(sc, ec).replace(" ", "<&csp>").replace("-", "<&da>");
-                String e = s.substring(ec);
+                // String m = s.substring(sc, ec).replace(" ", "<&csp>").replace("-", "<&da>");
+                // String e = s.substring(ec);
                 parsed = parsed + parsed + f;
                 ss = pos;
             }

@@ -6,18 +6,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.CraftingInventory;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.reflect.StructureModifier;
 import com.destroystokyo.paper.event.player.PlayerRecipeBookClickEvent;
 
-import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Managers.Depend;
 
 public class RecipeBook implements Depend {
@@ -27,6 +21,7 @@ public class RecipeBook implements Depend {
         return new String[] { "ProtocolLib" };
     }
 
+    @SuppressWarnings({ "deprecation", "unused" })
     @EventHandler
     public void onPlayerAutoRecipe(PlayerRecipeBookClickEvent e) {
         // get recipe items from bukkit server

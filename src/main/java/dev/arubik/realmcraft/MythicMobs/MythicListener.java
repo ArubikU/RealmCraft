@@ -1,48 +1,16 @@
 package dev.arubik.realmcraft.MythicMobs;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Random;
-
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
-
-import com.comphenix.protocol.reflect.FieldUtils;
 
 import dev.arubik.realmcraft.realmcraft;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Managers.Depend;
-import io.lumine.mythic.api.adapters.AbstractItemStack;
-import io.lumine.mythic.api.config.MythicLineConfig;
-import io.lumine.mythic.api.drops.DropMetadata;
-import io.lumine.mythic.api.drops.IItemDrop;
-import io.lumine.mythic.bukkit.adapters.BukkitItemStack;
 import io.lumine.mythic.bukkit.events.MythicConditionLoadEvent;
-import io.lumine.mythic.bukkit.events.MythicDropLoadEvent;
 import io.lumine.mythic.bukkit.events.MythicMechanicLoadEvent;
-import io.lumine.mythic.core.drops.Drop;
-import net.Indyuce.mmocore.util.item.CurrencyItemBuilder;
-import net.seyarada.pandeloot.Constants;
-import net.seyarada.pandeloot.drops.ActiveDrop;
-import net.seyarada.pandeloot.drops.IDrop;
-import net.seyarada.pandeloot.drops.LootDrop;
-import net.seyarada.pandeloot.drops.containers.ContainerManager;
-import net.seyarada.pandeloot.drops.containers.LootBag;
-import net.seyarada.pandeloot.flags.FlagPack;
-import net.seyarada.pandeloot.flags.enums.FlagTrigger;
-import net.seyarada.pandeloot.utils.ItemUtils;
+import io.lumine.mythic.bukkit.events.MythicTargeterLoadEvent;
 
 public class MythicListener implements Listener, Depend {
     @EventHandler
@@ -56,6 +24,15 @@ public class MythicListener implements Listener, Depend {
         if (event.getMechanicName().equalsIgnoreCase("loottableskill")) {
             event.register(new LootTableSkill(event.getConfig()));
         }
+        if (event.getMechanicName().equalsIgnoreCase("mmodurability")) {
+            event.register(new MMODurabilityDamage(event.getConfig()));
+        }
+        if (event.getMechanicName().equalsIgnoreCase("MoveToNearestContainer")) {
+            event.register(new MoveToNearestContainer(event.getConfig()));
+        }
+        if (event.getMechanicName().equalsIgnoreCase("DropFromContainer")) {
+            event.register(new DropFromContainer(event.getConfig()));
+        }
     }
 
     @EventHandler
@@ -66,6 +43,29 @@ public class MythicListener implements Listener, Depend {
         if (event.getConditionName().equalsIgnoreCase("fromspawner")) {
             event.register(new isNotFromSpawner());
         }
+        if (event.getConditionName().equalsIgnoreCase("ContainerContains")) {
+            event.register(new ContainerContains(event.getConfig()));
+        }
+    }
+
+    @EventHandler
+    public void onMythicTargetLoad(MythicTargeterLoadEvent event) {
+        if (event.getTargeterName().equalsIgnoreCase("InteligentItemInRadius")
+                || event.getTargeterName().equalsIgnoreCase("BIIR")) {
+            event.register(new InteligentItemInRadius(event.getContainer().getManager(), event.getConfig()));
+        }
+        if (event.getTargeterName().equalsIgnoreCase("InteligentMobInRadius")
+                || event.getTargeterName().equalsIgnoreCase("BMIR")) {
+            event.register(new InteligentMobInRadius(event.getContainer().getManager(), event.getConfig()));
+        }
+        Bukkit.getScheduler().runTask(realmcraft.getInstance(), () -> {
+            if (event.getTargeterName().equalsIgnoreCase("FilteredItemsInRadius")) {
+                event.register(new FilteredItemsInRadius(event.getConfig()));
+            }
+        });
+        // if (event.getTargeterName().equalsIgnoreCase("FilteredItemsInRadius")) {
+        // event.register(new FilteredItemsInRadius(event.getConfig()));
+        // }
     }
 
     @EventHandler

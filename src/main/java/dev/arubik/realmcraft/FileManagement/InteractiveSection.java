@@ -93,7 +93,7 @@ public class InteractiveSection {
         return file.getOrSet(this.path + "." + path, value);
     }
 
-    public <T> @NotNull T getOrDefault(@NotNull String path, @NotNull T value) {
+    public <T> T getOrDefault(@NotNull String path, @NotNull T value) {
         return file.get(this.path + "." + path) == null ? value : (T) file.get(this.path + "." + path);
     }
 

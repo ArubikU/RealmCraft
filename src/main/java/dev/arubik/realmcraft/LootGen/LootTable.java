@@ -90,6 +90,15 @@ public class LootTable {
         return false;
     }
 
+    public static boolean exist(String lootName) {
+        for (InteractiveFile file : lootTables) {
+            if (file.has(lootName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public LootTable(String lootName) {
         continueProcess = false;
         for (InteractiveFile file : lootTables) {
@@ -425,6 +434,12 @@ public class LootTable {
             if (i >= emptySlots.length) {
                 break;
             }
+
+            ItemStack stack = NewItems.get(i);
+            if (stack.getMaxStackSize() < stack.getAmount()) {
+                stack.setAmount(stack.getMaxStackSize());
+            }
+
             loot[slots[i]] = NewItems.get(i);
         }
 
@@ -548,6 +563,13 @@ public class LootTable {
         Integer[] slots = Utils.randomizeArrayOrder(emptySlots);
         // fill empty slots with items
         for (int i = 0; i < NewItems.size(); i++) {
+            if (i >= emptySlots.length) {
+                break;
+            }
+            ItemStack stack = NewItems.get(i);
+            if (stack.getMaxStackSize() < stack.getAmount()) {
+                stack.setAmount(stack.getMaxStackSize());
+            }
             loot[slots[i]] = NewItems.get(i);
         }
 
@@ -581,7 +603,6 @@ public class LootTable {
         emptySlot.put(InventoryType.PLAYER, new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
                 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 });
         emptySlot.put(InventoryType.WORKBENCH,
-                new Integer[] { 0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-                        25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44 });
+                new Integer[] { 0, 1, 2, 3, 4, 5, 6, 8 });
     }
 }

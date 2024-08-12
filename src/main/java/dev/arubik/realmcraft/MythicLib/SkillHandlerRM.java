@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.reflections.Reflections;
 
@@ -35,6 +37,7 @@ import dev.arubik.realmcraft.MythicLib.Passive.StackedAttack;
 import dev.arubik.realmcraft.MythicLib.Passive.WindMaestery;
 import dev.arubik.realmcraft.MythicLib.Passive.WitherEffectInvulnerability;
 import io.lumine.mythic.lib.MythicLib;
+import io.lumine.mythic.lib.api.event.SkillRegistrationEvent;
 import io.lumine.mythic.lib.skill.handler.SkillHandler;
 import lombok.Getter;
 import net.Indyuce.mmocore.MMOCore;
@@ -60,16 +63,9 @@ public class SkillHandlerRM implements Depend, Listener {
     public static void registerSkills() {
         handlers = new ArrayList<SkillHandler>();
         RealMessage.sendConsoleMessage("<green>Registering skill handlers...");
-        // handlers.addAll(List.of(new SkillHandler[] { new StackedAttack(), new
-        // RegenChance(), new ComboAttack(),
-        // new Flare(), new Frostie(), new NaturalRegen(), new NightHug(), new
-        // WindMaestery(),
-        // new WitherEffectInvulnerability(), new SoulCollector(), new Daybreaker(), new
-        // LavaInmunity() }));
         Reflections reflections = new Reflections(".*");
 
         for (Class clazz : reflections.getTypesAnnotatedWith(SkillTag.class)) {
-            // if (!Modifier.isAbstract(clazz.getModifiers())) {
             RealMessage.sendConsoleMessage("<green>Adding skill handler: " + clazz.getSimpleName());
             try {
                 handlers.add((SkillHandler) clazz.getDeclaredConstructors()[0].newInstance());
@@ -85,24 +81,38 @@ public class SkillHandlerRM implements Depend, Listener {
     }
 
     public static void register() {
+        SkillHandlerRM skills = new SkillHandlerRM();
         MythicPlaceholders mythicPlaceholders = new MythicPlaceholders();
         mythicPlaceholders.register();
         registerSkills();
+
+        SkillHandlerRM.MythicLibInitialize();
+        SkillHandlerRM.MMOCoreInitialize();
+        SkillHandlerRM.MMOItemsInitialize();
+        Bukkit.getPluginManager().registerEvents(skills, realmcraft.getInstance());
+
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onMiReload(SkillRegistrationEvent event) {
+        MythicLibInitialize();
+    }
+
+    public static void MythicLibInitialize() {
+
         for (SkillHandler handler : handlers) {
             try {
                 MythicLib.plugin.getSkills().registerSkillHandler(handler);
                 if (handler instanceof Listener)
                     Bukkit.getPluginManager().registerEvents((Listener) handler, realmcraft.getInstance());
 
-                RealMessage.sendConsoleMessage("<green>Registered skill handler: " + handler.getId());
+                RealMessage.sendConsoleMessage("<green>[ML] Registered skill handler: " + handler.getId());
             } catch (Throwable t) {
                 RealMessage.sendConsoleMessage(
-                        "<red>Could not register skill handler: " + handler.getId() + " &c" + t.getMessage());
+                        "<red>[ML] Could not register skill handler: <gold>" + handler.getId() + " <red>"
+                                + t.getMessage());
             }
         }
-
-        SkillHandlerRM.MMOCoreInitialize();
-        SkillHandlerRM.MMOItemsInitialize();
     }
 
     public static void MMOCoreInitialize() {
@@ -149,9 +159,10 @@ public class SkillHandlerRM implements Depend, Listener {
             try {
                 final RegisteredSkill skill = new RegisteredSkill(handler, config.getConfig());
                 mmocore.registerSkill(skill);
+                RealMessage.sendConsoleMessage("<green>[RPG] Registered skill handler: " + handler.getId());
             } catch (RuntimeException exception) {
                 MMOCore.plugin.getLogger().log(Level.WARNING,
-                        "Could not load skill '" + handler.getId() + "': " + exception.getMessage());
+                        "[RPG] Could not load skill '" + handler.getId() + "': " + exception.getMessage());
             }
         }
 
@@ -160,25 +171,6 @@ public class SkillHandlerRM implements Depend, Listener {
     public static void MMOItemsInitialize() {
 
         SkillManager mmoitems = net.Indyuce.mmoitems.MMOItems.plugin.getSkills();
-
-        Map<String, net.Indyuce.mmoitems.skill.RegisteredSkill> skills = new HashMap<>();
-
-        Class<?> mmoitemsskillclass = mmoitems.getClass();
-        Field field = null;
-        try {
-            field = mmoitemsskillclass.getDeclaredField("skills");
-            field.setAccessible(true);
-            skills = (Map<String, net.Indyuce.mmoitems.skill.RegisteredSkill>) field.get(mmoitems);
-        } catch (NoSuchFieldException | SecurityException e) {
-
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-
-            e.printStackTrace();
-        }
 
         File skillFolder = new File(MMOItems.plugin.getDataFolder() + "/skill");
         if (!skillFolder.exists()) {
@@ -221,24 +213,25 @@ public class SkillHandlerRM implements Depend, Listener {
             }
 
             try {
-
+                mmoitems.registerSkill(new net.Indyuce.mmoitems.skill.RegisteredSkill(handler, config.getConfig()));
                 // Attempt to register
-                skills.put(handler.getId(),
-                        new net.Indyuce.mmoitems.skill.RegisteredSkill(handler, config.getConfig()));
+                // skills.put(handler.getId(),
+                // new net.Indyuce.mmoitems.skill.RegisteredSkill(handler, config.getConfig()));
 
+                RealMessage.sendConsoleMessage("<green>[MI] Registered skill handler: " + handler.getId());
                 // Fail
             } catch (RuntimeException exception) {
                 MMOItems.plugin.getLogger().log(Level.WARNING,
-                        "Could not load skill '" + handler.getId() + "': " + exception.getMessage());
+                        "[MI] Could not load skill '" + handler.getId() + "': " + exception.getMessage());
             }
         }
 
-        try {
-            field.set(mmoitems, skills);
-        } catch (Throwable e) {
-
-            e.printStackTrace();
-        }
+        // try {
+        // field.set(mmoitems, skills);
+        // } catch (Throwable e) {
+        //
+        // e.printStackTrace();
+        // }
 
     }
 

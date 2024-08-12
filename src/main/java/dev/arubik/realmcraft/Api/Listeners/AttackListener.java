@@ -3,27 +3,16 @@ package dev.arubik.realmcraft.Api.Listeners;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Effect;
-import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
 
 import dev.arubik.realmcraft.realmcraft;
-import dev.arubik.realmcraft.Api.RealNBT;
-import dev.arubik.realmcraft.Api.RealPlayer;
 import dev.arubik.realmcraft.FileManagement.InteractiveFile;
 import dev.arubik.realmcraft.Handlers.RealMessage;
 import dev.arubik.realmcraft.Managers.Depend;
 import io.lumine.mythic.bukkit.BukkitAPIHelper;
 import io.lumine.mythic.bukkit.MythicBukkit;
-import io.lumine.mythic.bukkit.utils.particles.Particle;
 import io.lumine.mythic.lib.api.event.PlayerAttackEvent;
 import io.lumine.mythic.lib.element.Element;
 
@@ -67,6 +56,5 @@ public class AttackListener implements Listener, Depend {
             }
         }
     }
-
 
 }
